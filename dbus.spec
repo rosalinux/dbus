@@ -1,4 +1,4 @@
-%define expat_version           1.95.5
+%define expat_version           2.0.1
 
 %define lib_major 3
 %define lib_api 1
@@ -7,7 +7,7 @@
 Summary: D-Bus message bus
 Name: dbus
 Version: 1.0.2
-Release: %mkrel 5
+Release: %mkrel 6
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.bz2
 # (fc) 0.20-1mdk fix start/stop order, add pinit support
