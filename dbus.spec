@@ -7,7 +7,7 @@
 Summary: D-Bus message bus
 Name: dbus
 Version: 1.0.2
-Release: %mkrel 6
+Release: %mkrel 7
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.bz2
 # (fc) 0.20-1mdk fix start/stop order, add pinit support
@@ -26,7 +26,6 @@ BuildRequires: libx11-devel
 BuildRequires: expat-devel >= %{expat_version}
 BuildRequires: xmlto docbook-dtd412-xml
 BuildRequires: doxygen
-BuildRequires: automake1.9
 BuildRequires: libtool
 Requires(pre): rpm-helper
 Requires(preun): rpm-helper
@@ -41,6 +40,7 @@ per-user-login-session messaging facility.
 %package -n %{lib_name}
 Summary: Shared library for using D-Bus
 Group: System/Libraries
+Requires: dbus >= %{version}
 
 %description -n %{lib_name}
 D-Bus shared library.
@@ -75,9 +75,10 @@ in this separate package so server systems need not install X.
 %patch2 -p1 -b .fixfilecreation
 %patch3 -p1 -b .disable_fatal_warning_on_check
 
-autoconf
+aclocal-1.10
+automake-1.10
 autoheader
-automake-1.9
+autoconf
 
 %build
 
