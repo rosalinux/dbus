@@ -7,7 +7,7 @@
 Summary: D-Bus message bus
 Name: dbus
 Version: 1.0.2
-Release: %mkrel 7
+Release: %mkrel 8
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.bz2
 # (fc) 0.20-1mdk fix start/stop order, add pinit support
