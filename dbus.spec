@@ -7,7 +7,7 @@
 Summary: D-Bus message bus
 Name: dbus
 Version: 1.0.2
-Release: %mkrel 8
+Release: %mkrel 9
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.bz2
 # (fc) 0.20-1mdk fix start/stop order, add pinit support
@@ -18,6 +18,8 @@ Patch1: dbus-1.0.0-inotify.patch
 Patch2: dbus-1.0.0-fixfilecreation.patch
 # (fc) 1.0.2-5mdv disable fatal warnings on check
 Patch3: dbus-1.0.2-disable_fatal_warning_on_check.patch
+# (fc) 1.0.2-9mdv add fixes from CVS
+Patch4: dbus-1.0.2-cvsfixes.patch
 
 License: AFL/GPL
 Group: System/Servers
@@ -74,6 +76,7 @@ in this separate package so server systems need not install X.
 %patch1 -p1 -b .inotify
 %patch2 -p1 -b .fixfilecreation
 %patch3 -p1 -b .disable_fatal_warning_on_check
+%patch4 -p1 -b .cvsfixes
 
 aclocal-1.10
 automake-1.10
