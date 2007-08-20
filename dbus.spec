@@ -168,7 +168,7 @@ rm -rf %{buildroot}
 %{_bindir}/dbus-send
 %{_bindir}/dbus-cleanup-sockets
 %{_bindir}/dbus-uuidgen
-%{_datadir}/man/man*/*
+%{_mandir}/man*/*
 %dir %{_datadir}/dbus-1/
 %dir %{_datadir}/dbus-1/services
 
