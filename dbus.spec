@@ -7,7 +7,7 @@
 Summary: D-Bus message bus
 Name: dbus
 Version: 1.0.2
-Release: %mkrel 9
+Release: %mkrel 10
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.bz2
 # (fc) 0.20-1mdk fix start/stop order, add pinit support
@@ -33,6 +33,7 @@ Requires(pre): rpm-helper
 Requires(preun): rpm-helper
 Requires(post): rpm-helper
 Requires(postun): rpm-helper
+Requires(post): %{lib_name} >= %{version}-%{release}
 
 %description
 D-Bus is a system for sending messages between applications. It is
