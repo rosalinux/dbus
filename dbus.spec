@@ -3,11 +3,12 @@
 %define lib_major 3
 %define lib_api 1
 %define lib_name %mklibname dbus- %{lib_api} %{lib_major}
+%define develname %mklibname -d dbus- %lib_api
 
 Summary: D-Bus message bus
 Name: dbus
 Version: 1.1.2
-Release: %mkrel 1
+Release: %mkrel 2
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1: doxygen_to_devhelp.xsl
@@ -53,7 +54,7 @@ Requires: dbus >= %{version}
 %description -n %{lib_name}
 D-Bus shared library.
 
-%package -n %{lib_name}-devel
+%package -n %develname
 Summary: Libraries and headers for D-Bus
 Group: Development/C
 Requires: %{name} = %{version}
@@ -62,8 +63,9 @@ Provides: lib%{name}-1-devel = %{version}-%{release}
 Provides: lib%{name}-devel = %{version}-%{release}
 Provides: %{name}-devel = %{version}-%{release}
 Conflicts: %{_lib}dbus-1_0-devel
+Obsoletes: %mklibname -d dbus- 1 3
 
-%description -n %{lib_name}-devel
+%description -n %develname
 
 Headers and static libraries for D-Bus.
 
@@ -202,7 +204,7 @@ rm -rf %{buildroot}
 %defattr(-,root,root)
 /%{_lib}/*dbus-%{lib_api}*.so.%{lib_major}*
 
-%files -n %{lib_name}-devel
+%files -n %develname
 %defattr(-,root,root)
 %doc doc/*
 %_libdir/libdbus-%{lib_api}.a
