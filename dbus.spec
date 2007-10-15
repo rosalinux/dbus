@@ -6,10 +6,11 @@
 
 Summary: D-Bus message bus
 Name: dbus
-Version: 1.0.2
-Release: %mkrel 10
+Version: 1.1.2
+Release: %mkrel 1
 URL: http://www.freedesktop.org/Software/dbus
-Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.bz2
+Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
+Source1: doxygen_to_devhelp.xsl
 # (fc) 0.20-1mdk fix start/stop order, add pinit support
 Patch0: dbus-0.91-initscript.patch
 # (fc) 1.0.1-1mdv add inotify support
@@ -18,10 +19,14 @@ Patch1: dbus-1.0.0-inotify.patch
 Patch2: dbus-1.0.0-fixfilecreation.patch
 # (fc) 1.0.2-5mdv disable fatal warnings on check
 Patch3: dbus-1.0.2-disable_fatal_warning_on_check.patch
-# (fc) 1.0.2-9mdv add fixes from CVS
-Patch4: dbus-1.0.2-cvsfixes.patch
+# (fc) 1.1.2-1mdv fix aborting (fd.o bug #12430) (Fedora)
+Patch4: dbus-1.1.2-no-abort.patch
+# (fc) 1.1.2-1mdv fix PIE usage (git)
+Patch5: dbus-pie.patch
+# (fc) 1.1.2-1mdv generate xml doc (Fedora)
+Patch6: dbus-1.0.1-generate-xml-docs.patch
 
-License: AFL/GPL
+License: GPLv2+ or AFL
 Group: System/Servers
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 BuildRequires: libx11-devel
@@ -77,8 +82,11 @@ in this separate package so server systems need not install X.
 %patch1 -p1 -b .inotify
 %patch2 -p1 -b .fixfilecreation
 %patch3 -p1 -b .disable_fatal_warning_on_check
-%patch4 -p1 -b .cvsfixes
+%patch4 -p1 -b .no-abort
+%patch5 -p1 -b .pie
+%patch6 -p1 -b .xmldoc
 
+#needed by patch1 & 5
 aclocal-1.10
 automake-1.10
 autoheader
@@ -89,7 +97,7 @@ autoconf
 #needed for correct localstatedir location 
 %define _localstatedir %{_var}
 
-COMMON_ARGS="--disable-selinux --with-system-pid-file=%{_var}/run/messagebus.pid --with-system-socket=%{_var}/run/dbus/system_bus_socket --with-session-socket-dir=/tmp"
+COMMON_ARGS="--disable-selinux --with-system-pid-file=%{_var}/run/messagebus.pid --with-system-socket=%{_var}/run/dbus/system_bus_socket --with-session-socket-dir=/tmp --libexecdir=/%{_lib}/dbus-1"
 
 #### Build once with tests to make check
 %configure2_5x $COMMON_ARGS --enable-tests=yes --enable-verbose-mode=yes --enable-asserts=yes  --disable-doxygen-docs --disable-xml-docs
@@ -104,6 +112,10 @@ make clean
 # turn it off on stable releases with --disable-verbose-mode
 %configure2_5x $COMMON_ARGS --disable-tests --disable-asserts --enable-doxygen-docs --enable-xml-docs
 %make
+
+doxygen Doxyfile
+
+xsltproc -o dbus.devhelp %{SOURCE1} doc/api/xml/index.xml
 
 %check
 make check
@@ -126,6 +138,15 @@ eval \`/usr/bin/dbus-launch --exit-with-session --sh-syntax\`
 EOF
 chmod 755 $RPM_BUILD_ROOT%{_sysconfdir}/X11/xinit.d/30dbus
 
+#add devhelp compatible helps
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/devhelp/books/dbus
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/devhelp/books/dbus/api
+
+cp dbus.devhelp $RPM_BUILD_ROOT%{_datadir}/devhelp/books/dbus
+cp doc/dbus-specification.html $RPM_BUILD_ROOT%{_datadir}/devhelp/books/dbus
+cp doc/dbus-faq.html $RPM_BUILD_ROOT%{_datadir}/devhelp/books/dbus
+cp doc/dbus-tutorial.html $RPM_BUILD_ROOT%{_datadir}/devhelp/books/dbus
+cp doc/api/html/* $RPM_BUILD_ROOT%{_datadir}/devhelp/books/dbus/api
 #remove unpackaged file
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 
@@ -162,6 +183,7 @@ rm -rf %{buildroot}
 %config(noreplace) %{_sysconfdir}/dbus-1/*.conf
 %{_sysconfdir}/rc.d/init.d/*
 %dir %{_sysconfdir}/dbus-1/system.d
+%dir %{_sysconfdir}/dbus-1/session.d
 %dir %{_var}/run/dbus
 %dir %{_var}/lib/dbus
 %dir %{_libdir}/dbus-1.0
@@ -172,6 +194,9 @@ rm -rf %{buildroot}
 %{_mandir}/man*/*
 %dir %{_datadir}/dbus-1/
 %dir %{_datadir}/dbus-1/services
+# See doc/system-activation.txt in source tarball for the rationale
+# behind these permissions
+%attr(4750,root,messagebus) /%{_lib}/dbus-1/dbus-daemon-launch-helper
 
 %files -n %{lib_name}
 %defattr(-,root,root)
@@ -185,6 +210,7 @@ rm -rf %{buildroot}
 %{_libdir}/dbus-1.0/include
 %{_libdir}/pkgconfig/dbus-%{lib_api}.pc
 %{_includedir}/dbus-1.0
+%doc %{_datadir}/devhelp/books/dbus
 
 %files x11
 %defattr(-,root,root)
