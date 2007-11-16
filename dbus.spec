@@ -12,13 +12,13 @@ Release: %mkrel 2
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1: doxygen_to_devhelp.xsl
-# (fc) 0.20-1mdk fix start/stop order, add pinit support
+# (fc) 0.20-1mdk fix start/stop order, add pinit support (fd.o bug #11491)
 Patch0: dbus-0.91-initscript.patch
-# (fc) 1.0.1-1mdv add inotify support
+# (fc) 1.0.1-1mdv add inotify support (fd.o bug #13268)
 Patch1: dbus-1.0.0-inotify.patch
-# (fc) 1.0.1-1mdv fix dnotify detection of new config file
+# (fc) 1.0.1-1mdv fix dnotify detection of new config file (fd.o bug #13269)
 Patch2: dbus-1.0.0-fixfilecreation.patch
-# (fc) 1.0.2-5mdv disable fatal warnings on check
+# (fc) 1.0.2-5mdv disable fatal warnings on check (fd.o bug #13270)
 Patch3: dbus-1.0.2-disable_fatal_warning_on_check.patch
 # (fc) 1.1.2-1mdv fix aborting (fd.o bug #12430) (Fedora)
 Patch4: dbus-1.1.2-no-abort.patch
