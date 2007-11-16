@@ -8,7 +8,7 @@
 Summary: D-Bus message bus
 Name: dbus
 Version: 1.1.2
-Release: %mkrel 2
+Release: %mkrel 3
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1: doxygen_to_devhelp.xsl
@@ -83,7 +83,8 @@ in this separate package so server systems need not install X.
 %patch0 -p1 -b .initscript
 %patch1 -p1 -b .inotify
 %patch2 -p1 -b .fixfilecreation
-%patch3 -p1 -b .disable_fatal_warning_on_check
+#only disable in cooker to detect buggy programs
+#patch3 -p1 -b .disable_fatal_warning_on_check
 %patch4 -p1 -b .no-abort
 %patch5 -p1 -b .pie
 %patch6 -p1 -b .xmldoc
