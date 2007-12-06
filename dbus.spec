@@ -27,8 +27,6 @@ Patch5: dbus-pie.patch
 # (fc) 1.1.2-1mdv generate xml doc (Fedora)
 Patch6: dbus-1.0.1-generate-xml-docs.patch
 
-Patch7: dbus-visibility.patch
-
 License: GPLv2+ or AFL
 Group: System/Servers
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
@@ -91,8 +89,6 @@ in this separate package so server systems need not install X.
 %patch5 -p1 -b .pie
 %patch6 -p1 -b .xmldoc
 
-%patch7 -p1 -b .visibility
-
 #needed by patch1 & 5
 aclocal-1.10
 automake-1.10
@@ -104,7 +100,7 @@ autoconf
 #needed for correct localstatedir location 
 %define _localstatedir %{_var}
 
-COMMON_ARGS="--disable-selinux --with-system-pid-file=%{_var}/run/messagebus.pid --with-system-socket=%{_var}/run/dbus/system_bus_socket --with-session-socket-dir=/tmp --libexecdir=/%{_lib}/dbus-1"
+COMMON_ARGS="--disable-selinux --with-system-pid-file=%{_var}/run/messagebus.pid --with-system-socket=%{_var}/run/dbus/system_bus_socket --with-session-socket-dir=/tmp --libexecdir=/%{_lib}/dbus-%{lib_api}"
 
 #### Build once with tests to make check
 %configure2_5x $COMMON_ARGS --enable-tests=yes --enable-verbose-mode=yes --enable-asserts=yes  --disable-doxygen-docs --disable-xml-docs
@@ -145,6 +141,9 @@ eval \`/usr/bin/dbus-launch --exit-with-session --sh-syntax\`
 EOF
 chmod 755 $RPM_BUILD_ROOT%{_sysconfdir}/X11/xinit.d/30dbus
 
+# create directory
+mkdir $RPM_BUILD_ROOT%{_datadir}/dbus-%{lib_api}/interfaces
+
 #add devhelp compatible helps
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/devhelp/books/dbus
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/devhelp/books/dbus/api
@@ -154,6 +153,7 @@ cp doc/dbus-specification.html $RPM_BUILD_ROOT%{_datadir}/devhelp/books/dbus
 cp doc/dbus-faq.html $RPM_BUILD_ROOT%{_datadir}/devhelp/books/dbus
 cp doc/dbus-tutorial.html $RPM_BUILD_ROOT%{_datadir}/devhelp/books/dbus
 cp doc/api/html/* $RPM_BUILD_ROOT%{_datadir}/devhelp/books/dbus/api
+
 #remove unpackaged file
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 
@@ -186,11 +186,11 @@ rm -rf %{buildroot}
 
 %doc COPYING NEWS
 
-%dir %{_sysconfdir}/dbus-1
-%config(noreplace) %{_sysconfdir}/dbus-1/*.conf
+%dir %{_sysconfdir}/dbus-%{lib_api}
+%config(noreplace) %{_sysconfdir}/dbus-%{lib_api}/*.conf
 %{_sysconfdir}/rc.d/init.d/*
-%dir %{_sysconfdir}/dbus-1/system.d
-%dir %{_sysconfdir}/dbus-1/session.d
+%dir %{_sysconfdir}/dbus-%{lib_api}/system.d
+%dir %{_sysconfdir}/dbus-%{lib_api}/session.d
 %dir %{_var}/run/dbus
 %dir %{_var}/lib/dbus
 %dir %{_libdir}/dbus-1.0
@@ -199,11 +199,12 @@ rm -rf %{buildroot}
 %{_bindir}/dbus-cleanup-sockets
 %{_bindir}/dbus-uuidgen
 %{_mandir}/man*/*
-%dir %{_datadir}/dbus-1/
-%dir %{_datadir}/dbus-1/services
+%dir %{_datadir}/dbus-%{lib_api}
+%dir %{_datadir}/dbus-%{lib_api}/services
+%dir %{_datadir}/dbus-%{lib_api}/interfaces
 # See doc/system-activation.txt in source tarball for the rationale
 # behind these permissions
-%attr(4750,root,messagebus) /%{_lib}/dbus-1/dbus-daemon-launch-helper
+%attr(4750,root,messagebus) /%{_lib}/dbus-%{lib_api}/dbus-daemon-launch-helper
 
 %files -n %{lib_name}
 %defattr(-,root,root)
@@ -212,8 +213,8 @@ rm -rf %{buildroot}
 %files -n %develname
 %defattr(-,root,root)
 %doc doc/*
-%_libdir/libdbus-%{lib_api}.a
-%_libdir/libdbus-%{lib_api}.so
+%{_libdir}/libdbus-%{lib_api}.a
+%{_libdir}/libdbus-%{lib_api}.so
 %{_libdir}/dbus-1.0/include
 %{_libdir}/pkgconfig/dbus-%{lib_api}.pc
 %{_includedir}/dbus-1.0
@@ -224,5 +225,3 @@ rm -rf %{buildroot}
 %{_sysconfdir}/X11/xinit.d/*
 %{_bindir}/dbus-launch
 %{_bindir}/dbus-monitor
-
-
