@@ -5,6 +5,8 @@
 %define lib_name %mklibname dbus- %{lib_api} %{lib_major}
 %define develname %mklibname -d dbus- %lib_api
 
+%define enable_test 0
+
 Summary: D-Bus message bus
 Name: dbus
 Version: 1.1.2
@@ -103,13 +105,15 @@ autoconf
 COMMON_ARGS="--disable-selinux --with-system-pid-file=%{_var}/run/messagebus.pid --with-system-socket=%{_var}/run/dbus/system_bus_socket --with-session-socket-dir=/tmp --libexecdir=/%{_lib}/dbus-%{lib_api}"
 
 #### Build once with tests to make check
+%if %{enable_test}
 %configure2_5x $COMMON_ARGS --enable-tests=yes --enable-verbose-mode=yes --enable-asserts=yes  --disable-doxygen-docs --disable-xml-docs
 
 DBUS_VERBOSE=1 %make
 make check
 
 #### Clean up and build again 
-make clean 
+make clean
+%endif 
 
 # leave verbose mode so people can debug their apps but make sure to
 # turn it off on stable releases with --disable-verbose-mode
