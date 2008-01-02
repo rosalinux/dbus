@@ -31,6 +31,7 @@ Patch6: dbus-1.0.1-generate-xml-docs.patch
 
 License: GPLv2+ or AFL
 Group: System/Servers
+BuildRoot: %{_tmppath}/%{name}-%{version}-root
 BuildRequires: libx11-devel
 BuildRequires: expat-devel >= %{expat_version}
 BuildRequires: xmlto docbook-dtd412-xml
