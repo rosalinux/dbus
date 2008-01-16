@@ -9,23 +9,15 @@
 
 Summary: D-Bus message bus
 Name: dbus
-Version: 1.1.2
-Release: %mkrel 4
+Version: 1.1.3
+Release: %mkrel 1
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1: doxygen_to_devhelp.xsl
-# (fc) 0.20-1mdk fix start/stop order, add pinit support (fd.o bug #11491)
-Patch0: dbus-0.91-initscript.patch
-# (fc) 1.0.1-1mdv add inotify support (fd.o bug #13268)
-Patch1: dbus-1.0.0-inotify.patch
-# (fc) 1.0.1-1mdv fix dnotify detection of new config file (fd.o bug #13269)
-Patch2: dbus-1.0.0-fixfilecreation.patch
+# (fc) 0.20-1mdk fix start/stop order (fd.o bug #11491)
+Patch0: dbus-initscript.patch
 # (fc) 1.0.2-5mdv disable fatal warnings on check (fd.o bug #13270)
 Patch3: dbus-1.0.2-disable_fatal_warning_on_check.patch
-# (fc) 1.1.2-1mdv fix aborting (fd.o bug #12430) (Fedora)
-Patch4: dbus-1.1.2-no-abort.patch
-# (fc) 1.1.2-1mdv fix PIE usage (git)
-Patch5: dbus-pie.patch
 # (fc) 1.1.2-1mdv generate xml doc (Fedora)
 Patch6: dbus-1.0.1-generate-xml-docs.patch
 
@@ -83,19 +75,9 @@ in this separate package so server systems need not install X.
 %prep
 %setup -q 
 %patch0 -p1 -b .initscript
-%patch1 -p1 -b .inotify
-%patch2 -p1 -b .fixfilecreation
 #only disable in cooker to detect buggy programs
 #patch3 -p1 -b .disable_fatal_warning_on_check
-%patch4 -p1 -b .no-abort
-%patch5 -p1 -b .pie
 %patch6 -p1 -b .xmldoc
-
-#needed by patch1 & 5
-aclocal-1.10
-automake-1.10
-autoheader
-autoconf
 
 %build
 
