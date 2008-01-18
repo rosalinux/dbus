@@ -9,8 +9,8 @@
 
 Summary: D-Bus message bus
 Name: dbus
-Version: 1.1.3
-Release: %mkrel 2
+Version: 1.1.4
+Release: %mkrel 1
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1: doxygen_to_devhelp.xsl
@@ -20,8 +20,6 @@ Patch0: dbus-initscript.patch
 Patch3: dbus-1.0.2-disable_fatal_warning_on_check.patch
 # (fc) 1.1.2-1mdv generate xml doc (Fedora)
 Patch6: dbus-1.0.1-generate-xml-docs.patch
-# (fc) 1.1.3-2mdv fix inotify backend to not DoS systems (Timo Hoenig) 
-Patch7: dbus-inotify-fix-thoenig-01.patch
 
 License: GPLv2+ or AFL
 Group: System/Servers
@@ -80,7 +78,6 @@ in this separate package so server systems need not install X.
 #only disable in cooker to detect buggy programs
 #patch3 -p1 -b .disable_fatal_warning_on_check
 %patch6 -p1 -b .xmldoc
-%patch7 -p1 -b .fix_inotify
 
 %build
 
