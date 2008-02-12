@@ -62,7 +62,6 @@ Conflicts: %{_lib}dbus-1_0-devel
 Obsoletes: %mklibname -d dbus- 1 3
 
 %description -n %develname
-
 Headers and static libraries for D-Bus.
 
 %package x11
