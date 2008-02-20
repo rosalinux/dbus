@@ -10,7 +10,7 @@
 Summary: D-Bus message bus
 Name: dbus
 Version: 1.1.4
-Release: %mkrel 2
+Release: %mkrel 3
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1: doxygen_to_devhelp.xsl
@@ -188,10 +188,12 @@ rm -rf %{buildroot}
 %{_bindir}/dbus-uuidgen
 %{_mandir}/man*/*
 %dir %{_datadir}/dbus-%{lib_api}
-%dir %{_datadir}/dbus-%{lib_api}/services
-%dir %{_datadir}/dbus-%{lib_api}/interfaces
+%{_datadir}/dbus-%{lib_api}/system-services
+%{_datadir}/dbus-%{lib_api}/services
+%{_datadir}/dbus-%{lib_api}/interfaces
 # See doc/system-activation.txt in source tarball for the rationale
 # behind these permissions
+%dir /%{_lib}/dbus-%{lib_api}
 %attr(4750,root,messagebus) /%{_lib}/dbus-%{lib_api}/dbus-daemon-launch-helper
 
 %files -n %{lib_name}
