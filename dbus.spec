@@ -9,8 +9,8 @@
 
 Summary: D-Bus message bus
 Name: dbus
-Version: 1.1.4
-Release: %mkrel 3
+Version: 1.1.20
+Release: %mkrel 1
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1: doxygen_to_devhelp.xsl
@@ -20,8 +20,6 @@ Patch0: dbus-initscript.patch
 Patch3: dbus-1.0.2-disable_fatal_warning_on_check.patch
 # (fc) 1.1.2-1mdv generate xml doc (Fedora)
 Patch6: dbus-1.0.1-generate-xml-docs.patch
-# (fc) 1.1.4-2mdv fix dbus not always exiting after X shutdown (Fedora)
-Patch7: dbus-1.1.4-babysitter-x.patch
 
 License: GPLv2+ or AFL
 Group: System/Servers
@@ -36,6 +34,7 @@ Requires(preun): rpm-helper
 Requires(post): rpm-helper
 Requires(postun): rpm-helper
 Requires(post): %{lib_name} >= %{version}-%{release}
+Suggests: should-restart = system
 
 %description
 D-Bus is a system for sending messages between applications. It is
@@ -79,7 +78,6 @@ in this separate package so server systems need not install X.
 #only disable in cooker to detect buggy programs
 #patch3 -p1 -b .disable_fatal_warning_on_check
 %patch6 -p1 -b .xmldoc
-%patch7 -p1 -b .babysitter-x
 
 %build
 
@@ -156,7 +154,9 @@ rm -rf %{buildroot}
 %postun -n %{lib_name} -p /sbin/ldconfig
 
 %post
-%_post_service messagebus
+if [ "$1" = "1" ]; then 
+  /sbin/chkconfig --add messagebus  || /bin/true
+fi
 
 %postun
 %_postun_userdel messagebus
