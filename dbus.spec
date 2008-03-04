@@ -10,7 +10,7 @@
 Summary: D-Bus message bus
 Name: dbus
 Version: 1.1.20
-Release: %mkrel 1
+Release: %mkrel 2
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1: doxygen_to_devhelp.xsl
@@ -34,7 +34,7 @@ Requires(preun): rpm-helper
 Requires(post): rpm-helper
 Requires(postun): rpm-helper
 Requires(post): %{lib_name} >= %{version}-%{release}
-Suggests: should-restart = system
+Provides: should-restart = system
 
 %description
 D-Bus is a system for sending messages between applications. It is
