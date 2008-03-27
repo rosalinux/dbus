@@ -6,11 +6,12 @@
 %define develname %mklibname -d dbus- %lib_api
 
 %define enable_test 0
+%define enable_verbose 0
 
 Summary: D-Bus message bus
 Name: dbus
 Version: 1.1.20
-Release: %mkrel 3
+Release: %mkrel 4
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1: doxygen_to_devhelp.xsl
@@ -20,6 +21,8 @@ Patch0: dbus-initscript.patch
 Patch3: dbus-1.0.2-disable_fatal_warning_on_check.patch
 # (fc) 1.1.2-1mdv generate xml doc (Fedora)
 Patch6: dbus-1.0.1-generate-xml-docs.patch
+# (fc) 1.1.20-4mdv fix inotify monitoring to be less agressive
+Patch7: dbus-1.1.20-fixmonitor.patch
 
 License: GPLv2+ or AFL
 Group: System/Servers
@@ -78,6 +81,7 @@ in this separate package so server systems need not install X.
 #only disable in cooker to detect buggy programs
 #patch3 -p1 -b .disable_fatal_warning_on_check
 %patch6 -p1 -b .xmldoc
+%patch7 -p1 -b .fixmonitor
 
 %build
 
@@ -97,9 +101,12 @@ make check
 make clean
 %endif 
 
-# leave verbose mode so people can debug their apps but make sure to
-# turn it off on stable releases with --disable-verbose-mode
-%configure2_5x $COMMON_ARGS --disable-tests --disable-asserts --enable-doxygen-docs --enable-xml-docs
+%configure2_5x $COMMON_ARGS --disable-tests --disable-asserts --enable-doxygen-docs --enable-xml-docs \
+%if %enable_verbose
+ --enable-verbose-mode=yes
+%else 
+ --enable-verbose-mode=no
+%endif
 %make
 
 doxygen Doxyfile
