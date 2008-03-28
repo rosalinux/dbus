@@ -11,7 +11,7 @@
 Summary: D-Bus message bus
 Name: dbus
 Version: 1.1.20
-Release: %mkrel 4
+Release: %mkrel 5
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1: doxygen_to_devhelp.xsl
@@ -209,7 +209,7 @@ fi
 
 %files -n %develname
 %defattr(-,root,root)
-%doc doc/*
+%doc ChangeLog doc/introspect.dtd doc/introspect.xsl doc/system-activation.txt
 %{_libdir}/libdbus-%{lib_api}.a
 %{_libdir}/libdbus-%{lib_api}.so
 %{_libdir}/dbus-1.0/include
