@@ -159,6 +159,7 @@ rm -rf %{buildroot}
 
 %post
 if [ "$1" = "1" ]; then 
+   /usr/bin/dbus-uuidgen --ensure
   /sbin/chkconfig --add messagebus  || /bin/true
 fi
 
