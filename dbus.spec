@@ -154,8 +154,12 @@ rm -rf %{buildroot}
 %_pre_useradd messagebus / /sbin/nologin
 %_pre_groupadd daemon messagebus
 
+%if %mdkversion < 200900
 %post -n %{lib_name} -p /sbin/ldconfig
+%endif
+%if %mdkversion < 200900
 %postun -n %{lib_name} -p /sbin/ldconfig
+%endif
 
 %post
 if [ "$1" = "1" ]; then 
