@@ -11,7 +11,7 @@
 Summary: D-Bus message bus
 Name: dbus
 Version: 1.2.1
-Release: %mkrel 3
+Release: %mkrel 4
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1: doxygen_to_devhelp.xsl
@@ -21,6 +21,20 @@ Patch0: dbus-initscript.patch
 Patch3: dbus-1.0.2-disable_fatal_warning_on_check.patch
 # (fc) 1.1.2-1mdv generate xml doc (Fedora)
 Patch6: dbus-1.0.1-generate-xml-docs.patch
+# (fc) 1.2.1-4mdv really enable userdb cache (fd.o bug #15588) (GIT)
+Patch7: dbus-compile-userdb-cache.patch
+# (fc) 1.2.1-4mdv cleanup guid-less connections correctly (fd.o bug #15571) (GIT)
+Patch8: dbus-fix-guidless-conn-segfault.patch
+# (fc) 1.2.1-4mdv Hold a reference during read/write dispatch (fd.o bug #15635) (GIT)
+Patch9: dbus-hold-ref-during-dispatch.patch
+# (fc) 1.2.1-4mdv Reset initialized state on dbus_shutdown (fd.o bug #15570) (GIT)
+Patch10: dbus-reinit-addr-after-shutdown.patch
+# (fc) 1.2.1-4mdv increase default method timeout (Fedora)
+Patch11: dbus-1.2.1-increase-timeout.patch
+# (fc) 1.2.1-4mdv fix crash on timers leak (fd.o #15684) (GIT)
+Patch12: dbus-1.2.1-fix-crash-on-timer-leak.patch
+# (fc) 1.2.1-4mdv add API to change session bus environment variables (fd.o bug #16669) (GIT)
+Patch13: dbus-1.2.1-activation-environment.patch
 
 License: GPLv2+ or AFL
 Group: System/Servers
@@ -79,6 +93,13 @@ in this separate package so server systems need not install X.
 #only disable in cooker to detect buggy programs
 #patch3 -p1 -b .disable_fatal_warning_on_check
 %patch6 -p1 -b .xmldoc
+%patch7 -p1 -b .compile-userdb-cache
+%patch8 -p1 -b .fix-guidless-conn-segfault
+%patch9 -p1 -b .hold-ref-during-dispatch
+%patch10 -p1 -b .reinit-addr-after-shutdown
+%patch11 -p1 -b .increase-timeout
+%patch12 -p1 -b .fix-crash-on-timer-leak
+%patch13 -p1 -b .activation-environmnent
 
 %build
 
@@ -127,7 +148,9 @@ ln -sf ../../%{_lib}/libdbus-%{lib_api}.so.%{lib_major} $RPM_BUILD_ROOT%{_libdir
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/X11/xinit.d
 cat << EOF > $RPM_BUILD_ROOT%{_sysconfdir}/X11/xinit.d/30dbus
 # to be sourced
-eval \`/usr/bin/dbus-launch --exit-with-session --sh-syntax\`
+if [ -z "$DBUS_SESSION_BUS_ADDRESS" ]; then
+  eval \`/usr/bin/dbus-launch --exit-with-session --sh-syntax\`
+fi
 EOF
 chmod 755 $RPM_BUILD_ROOT%{_sysconfdir}/X11/xinit.d/30dbus
 
