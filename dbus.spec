@@ -8,10 +8,12 @@
 %define enable_test 0
 %define enable_verbose 0
 
+%define git_url ssh://git.freedesktop.org/git/dbus/dbus
+
 Summary: D-Bus message bus
 Name: dbus
 Version: 1.2.4.4permissive
-Release: %mkrel 1
+Release: %mkrel 2
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1: doxygen_to_devhelp.xsl
@@ -36,6 +38,7 @@ Requires(pre): rpm-helper
 Requires(preun): rpm-helper
 Requires(post): rpm-helper
 Requires(postun): rpm-helper
+Requires(post): chkconfig >= 1.3.37-3mdv
 Requires(post): %{lib_name} >= %{version}-%{release}
 Provides: should-restart = system
 
@@ -182,6 +185,10 @@ fi
 %triggerpostun -- dbus < 0.21-4mdk
 /sbin/chkconfig --del messagebus
 /sbin/chkconfig --add messagebus
+
+%triggerpostun -- dbus < 1.2.4.4permissive-2mdv
+/sbin/chkconfig --level 7 messagebus reset
+
 
 %files
 %defattr(-,root,root)
