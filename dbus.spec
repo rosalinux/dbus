@@ -8,12 +8,12 @@
 %define enable_test 0
 %define enable_verbose 0
 
-%define git_url ssh://git.freedesktop.org/git/dbus/dbus
+%define git_url git://git.freedesktop.org/git/dbus/dbus
 
 Summary: D-Bus message bus
 Name: dbus
-Version: 1.2.4.4permissive
-Release: %mkrel 2
+Version: 1.2.4.6permissive
+Release: %mkrel 1
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1: doxygen_to_devhelp.xsl
