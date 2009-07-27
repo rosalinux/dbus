@@ -12,7 +12,7 @@
 
 Summary: D-Bus message bus
 Name: dbus
-Version: 1.2.4.6permissive
+Version: 1.2.16
 Release: %mkrel 1
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
