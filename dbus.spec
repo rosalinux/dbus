@@ -13,7 +13,7 @@
 Summary: D-Bus message bus
 Name: dbus
 Version: 1.2.16
-Release: %mkrel 1
+Release: %mkrel 2
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1: doxygen_to_devhelp.xsl
@@ -25,6 +25,8 @@ Patch3: dbus-1.0.2-disable_fatal_warning_on_check.patch
 Patch6: dbus-1.0.1-generate-xml-docs.patch
 # (fc) 1.2.1-4mdv increase default method timeout (Fedora)
 Patch11: dbus-1.2.1-increase-timeout.patch
+# (fc) 1.2.16-2mdv fix timeout handling (GIT)
+Patch12: dbus-1.2.16-timeout.patch
 
 License: GPLv2+ or AFL
 Group: System/Servers
@@ -85,6 +87,7 @@ in this separate package so server systems need not install X.
 #patch3 -p1 -b .disable_fatal_warning_on_check
 %patch6 -p1 -b .xmldoc
 %patch11 -p1 -b .increase-timeout
+%patch12 -p1 -b .timeout
 
 %build
 
