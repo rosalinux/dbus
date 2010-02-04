@@ -12,8 +12,8 @@
 
 Summary: D-Bus message bus
 Name: dbus
-Version: 1.2.16
-Release: %mkrel 2
+Version: 1.2.20
+Release: %mkrel 1
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1: doxygen_to_devhelp.xsl
@@ -23,10 +23,6 @@ Patch0: dbus-initscript.patch
 Patch3: dbus-1.0.2-disable_fatal_warning_on_check.patch
 # (fc) 1.1.2-1mdv generate xml doc (Fedora)
 Patch6: dbus-1.0.1-generate-xml-docs.patch
-# (fc) 1.2.1-4mdv increase default method timeout (Fedora)
-Patch11: dbus-1.2.1-increase-timeout.patch
-# (fc) 1.2.16-2mdv fix timeout handling (GIT)
-Patch12: dbus-1.2.16-timeout.patch
 
 License: GPLv2+ or AFL
 Group: System/Servers
@@ -76,6 +72,18 @@ Summary: X11-requiring add-ons for D-Bus
 Group: System/Servers
 Requires: dbus = %{version}
 
+%package doc
+Summary: Developer documentation for D-BUS
+Group: Documentation
+Requires: dbus = %{version}
+Suggests: devhelp
+BuildArch: noarch
+Conflicts: %develname < 1.2.20
+
+%description doc 
+This package contains developer documentation for D-Bus along with
+other supporting documentation such as the introspect dtd file.
+
 %description x11
 D-Bus contains some tools that require Xlib to be installed, those are
 in this separate package so server systems need not install X.
@@ -86,8 +94,6 @@ in this separate package so server systems need not install X.
 #only disable in cooker to detect buggy programs
 #patch3 -p1 -b .disable_fatal_warning_on_check
 %patch6 -p1 -b .xmldoc
-%patch11 -p1 -b .increase-timeout
-%patch12 -p1 -b .timeout
 
 %build
 
@@ -226,16 +232,20 @@ fi
 
 %files -n %develname
 %defattr(-,root,root)
-%doc ChangeLog doc/introspect.dtd doc/introspect.xsl doc/system-activation.txt
+%doc ChangeLog 
 %{_libdir}/libdbus-%{lib_api}.a
 %{_libdir}/libdbus-%{lib_api}.so
 %{_libdir}/dbus-1.0/include
 %{_libdir}/pkgconfig/dbus-%{lib_api}.pc
 %{_includedir}/dbus-1.0
-%doc %{_datadir}/devhelp/books/dbus
 
 %files x11
 %defattr(-,root,root)
 %{_sysconfdir}/X11/xinit.d/*
 %{_bindir}/dbus-launch
 %{_bindir}/dbus-monitor
+
+%files doc
+%defattr(-,root,root)
+%doc doc/introspect.dtd doc/introspect.xsl doc/system-activation.txt
+%doc %{_datadir}/devhelp/books/dbus
