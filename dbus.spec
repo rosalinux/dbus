@@ -74,7 +74,7 @@ Requires: dbus = %{version}
 
 %package doc
 Summary: Developer documentation for D-BUS
-Group: Documentation
+Group: Books/Computer books
 Requires: dbus = %{version}
 Suggests: devhelp
 BuildArch: noarch
