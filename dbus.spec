@@ -13,7 +13,7 @@
 Summary: D-Bus message bus
 Name: dbus
 Version: 1.2.20
-Release: %mkrel 2
+Release: %mkrel 3
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1: doxygen_to_devhelp.xsl
@@ -77,7 +77,6 @@ Summary: Developer documentation for D-BUS
 Group: Books/Computer books
 Requires: dbus = %{version}
 Suggests: devhelp
-BuildArch: noarch
 Conflicts: %develname < 1.2.20
 
 %description doc 
