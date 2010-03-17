@@ -12,8 +12,8 @@
 
 Summary: D-Bus message bus
 Name: dbus
-Version: 1.2.20
-Release: %mkrel 4
+Version: 1.2.22
+Release: %mkrel 1
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1: doxygen_to_devhelp.xsl
@@ -23,10 +23,6 @@ Patch0: dbus-initscript.patch
 Patch3: dbus-1.0.2-disable_fatal_warning_on_check.patch
 # (fc) 1.1.2-1mdv generate xml doc (Fedora)
 Patch6: dbus-1.0.1-generate-xml-docs.patch
-# (fc) 1.2.20-4mdv improve watch handling in multi-threaded application (Michael Meeks) (GIT)
-Patch7: dbus-1.2.20-watch-threads.patch
-# (fc) 1.2.20-4mdv fix building with libcap-ng but with selinux disabled (GIT)
-Patch8: dbus-1.2.20-fix-disabling-selinux.patch
 
 License: GPLv2+ or AFL
 Group: System/Servers
@@ -98,8 +94,6 @@ in this separate package so server systems need not install X.
 #only disable in cooker to detect buggy programs
 #patch3 -p1 -b .disable_fatal_warning_on_check
 %patch6 -p1 -b .xmldoc
-%patch7 -p1 -b .watch-threads
-%patch8 -p1 -b .selinux-disabled
 
 %build
 
