@@ -13,7 +13,7 @@
 Summary: D-Bus message bus
 Name: dbus
 Version: 1.4.1
-Release: %mkrel 1
+Release: %mkrel 2
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1: doxygen_to_devhelp.xsl
@@ -142,7 +142,7 @@ ln -sf ../../%{_lib}/libdbus-%{lib_api}.so.%{lib_major} $RPM_BUILD_ROOT%{_libdir
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/X11/xinit.d
 cat << EOF > $RPM_BUILD_ROOT%{_sysconfdir}/X11/xinit.d/30dbus
 # to be sourced
-if [ -z "$DBUS_SESSION_BUS_ADDRESS" ]; then
+if [ -z "\$DBUS_SESSION_BUS_ADDRESS" ]; then
   eval \`/usr/bin/dbus-launch --exit-with-session --sh-syntax\`
 fi
 EOF
