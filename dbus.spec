@@ -8,6 +8,8 @@
 %define enable_test 0
 %define enable_verbose 0
 
+%define _with_systemd 1
+
 %define git_url git://git.freedesktop.org/git/dbus/dbus
 
 Summary: D-Bus message bus
@@ -33,6 +35,9 @@ BuildRequires: xmlto docbook-dtd412-xml
 BuildRequires: doxygen
 BuildRequires: libtool
 BuildRequires: libcap-ng-devel
+%if %{_with_systemd}
+BuildRequires:	systemd-units
+%endif
 Requires(pre): rpm-helper
 Requires(preun): rpm-helper
 Requires(post): rpm-helper
@@ -104,7 +109,14 @@ COMMON_ARGS="--disable-selinux --with-system-pid-file=%{_var}/run/messagebus.pid
 
 #### Build once with tests to make check
 %if %{enable_test}
-%configure2_5x $COMMON_ARGS --enable-tests=yes --enable-verbose-mode=yes --enable-asserts=yes  --disable-doxygen-docs --disable-xml-docs
+%configure2_5x $COMMON_ARGS --enable-tests=yes \
+		--enable-verbose-mode=yes \
+		--enable-asserts=yes \
+		--disable-doxygen-docs \
+%if !%{_with_systemd}
+		--without-systemdsystemunitdir \
+%endif
+		--disable-xml-docs
 
 DBUS_VERBOSE=1 %make
 make check
@@ -225,6 +237,14 @@ fi
 # behind these permissions
 %dir /%{_lib}/dbus-%{lib_api}
 %attr(4750,root,messagebus) /%{_lib}/dbus-%{lib_api}/dbus-daemon-launch-helper
+%if %{_with_systemd}
+/lib/systemd/system/dbus.service
+/lib/systemd/system/dbus.socket
+/lib/systemd/system/dbus.target.wants/dbus.socket
+/lib/systemd/system/multi-user.target.wants/dbus.service
+/lib/systemd/system/sockets.target.wants/dbus.socket
+
+%endif
 
 %files -n %{lib_name}
 %defattr(-,root,root)
