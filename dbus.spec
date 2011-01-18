@@ -163,6 +163,11 @@ chmod 755 $RPM_BUILD_ROOT%{_sysconfdir}/X11/xinit.d/30dbus
 # create directory
 mkdir $RPM_BUILD_ROOT%{_datadir}/dbus-%{lib_api}/interfaces
 
+# Make sure that when somebody asks for D-Bus under the name of the
+# old SysV script, that he ends up with the standard dbus.service name
+# now.
+ln -s dbus.service %{buildroot}/lib/systemd/system/messagebus.service
+
 #add devhelp compatible helps
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/devhelp/books/dbus
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/devhelp/books/dbus/api
@@ -239,6 +244,7 @@ fi
 %attr(4750,root,messagebus) /%{_lib}/dbus-%{lib_api}/dbus-daemon-launch-helper
 %if %{_with_systemd}
 /lib/systemd/system/dbus.service
+/lib/systemd/system/messagebus.service
 /lib/systemd/system/dbus.socket
 /lib/systemd/system/dbus.target.wants/dbus.socket
 /lib/systemd/system/multi-user.target.wants/dbus.service
