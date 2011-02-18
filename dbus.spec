@@ -35,6 +35,7 @@ BuildRequires: xmlto docbook-dtd412-xml
 BuildRequires: doxygen
 BuildRequires: libtool
 BuildRequires: libcap-ng-devel
+BuildRequires: glib2-devel
 %if %{_with_systemd}
 BuildRequires:	systemd-units
 %endif
