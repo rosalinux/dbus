@@ -15,7 +15,7 @@
 Summary: D-Bus message bus
 Name: dbus
 Version: 1.4.4
-Release: %mkrel 2
+Release: %mkrel 3
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1: doxygen_to_devhelp.xsl
@@ -25,6 +25,8 @@ Patch0: dbus-initscript.patch
 Patch3: dbus-1.0.2-disable_fatal_warning_on_check.patch
 # (fc) 1.1.2-1mdv generate xml doc (Fedora)
 Patch6: dbus-1.0.1-generate-xml-docs.patch
+# (bor) synchronize dbus.service with dbus.target so dependencies work
+Patch7:	dbus-1.4.4-dbus.service-before-dbus.target.patch
 
 License: GPLv2+ or AFL
 Group: System/Servers
@@ -100,6 +102,7 @@ in this separate package so server systems need not install X.
 #only disable in cooker to detect buggy programs
 #patch3 -p1 -b .disable_fatal_warning_on_check
 %patch6 -p1 -b .xmldoc
+%patch7 -p1 -b .after_dbus_target
 
 %build
 
