@@ -15,7 +15,7 @@
 Summary: D-Bus message bus
 Name: dbus
 Version: 1.4.6
-Release: %mkrel 1
+Release: %mkrel 2
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1: doxygen_to_devhelp.xsl
