@@ -1,9 +1,9 @@
-%define expat_version           2.0.1
+%define expat_version 2.0.1
 
 %define lib_major 3
 %define lib_api 1
 %define lib_name %mklibname dbus- %{lib_api} %{lib_major}
-%define develname %mklibname -d dbus- %lib_api
+%define develname %mklibname -d dbus- %{lib_api}
 
 %define enable_test 0
 %define enable_verbose 0
@@ -12,40 +12,39 @@
 
 %define git_url git://git.freedesktop.org/git/dbus/dbus
 
-Summary: D-Bus message bus
-Name: dbus
-Version: 1.4.14
-Release: %mkrel 1
-URL: http://www.freedesktop.org/Software/dbus
-Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
-Source1: doxygen_to_devhelp.xsl
+Summary:	D-Bus message bus
+Name:		dbus
+Version:	1.4.14
+Release:	%mkrel 1
+URL:		http://www.freedesktop.org/Software/dbus
+Source0:	http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
+Source1:	doxygen_to_devhelp.xsl
 # (fc) 0.20-1mdk fix start/stop order (fd.o bug #11491), starts after network
-Patch0: dbus-initscript.patch
+Patch0:		dbus-initscript.patch
 # (fc) 1.0.2-5mdv disable fatal warnings on check (fd.o bug #13270)
-Patch3: dbus-1.0.2-disable_fatal_warning_on_check.patch
+Patch3:		dbus-1.0.2-disable_fatal_warning_on_check.patch
 # (bor) synchronize dbus.service with dbus.target so dependencies work
-Patch7:	dbus-1.4.4-dbus.service-before-dbus.target.patch
-
-License: GPLv2+ or AFL
-Group: System/Servers
-BuildRoot: %{_tmppath}/%{name}-%{version}-root
-BuildRequires: libx11-devel
-BuildRequires: expat-devel >= %{expat_version}
-BuildRequires: xmlto docbook-dtd412-xml
-BuildRequires: doxygen
-BuildRequires: libtool
-BuildRequires: libcap-ng-devel
-BuildRequires: glib2-devel
+Patch7:		dbus-1.4.4-dbus.service-before-dbus.target.patch
+License:	GPLv2+ or AFL
+Group:		System/Servers
+BuildRequires:	libx11-devel
+BuildRequires:	expat-devel >= %{expat_version}
+BuildRequires:	xmlto docbook-dtd412-xml
+BuildRequires:	doxygen
+BuildRequires:	libtool
+BuildRequires:	libcap-ng-devel
+BuildRequires:	glib2-devel
 %if %{_with_systemd}
 BuildRequires:	systemd-units
 %endif
-Requires(pre): rpm-helper
-Requires(preun): rpm-helper
-Requires(post): rpm-helper
-Requires(postun): rpm-helper
-Requires(post): chkconfig >= 1.3.37-3mdv
-Requires(post): %{lib_name} >= %{version}-%{release}
-Provides: should-restart = system
+Requires(pre):	rpm-helper
+Requires(preun):	rpm-helper
+Requires(post):	rpm-helper
+Requires(postun):	rpm-helper
+Requires(post):	chkconfig >= 1.3.37-3mdv
+Requires(post):	%{lib_name} >= %{version}-%{release}
+Provides:	should-restart = system
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 
 %description
 D-Bus is a system for sending messages between applications. It is
@@ -53,49 +52,49 @@ used both for the systemwide message bus service, and as a
 per-user-login-session messaging facility.
 
 %package -n %{lib_name}
-Summary: Shared library for using D-Bus
-Group: System/Libraries
-Requires: dbus >= %{version}
+Summary:	Shared library for using D-Bus
+Group:		System/Libraries
+Requires:	dbus >= %{version}-%{release}
 
 %description -n %{lib_name}
 D-Bus shared library.
 
-%package -n %develname
-Summary: Libraries and headers for D-Bus
-Group: Development/C
-Requires: %{name} = %{version}
-Requires: %{lib_name} = %{version}
-Provides: lib%{name}-1-devel = %{version}-%{release}
-Provides: lib%{name}-devel = %{version}-%{release}
-Provides: %{name}-devel = %{version}-%{release}
-Conflicts: %{_lib}dbus-1_0-devel
-Obsoletes: %mklibname -d dbus- 1 3
+%package -n %{develname}
+Summary:	Libraries and headers for D-Bus
+Group:		Development/C
+Requires:	%{name} = %{version}-%{release}
+Requires:	%{lib_name} = %{version}-%{release}
+Provides:	lib%{name}-1-devel = %{version}-%{release}
+Provides:	lib%{name}-devel = %{version}-%{release}
+Provides:	%{name}-devel = %{version}-%{release}
+Conflicts:	%{_lib}dbus-1_0-devel < 1.4.14
+Obsoletes:	%{mklibname -d dbus- 1 3} < 1.4.14
 
-%description -n %develname
+%description -n %{develname}
 Headers and static libraries for D-Bus.
 
 %package x11
-Summary: X11-requiring add-ons for D-Bus
-Group: System/Servers
-Requires: dbus = %{version}
-
-%package doc
-Summary: Developer documentation for D-BUS
-Group: Books/Computer books
-Requires: dbus = %{version}
-Suggests: devhelp
-Conflicts: %develname < 1.2.20
-
-%description doc 
-This package contains developer documentation for D-Bus along with
-other supporting documentation such as the introspect dtd file.
+Summary:	X11-requiring add-ons for D-Bus
+Group:		System/Servers
+Requires:	dbus = %{version}-%{release}
 
 %description x11
 D-Bus contains some tools that require Xlib to be installed, those are
 in this separate package so server systems need not install X.
 
+%package doc
+Summary:	Developer documentation for D-BUS
+Group:		Books/Computer books
+Requires:	dbus = %{version}-%{release}
+Suggests:	devhelp
+Conflicts:	%{develname} < 1.2.20
+
+%description doc
+This package contains developer documentation for D-Bus along with
+other supporting documentation such as the introspect dtd file.
+
 %prep
-%setup -q 
+%setup -q
 %patch0 -p1 -b .initscript
 #only disable in cooker to detect buggy programs
 #patch3 -p1 -b .disable_fatal_warning_on_check
@@ -148,21 +147,23 @@ rm -rf %{buildroot}
 
 # move lib to /, because it might be needed by hotplug script, before
 # /usr is mounted
-mkdir -p $RPM_BUILD_ROOT/%{_lib} %buildroot%{_var}/lib/dbus
-mv $RPM_BUILD_ROOT%{_libdir}/*dbus-1*.so.* $RPM_BUILD_ROOT/%{_lib} 
-ln -sf ../../%{_lib}/libdbus-%{lib_api}.so.%{lib_major} $RPM_BUILD_ROOT%{_libdir}/libdbus-%{lib_api}.so
+mkdir -p %{buildroot}/%{_lib} %{buildroot}%{_var}/lib/dbus
 
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/X11/xinit.d
-cat << EOF > $RPM_BUILD_ROOT%{_sysconfdir}/X11/xinit.d/30dbus
+mv %{buildroot}%{_libdir}/*dbus-1*.so.* %{buildroot}/%{_lib} 
+ln -sf ../../%{_lib}/libdbus-%{lib_api}.so.%{lib_major} %{buildroot}%{_libdir}/libdbus-%{lib_api}.so
+
+mkdir -p %{buildroot}%{_sysconfdir}/X11/xinit.d
+cat << EOF > %{buildroot}%{_sysconfdir}/X11/xinit.d/30dbus
 # to be sourced
 if [ -z "\$DBUS_SESSION_BUS_ADDRESS" ]; then
   eval \`/usr/bin/dbus-launch --exit-with-session --sh-syntax\`
 fi
 EOF
-chmod 755 $RPM_BUILD_ROOT%{_sysconfdir}/X11/xinit.d/30dbus
+
+chmod 755 %{buildroot}%{_sysconfdir}/X11/xinit.d/30dbus
 
 # create directory
-mkdir $RPM_BUILD_ROOT%{_datadir}/dbus-%{lib_api}/interfaces
+mkdir %{buildroot}%{_datadir}/dbus-%{lib_api}/interfaces
 
 # Make sure that when somebody asks for D-Bus under the name of the
 # old SysV script, that he ends up with the standard dbus.service name
@@ -170,17 +171,17 @@ mkdir $RPM_BUILD_ROOT%{_datadir}/dbus-%{lib_api}/interfaces
 ln -s dbus.service %{buildroot}/lib/systemd/system/messagebus.service
 
 #add devhelp compatible helps
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/devhelp/books/dbus
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/devhelp/books/dbus/api
+mkdir -p %{buildroot}%{_datadir}/devhelp/books/dbus
+mkdir -p %{buildroot}%{_datadir}/devhelp/books/dbus/api
 
-cp dbus.devhelp $RPM_BUILD_ROOT%{_datadir}/devhelp/books/dbus
-cp doc/dbus-specification.html $RPM_BUILD_ROOT%{_datadir}/devhelp/books/dbus
-cp doc/dbus-faq.html $RPM_BUILD_ROOT%{_datadir}/devhelp/books/dbus
-cp doc/dbus-tutorial.html $RPM_BUILD_ROOT%{_datadir}/devhelp/books/dbus
-cp doc/api/html/* $RPM_BUILD_ROOT%{_datadir}/devhelp/books/dbus/api
+cp dbus.devhelp %{buildroot}%{_datadir}/devhelp/books/dbus
+cp doc/dbus-specification.html %{buildroot}%{_datadir}/devhelp/books/dbus
+cp doc/dbus-faq.html %{buildroot}%{_datadir}/devhelp/books/dbus
+cp doc/dbus-tutorial.html %{buildroot}%{_datadir}/devhelp/books/dbus
+cp doc/api/html/* %{buildroot}%{_datadir}/devhelp/books/dbus/api
 
 #remove unpackaged file
-rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
+rm -f %{buildroot}%{_libdir}/*.la
 
 %clean
 rm -rf %{buildroot}
@@ -250,7 +251,6 @@ fi
 /lib/systemd/system/dbus.target.wants/dbus.socket
 /lib/systemd/system/multi-user.target.wants/dbus.service
 /lib/systemd/system/sockets.target.wants/dbus.socket
-
 %endif
 
 %files -n %{lib_name}
