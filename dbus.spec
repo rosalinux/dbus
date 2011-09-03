@@ -14,8 +14,8 @@
 
 Summary: D-Bus message bus
 Name: dbus
-Version: 1.4.6
-Release: %mkrel 2
+Version: 1.4.14
+Release: %mkrel 1
 URL: http://www.freedesktop.org/Software/dbus
 Source0: http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1: doxygen_to_devhelp.xsl
@@ -23,8 +23,6 @@ Source1: doxygen_to_devhelp.xsl
 Patch0: dbus-initscript.patch
 # (fc) 1.0.2-5mdv disable fatal warnings on check (fd.o bug #13270)
 Patch3: dbus-1.0.2-disable_fatal_warning_on_check.patch
-# (fc) 1.1.2-1mdv generate xml doc (Fedora)
-Patch6: dbus-1.0.1-generate-xml-docs.patch
 # (bor) synchronize dbus.service with dbus.target so dependencies work
 Patch7:	dbus-1.4.4-dbus.service-before-dbus.target.patch
 
@@ -101,7 +99,6 @@ in this separate package so server systems need not install X.
 %patch0 -p1 -b .initscript
 #only disable in cooker to detect buggy programs
 #patch3 -p1 -b .disable_fatal_warning_on_check
-%patch6 -p1 -b .xmldoc
 %patch7 -p1 -b .after_dbus_target
 
 %build
@@ -125,14 +122,14 @@ COMMON_ARGS="--disable-selinux --with-system-pid-file=%{_var}/run/messagebus.pid
 DBUS_VERBOSE=1 %make
 make check
 
-#### Clean up and build again 
+#### Clean up and build again
 make clean
-%endif 
+%endif
 
-%configure2_5x $COMMON_ARGS --disable-tests --disable-asserts --enable-doxygen-docs --enable-xml-docs \
+%configure2_5x $COMMON_ARGS --disable-tests --disable-asserts --enable-doxygen-docs --enable-xml-docs --enable-userdb-cache \
 %if %enable_verbose
  --enable-verbose-mode=yes
-%else 
+%else
  --enable-verbose-mode=no
 %endif
 %make
