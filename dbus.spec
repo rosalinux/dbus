@@ -109,7 +109,7 @@ other supporting documentation such as the introspect dtd file.
 #needed for correct localstatedir location 
 %define _localstatedir %{_var}
 
-COMMON_ARGS="--disable-selinux --with-system-pid-file=%{_var}/run/messagebus.pid --with-system-socket=%{_var}/run/dbus/system_bus_socket --with-session-socket-dir=/tmp --libexecdir=/%{_lib}/dbus-%{lib_api}" 
+COMMON_ARGS="--with-systemdsystemunitdir=/lib/systemd/system --disable-selinux --with-system-pid-file=%{_var}/run/messagebus.pid --with-system-socket=%{_var}/run/dbus/system_bus_socket --with-session-socket-dir=/tmp --libexecdir=/%{_lib}/dbus-%{lib_api}" 
 
 #### Build once with tests to make check
 %if %{enable_test}
