@@ -14,7 +14,7 @@
 
 Summary:	D-Bus message bus
 Name:		dbus
-Version:	1.4.14
+Version:	1.4.16
 Release:	%mkrel 1
 URL:		http://www.freedesktop.org/Software/dbus
 Source0:	http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
@@ -36,6 +36,10 @@ BuildRequires:	libcap-ng-devel
 BuildRequires:	glib2-devel
 %if %{_with_systemd}
 BuildRequires:	systemd-units
+Requires(post):	systemd-units 
+Requires(post):	systemd-sysvinit
+Requires(preun):	systemd-units
+Requires(postun):	systemd-units
 %endif
 Requires(pre):	rpm-helper
 Requires(preun):	rpm-helper
@@ -199,16 +203,27 @@ rm -rf %{buildroot}
 
 %post
 if [ "$1" = "1" ]; then 
-   /usr/bin/dbus-uuidgen --ensure
-  /sbin/chkconfig --add messagebus  || /bin/true
+    /usr/bin/dbus-uuidgen --ensure
+    /bin/systemctl enable dbus.service >/dev/null 2>&1 || :
 fi
 
 %postun
-%_postun_userdel messagebus
 %_postun_groupdel daemon messagebus
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ $1 -ge 1 ] ; then
+    /bin/systemctl try-restart dbus.service >/dev/null 2>&1 || :
+fi
 
 %preun
-%_preun_service messagebus
+if [ $1 = 0 ]; then
+    /bin/systemctl --no-reload dbus.service > /dev/null 2>&1 || :
+    /bin/systemctl stop dbus.service > /dev/null 2>&1 || :
+fi
+
+%triggerun -- dbus < 1.4.16-1
+/bin/systemctl enable dbus.service >/dev/null 2>&1
+/sbin/chkconfig --del messagebus >/dev/null 2>&1 || :
+/bin/systemctl try-restart dbus.service >/dev/null 2>&1 || :
 
 %triggerpostun -- dbus < 0.21-4mdk
 /sbin/chkconfig --del messagebus
