@@ -1,5 +1,3 @@
-%define expat_version 2.0.1
-
 %define lib_major 3
 %define lib_api 1
 %define lib_name %mklibname dbus- %{lib_api} %{lib_major}
@@ -15,7 +13,9 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.4.16
-Release:	%mkrel 1
+Release:	2
+License:	GPLv2+ or AFL
+Group:		System/Servers
 URL:		http://www.freedesktop.org/Software/dbus
 Source0:	http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1:	doxygen_to_devhelp.xsl
@@ -25,15 +25,15 @@ Patch0:		dbus-initscript.patch
 Patch3:		dbus-1.0.2-disable_fatal_warning_on_check.patch
 # (bor) synchronize dbus.service with dbus.target so dependencies work
 Patch7:		dbus-1.4.4-dbus.service-before-dbus.target.patch
-License:	GPLv2+ or AFL
-Group:		System/Servers
-BuildRequires:	libx11-devel
-BuildRequires:	expat-devel >= %{expat_version}
-BuildRequires:	xmlto docbook-dtd412-xml
+
+BuildRequires:	docbook-dtd412-xml
 BuildRequires:	doxygen
 BuildRequires:	libtool
-BuildRequires:	libcap-ng-devel
-BuildRequires:	glib2-devel
+BuildRequires:	xmlto
+BuildRequires:	expat-devel >= 2.0.1
+BuildRequires:	pkgconfig(libcap-ng)
+BuildRequires:	pkgconf(x11)
+BuildRequires:	pkgconfig(glib-2.0)
 %if %{_with_systemd}
 BuildRequires:	systemd-units
 Requires(post):	systemd-units 
@@ -45,10 +45,9 @@ Requires(pre):	rpm-helper
 Requires(preun):	rpm-helper
 Requires(post):	rpm-helper
 Requires(postun):	rpm-helper
-Requires(post):	chkconfig >= 1.3.37-3mdv
+Requires(post):	chkconfig >= 1.3.37-3
 Requires(post):	%{lib_name} >= %{version}-%{release}
 Provides:	should-restart = system
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 
 %description
 D-Bus is a system for sending messages between applications. It is
@@ -58,7 +57,6 @@ per-user-login-session messaging facility.
 %package -n %{lib_name}
 Summary:	Shared library for using D-Bus
 Group:		System/Libraries
-Requires:	dbus >= %{version}-%{release}
 
 %description -n %{lib_name}
 D-Bus shared library.
@@ -66,10 +64,7 @@ D-Bus shared library.
 %package -n %{develname}
 Summary:	Libraries and headers for D-Bus
 Group:		Development/C
-Requires:	%{name} = %{version}-%{release}
 Requires:	%{lib_name} = %{version}-%{release}
-Provides:	lib%{name}-1-devel = %{version}-%{release}
-Provides:	lib%{name}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
 Conflicts:	%{_lib}dbus-1_0-devel < 1.4.14
 Obsoletes:	%{mklibname -d dbus- 1 3} < 1.4.14
@@ -105,7 +100,6 @@ other supporting documentation such as the introspect dtd file.
 %patch7 -p1 -b .after_dbus_target
 
 %build
-
 #needed for correct localstatedir location 
 %define _localstatedir %{_var}
 
@@ -113,28 +107,38 @@ COMMON_ARGS="--with-systemdsystemunitdir=/lib/systemd/system --disable-selinux -
 
 #### Build once with tests to make check
 %if %{enable_test}
-%configure2_5x $COMMON_ARGS --enable-tests=yes \
-		--enable-verbose-mode=yes \
-		--enable-asserts=yes \
-		--disable-doxygen-docs \
+%configure2_5x \
+	$COMMON_ARGS \
+	--enable-tests=yes \
+	--enable-verbose-mode=yes \
+	--enable-asserts=yes \
+	--disable-doxygen-docs \
 %if !%{_with_systemd}
-		--without-systemdsystemunitdir \
+	--without-systemdsystemunitdir \
 %endif
-		--disable-xml-docs
+	--disable-xml-docs
 
 DBUS_VERBOSE=1 %make
+
 make check
 
 #### Clean up and build again
 make clean
 %endif
 
-%configure2_5x $COMMON_ARGS --disable-tests --disable-asserts --enable-doxygen-docs --enable-xml-docs --enable-userdb-cache \
+%configure2_5x \
+	$COMMON_ARGS \
+	--disable-tests
+	--disable-asserts
+	--enable-doxygen-docs
+	--enable-xml-docs
+	--enable-userdb-cache \
 %if %enable_verbose
- --enable-verbose-mode=yes
+	--enable-verbose-mode=yes
 %else
- --enable-verbose-mode=no
+	--enable-verbose-mode=no
 %endif
+
 %make
 
 doxygen Doxyfile
@@ -146,7 +150,6 @@ make check
 
 %install
 rm -rf %{buildroot}
-
 %makeinstall_std
 
 # move lib to /, because it might be needed by hotplug script, before
@@ -187,19 +190,9 @@ cp doc/api/html/* %{buildroot}%{_datadir}/devhelp/books/dbus/api
 #remove unpackaged file
 rm -f %{buildroot}%{_libdir}/*.la
 
-%clean
-rm -rf %{buildroot}
-
 %pre
 %_pre_useradd messagebus / /sbin/nologin
 %_pre_groupadd daemon messagebus
-
-%if %mdkversion < 200900
-%post -n %{lib_name} -p /sbin/ldconfig
-%endif
-%if %mdkversion < 200900
-%postun -n %{lib_name} -p /sbin/ldconfig
-%endif
 
 %post
 if [ "$1" = "1" ]; then 
@@ -234,10 +227,7 @@ fi
 
 
 %files
-%defattr(-,root,root)
-
 %doc COPYING NEWS
-
 %dir %{_sysconfdir}/dbus-%{lib_api}
 %config(noreplace) %{_sysconfdir}/dbus-%{lib_api}/*.conf
 %{_sysconfdir}/rc.d/init.d/*
@@ -269,11 +259,9 @@ fi
 %endif
 
 %files -n %{lib_name}
-%defattr(-,root,root)
 /%{_lib}/*dbus-%{lib_api}*.so.%{lib_major}*
 
 %files -n %develname
-%defattr(-,root,root)
 %doc ChangeLog 
 %{_libdir}/libdbus-%{lib_api}.a
 %{_libdir}/libdbus-%{lib_api}.so
@@ -282,12 +270,11 @@ fi
 %{_includedir}/dbus-1.0
 
 %files x11
-%defattr(-,root,root)
 %{_sysconfdir}/X11/xinit.d/*
 %{_bindir}/dbus-launch
 %{_bindir}/dbus-monitor
 
 %files doc
-%defattr(-,root,root)
 %doc doc/introspect.dtd doc/introspect.xsl doc/system-activation.txt
 %doc %{_datadir}/devhelp/books/dbus
+
