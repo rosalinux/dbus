@@ -32,7 +32,7 @@ BuildRequires:	libtool
 BuildRequires:	xmlto
 BuildRequires:	expat-devel >= 2.0.1
 BuildRequires:	pkgconfig(libcap-ng)
-BuildRequires:	pkgconf(x11)
+BuildRequires:	pkgconfig(x11)
 BuildRequires:	pkgconfig(glib-2.0)
 %if %{_with_systemd}
 BuildRequires:	systemd-units
@@ -128,10 +128,10 @@ make clean
 
 %configure2_5x \
 	$COMMON_ARGS \
-	--disable-tests
-	--disable-asserts
-	--enable-doxygen-docs
-	--enable-xml-docs
+	--disable-tests \
+	--disable-asserts \
+	--enable-doxygen-docs \
+	--enable-xml-docs \
 	--enable-userdb-cache \
 %if %enable_verbose
 	--enable-verbose-mode=yes
@@ -175,7 +175,9 @@ mkdir %{buildroot}%{_datadir}/dbus-%{lib_api}/interfaces
 # Make sure that when somebody asks for D-Bus under the name of the
 # old SysV script, that he ends up with the standard dbus.service name
 # now.
+%if %{_with_systemd}
 ln -s dbus.service %{buildroot}/lib/systemd/system/messagebus.service
+%endif
 
 #add devhelp compatible helps
 mkdir -p %{buildroot}%{_datadir}/devhelp/books/dbus
