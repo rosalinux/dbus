@@ -1,19 +1,17 @@
-%define lib_major 3
-%define lib_api 1
-%define lib_name %mklibname dbus- %{lib_api} %{lib_major}
-%define develname %mklibname -d dbus- %{lib_api}
+%define major 3
+%define api 1
+%define lib_name %mklibname dbus- %{api} %{major}
+%define develname %mklibname -d dbus- %{api}
 
 %define enable_test 0
 %define enable_verbose 0
-
-%define _with_systemd 1
 
 %define git_url git://git.freedesktop.org/git/dbus/dbus
 
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.4.16
-Release:	2
+Release:	3
 License:	GPLv2+ or AFL
 Group:		System/Servers
 URL:		http://www.freedesktop.org/Software/dbus
@@ -34,19 +32,16 @@ BuildRequires:	expat-devel >= 2.0.1
 BuildRequires:	pkgconfig(libcap-ng)
 BuildRequires:	pkgconfig(x11)
 BuildRequires:	pkgconfig(glib-2.0)
-%if %{_with_systemd}
 BuildRequires:	systemd-units
 Requires(post):	systemd-units 
 Requires(post):	systemd-sysvinit
 Requires(preun):	systemd-units
 Requires(postun):	systemd-units
-%endif
 Requires(pre):	rpm-helper
-Requires(preun):	rpm-helper
+Requires(preun):rpm-helper
 Requires(post):	rpm-helper
-Requires(postun):	rpm-helper
+Requires(postun):rpm-helper
 Requires(post):	chkconfig >= 1.3.37-3
-Requires(post):	%{lib_name} >= %{version}-%{release}
 Provides:	should-restart = system
 
 %description
@@ -54,6 +49,7 @@ D-Bus is a system for sending messages between applications. It is
 used both for the systemwide message bus service, and as a
 per-user-login-session messaging facility.
 
+#--------------------------------------------------------------------
 %package -n %{lib_name}
 Summary:	Shared library for using D-Bus
 Group:		System/Libraries
@@ -61,17 +57,19 @@ Group:		System/Libraries
 %description -n %{lib_name}
 D-Bus shared library.
 
+#--------------------------------------------------------------------
 %package -n %{develname}
 Summary:	Libraries and headers for D-Bus
 Group:		Development/C
 Requires:	%{lib_name} = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
 Conflicts:	%{_lib}dbus-1_0-devel < 1.4.14
-Obsoletes:	%{mklibname -d dbus- 1 3} < 1.4.14
+Obsoletes:	%{_lib}dbus-1_3-devel < 1.4.14
 
 %description -n %{develname}
 Headers and static libraries for D-Bus.
 
+#--------------------------------------------------------------------
 %package x11
 Summary:	X11-requiring add-ons for D-Bus
 Group:		System/Servers
@@ -81,10 +79,10 @@ Requires:	dbus = %{version}-%{release}
 D-Bus contains some tools that require Xlib to be installed, those are
 in this separate package so server systems need not install X.
 
+#--------------------------------------------------------------------
 %package doc
 Summary:	Developer documentation for D-BUS
 Group:		Books/Computer books
-Requires:	dbus = %{version}-%{release}
 Suggests:	devhelp
 Conflicts:	%{develname} < 1.2.20
 
@@ -92,6 +90,7 @@ Conflicts:	%{develname} < 1.2.20
 This package contains developer documentation for D-Bus along with
 other supporting documentation such as the introspect dtd file.
 
+#--------------------------------------------------------------------
 %prep
 %setup -q
 %patch0 -p1 -b .initscript
@@ -103,7 +102,7 @@ other supporting documentation such as the introspect dtd file.
 #needed for correct localstatedir location 
 %define _localstatedir %{_var}
 
-COMMON_ARGS="--with-systemdsystemunitdir=/lib/systemd/system --disable-selinux --with-system-pid-file=%{_var}/run/messagebus.pid --with-system-socket=%{_var}/run/dbus/system_bus_socket --with-session-socket-dir=/tmp --libexecdir=/%{_lib}/dbus-%{lib_api}" 
+COMMON_ARGS="--with-systemdsystemunitdir=/lib/systemd/system --disable-selinux --with-system-pid-file=%{_var}/run/messagebus.pid --with-system-socket=%{_var}/run/dbus/system_bus_socket --with-session-socket-dir=/tmp --libexecdir=/%{_lib}/dbus-%{api}" 
 
 #### Build once with tests to make check
 %if %{enable_test}
@@ -113,9 +112,6 @@ COMMON_ARGS="--with-systemdsystemunitdir=/lib/systemd/system --disable-selinux -
 	--enable-verbose-mode=yes \
 	--enable-asserts=yes \
 	--disable-doxygen-docs \
-%if !%{_with_systemd}
-	--without-systemdsystemunitdir \
-%endif
 	--disable-xml-docs
 
 DBUS_VERBOSE=1 %make
@@ -157,7 +153,7 @@ rm -rf %{buildroot}
 mkdir -p %{buildroot}/%{_lib} %{buildroot}%{_var}/lib/dbus
 
 mv %{buildroot}%{_libdir}/*dbus-1*.so.* %{buildroot}/%{_lib} 
-ln -sf ../../%{_lib}/libdbus-%{lib_api}.so.%{lib_major} %{buildroot}%{_libdir}/libdbus-%{lib_api}.so
+ln -sf ../../%{_lib}/libdbus-%{api}.so.%{major} %{buildroot}%{_libdir}/libdbus-%{api}.so
 
 mkdir -p %{buildroot}%{_sysconfdir}/X11/xinit.d
 cat << EOF > %{buildroot}%{_sysconfdir}/X11/xinit.d/30dbus
@@ -170,14 +166,12 @@ EOF
 chmod 755 %{buildroot}%{_sysconfdir}/X11/xinit.d/30dbus
 
 # create directory
-mkdir %{buildroot}%{_datadir}/dbus-%{lib_api}/interfaces
+mkdir %{buildroot}%{_datadir}/dbus-%{api}/interfaces
 
 # Make sure that when somebody asks for D-Bus under the name of the
 # old SysV script, that he ends up with the standard dbus.service name
 # now.
-%if %{_with_systemd}
 ln -s dbus.service %{buildroot}/lib/systemd/system/messagebus.service
-%endif
 
 #add devhelp compatible helps
 mkdir -p %{buildroot}%{_datadir}/devhelp/books/dbus
@@ -230,11 +224,11 @@ fi
 
 %files
 %doc COPYING NEWS
-%dir %{_sysconfdir}/dbus-%{lib_api}
-%config(noreplace) %{_sysconfdir}/dbus-%{lib_api}/*.conf
+%dir %{_sysconfdir}/dbus-%{api}
+%config(noreplace) %{_sysconfdir}/dbus-%{api}/*.conf
 %{_sysconfdir}/rc.d/init.d/*
-%dir %{_sysconfdir}/dbus-%{lib_api}/system.d
-%dir %{_sysconfdir}/dbus-%{lib_api}/session.d
+%dir %{_sysconfdir}/dbus-%{api}/system.d
+%dir %{_sysconfdir}/dbus-%{api}/session.d
 %dir %{_var}/run/dbus
 %dir %{_var}/lib/dbus
 %dir %{_libdir}/dbus-1.0
@@ -243,33 +237,31 @@ fi
 %{_bindir}/dbus-cleanup-sockets
 %{_bindir}/dbus-uuidgen
 %{_mandir}/man*/*
-%dir %{_datadir}/dbus-%{lib_api}
-%{_datadir}/dbus-%{lib_api}/system-services
-%{_datadir}/dbus-%{lib_api}/services
-%{_datadir}/dbus-%{lib_api}/interfaces
+%dir %{_datadir}/dbus-%{api}
+%{_datadir}/dbus-%{api}/system-services
+%{_datadir}/dbus-%{api}/services
+%{_datadir}/dbus-%{api}/interfaces
 # See doc/system-activation.txt in source tarball for the rationale
 # behind these permissions
-%dir /%{_lib}/dbus-%{lib_api}
-%attr(4750,root,messagebus) /%{_lib}/dbus-%{lib_api}/dbus-daemon-launch-helper
-%if %{_with_systemd}
+%dir /%{_lib}/dbus-%{api}
+%attr(4750,root,messagebus) /%{_lib}/dbus-%{api}/dbus-daemon-launch-helper
 /lib/systemd/system/dbus.service
 /lib/systemd/system/messagebus.service
 /lib/systemd/system/dbus.socket
 /lib/systemd/system/dbus.target.wants/dbus.socket
 /lib/systemd/system/multi-user.target.wants/dbus.service
 /lib/systemd/system/sockets.target.wants/dbus.socket
-%endif
 
 %files -n %{lib_name}
-/%{_lib}/*dbus-%{lib_api}*.so.%{lib_major}*
+/%{_lib}/*dbus-%{api}*.so.%{major}*
 
 %files -n %develname
 %doc ChangeLog 
-%{_libdir}/libdbus-%{lib_api}.a
-%{_libdir}/libdbus-%{lib_api}.so
-%{_libdir}/dbus-1.0/include
-%{_libdir}/pkgconfig/dbus-%{lib_api}.pc
-%{_includedir}/dbus-1.0
+%{_libdir}/libdbus-%{api}.a
+%{_libdir}/libdbus-%{api}.so
+%{_libdir}/dbus-1.0/include/
+%{_libdir}/pkgconfig/dbus-%{api}.pc
+%{_includedir}/dbus-1.0/
 
 %files x11
 %{_sysconfdir}/X11/xinit.d/*
@@ -279,4 +271,3 @@ fi
 %files doc
 %doc doc/introspect.dtd doc/introspect.xsl doc/system-activation.txt
 %doc %{_datadir}/devhelp/books/dbus
-
