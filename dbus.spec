@@ -214,13 +214,8 @@ fi
 /sbin/chkconfig --del messagebus >/dev/null 2>&1 || :
 /bin/systemctl try-restart dbus.service >/dev/null 2>&1 || :
 
-%triggerpostun -- dbus < 0.21-4mdk
-/sbin/chkconfig --del messagebus
-/sbin/chkconfig --add messagebus
-
 %triggerpostun -- dbus < 1.2.4.4permissive-2mdv
 /sbin/chkconfig --level 7 messagebus reset
-
 
 %files
 %doc COPYING NEWS
