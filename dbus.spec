@@ -10,8 +10,8 @@
 
 Summary:	D-Bus message bus
 Name:		dbus
-Version:	1.4.18
-Release:	2
+Version:	1.4.20
+Release:	1
 License:	GPLv2+ or AFL
 Group:		System/Servers
 URL:		http://www.freedesktop.org/Software/dbus
@@ -29,9 +29,9 @@ BuildRequires:	doxygen
 BuildRequires:	libtool
 BuildRequires:	xmlto
 BuildRequires:	expat-devel >= 2.0.1
+BuildRequires:	pkgconfig(glib-2.0)
 BuildRequires:	pkgconfig(libcap-ng)
 BuildRequires:	pkgconfig(x11)
-BuildRequires:	pkgconfig(glib-2.0)
 BuildRequires:	systemd-units
 Requires(post):	systemd-units 
 Requires(post):	systemd-sysvinit
@@ -49,7 +49,6 @@ D-Bus is a system for sending messages between applications. It is
 used both for the systemwide message bus service, and as a
 per-user-login-session messaging facility.
 
-#--------------------------------------------------------------------
 %package -n	%{libname}
 Summary:	Shared library for using D-Bus
 Group:		System/Libraries
@@ -57,7 +56,6 @@ Group:		System/Libraries
 %description -n	%{libname}
 D-Bus shared library.
 
-#--------------------------------------------------------------------
 %package -n	%{devname}
 Summary:	Libraries and headers for D-Bus
 Group:		Development/C
@@ -69,7 +67,6 @@ Obsoletes:	%{_lib}dbus-1_3-devel < 1.4.14
 %description -n	%{devname}
 Headers and static libraries for D-Bus.
 
-#--------------------------------------------------------------------
 %package	x11
 Summary:	X11-requiring add-ons for D-Bus
 Group:		System/Servers
@@ -79,7 +76,6 @@ Requires:	dbus = %{version}-%{release}
 D-Bus contains some tools that require Xlib to be installed, those are
 in this separate package so server systems need not install X.
 
-#--------------------------------------------------------------------
 %package	doc
 Summary:	Developer documentation for D-BUS
 Group:		Books/Computer books
@@ -90,7 +86,6 @@ Conflicts:	%{devname} < 1.2.20
 This package contains developer documentation for D-Bus along with
 other supporting documentation such as the introspect dtd file.
 
-#--------------------------------------------------------------------
 %prep
 %setup -q
 %patch0 -p1 -b .initscript
