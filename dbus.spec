@@ -10,7 +10,7 @@
 
 Summary:	D-Bus message bus
 Name:		dbus
-Version:	1.4.20
+Version:	1.6.2
 Release:	1
 License:	GPLv2+ or AFL
 Group:		System/Servers
@@ -22,7 +22,7 @@ Patch0:		dbus-initscript.patch
 # (fc) 1.0.2-5mdv disable fatal warnings on check (fd.o bug #13270)
 Patch3:		dbus-1.0.2-disable_fatal_warning_on_check.patch
 # (bor) synchronize dbus.service with dbus.target so dependencies work
-Patch7:		dbus-1.4.4-dbus.service-before-dbus.target.patch
+Patch7:		dbus-1.6.2-dbus.service-before-dbus.target.patch
 
 BuildRequires:	docbook-dtd412-xml
 BuildRequires:	doxygen
