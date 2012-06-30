@@ -32,8 +32,10 @@ BuildRequires:	expat-devel >= 2.0.1
 BuildRequires:	pkgconfig(glib-2.0)
 BuildRequires:	pkgconfig(libcap-ng)
 BuildRequires:	pkgconfig(x11)
-BuildRequires:	systemd-units
-Requires(post):	systemd-units 
+BuildRequires:	pkgconfig(libsystemd-daemon) >= 32
+BuildRequires:	pkgconfig(libsystemd-login) >= 32
+BuildRequires:	pkgconfig(systemd)
+Requires(post):	systemd-units
 Requires(post):	systemd-sysvinit
 Requires(preun):systemd-units
 Requires(postun):systemd-units
@@ -49,14 +51,14 @@ D-Bus is a system for sending messages between applications. It is
 used both for the systemwide message bus service, and as a
 per-user-login-session messaging facility.
 
-%package -n	%{libname}
+%package -n %{libname}
 Summary:	Shared library for using D-Bus
 Group:		System/Libraries
 
 %description -n	%{libname}
 D-Bus shared library.
 
-%package -n	%{devname}
+%package -n %{devname}
 Summary:	Libraries and headers for D-Bus
 Group:		Development/C
 Requires:	%{libname} = %{version}-%{release}
@@ -67,22 +69,22 @@ Obsoletes:	%{_lib}dbus-1_3-devel < 1.4.14
 %description -n	%{devname}
 Headers and static libraries for D-Bus.
 
-%package	x11
+%package x11
 Summary:	X11-requiring add-ons for D-Bus
 Group:		System/Servers
 Requires:	dbus = %{version}-%{release}
 
-%description	x11
+%description x11
 D-Bus contains some tools that require Xlib to be installed, those are
 in this separate package so server systems need not install X.
 
-%package	doc
+%package doc
 Summary:	Developer documentation for D-BUS
 Group:		Books/Computer books
 Suggests:	devhelp
 Conflicts:	%{devname} < 1.2.20
 
-%description	doc
+%description doc
 This package contains developer documentation for D-Bus along with
 other supporting documentation such as the introspect dtd file.
 
@@ -97,7 +99,7 @@ other supporting documentation such as the introspect dtd file.
 #needed for correct localstatedir location 
 %define _localstatedir %{_var}
 
-COMMON_ARGS="--with-systemdsystemunitdir=/lib/systemd/system --disable-selinux --with-system-pid-file=%{_var}/run/messagebus.pid --with-system-socket=%{_var}/run/dbus/system_bus_socket --with-session-socket-dir=/tmp --libexecdir=/%{_lib}/dbus-%{api}" 
+COMMON_ARGS="--enable-systemd --with-systemdsystemunitdir=/lib/systemd/system --disable-selinux --with-system-pid-file=%{_var}/run/messagebus.pid --with-system-socket=%{_var}/run/dbus/system_bus_socket --with-session-socket-dir=/tmp --libexecdir=/%{_lib}/dbus-%{api}" 
 
 #### Build once with tests to make check
 %if %{enable_test}
