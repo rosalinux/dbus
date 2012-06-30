@@ -11,7 +11,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.6.2
-Release:	1
+Release:	2
 License:	GPLv2+ or AFL
 Group:		System/Servers
 URL:		http://www.freedesktop.org/Software/dbus
@@ -37,12 +37,12 @@ BuildRequires:	pkgconfig(libsystemd-login) >= 32
 BuildRequires:	pkgconfig(systemd)
 Requires(post):	systemd-units
 Requires(post):	systemd-sysvinit
-Requires(preun):systemd-units
-Requires(postun):systemd-units
+Requires(preun):	systemd-units
+Requires(postun):	systemd-units
 Requires(pre):	rpm-helper
-Requires(preun):rpm-helper
+Requires(preun):	rpm-helper
 Requires(post):	rpm-helper
-Requires(postun):rpm-helper
+Requires(postun):	rpm-helper
 Requires(post):	chkconfig >= 1.3.37-3
 Provides:	should-restart = system
 
