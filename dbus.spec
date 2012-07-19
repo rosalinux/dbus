@@ -102,7 +102,7 @@ other supporting documentation such as the introspect dtd file.
 COMMON_ARGS="--enable-systemd --with-systemdsystemunitdir=/lib/systemd/system \
     --enable-libaudit --disable-selinux --with-system-pid-file=%{_var}/run/messagebus.pid \
     --with-system-socket=%{_var}/run/dbus/system_bus_socket --with-session-socket-dir=/tmp \
-    --libexecdir=/%{_lib}/dbus-%{api}e"
+    --libexecdir=/%{_lib}/dbus-%{api}"
 
 #### Build once with tests to make check
 %if %{enable_test}
@@ -251,8 +251,7 @@ fi
 /%{_lib}/*dbus-%{api}*.so.%{major}*
 
 %files -n %devname
-%doc ChangeLog 
-%{_libdir}/libdbus-%{api}.a
+%doc ChangeLog
 %{_libdir}/libdbus-%{api}.so
 %{_libdir}/dbus-1.0/include/
 %{_libdir}/pkgconfig/dbus-%{api}.pc
