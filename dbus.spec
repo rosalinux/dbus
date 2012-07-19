@@ -10,8 +10,8 @@
 
 Summary:	D-Bus message bus
 Name:		dbus
-Version:	1.6.2
-Release:	2
+Version:	1.6.4
+Release:	1
 License:	GPLv2+ or AFL
 Group:		System/Servers
 URL:		http://www.freedesktop.org/Software/dbus
@@ -96,15 +96,21 @@ other supporting documentation such as the introspect dtd file.
 %patch7 -p1 -b .after_dbus_target
 
 %build
-#needed for correct localstatedir location 
+#needed for correct localstatedir location
 %define _localstatedir %{_var}
 
-COMMON_ARGS="--enable-systemd --with-systemdsystemunitdir=/lib/systemd/system --disable-selinux --with-system-pid-file=%{_var}/run/messagebus.pid --with-system-socket=%{_var}/run/dbus/system_bus_socket --with-session-socket-dir=/tmp --libexecdir=/%{_lib}/dbus-%{api}" 
+COMMON_ARGS="--enable-systemd --with-systemdsystemunitdir=/lib/systemd/system \
+    --enable-libaudit --disable-selinux --with-system-pid-file=%{_var}/run/messagebus.pid \
+    --with-system-socket=%{_var}/run/dbus/system_bus_socket --with-session-socket-dir=/tmp \
+    --libexecdir=/%{_lib}/dbus-%{api}e"
 
 #### Build once with tests to make check
 %if %{enable_test}
+# (tpg) enable verbose mode by default --enable-verbose-mode
 %configure2_5x \
 	$COMMON_ARGS \
+	--disable-static \
+	--enable-verbose-mode \
 	--enable-tests=yes \
 	--enable-verbose-mode=yes \
 	--enable-asserts=yes \
@@ -121,15 +127,16 @@ make clean
 
 %configure2_5x \
 	$COMMON_ARGS \
+	--disable-static \
 	--disable-tests \
 	--disable-asserts \
 	--enable-doxygen-docs \
 	--enable-xml-docs \
 	--enable-userdb-cache \
 %if %enable_verbose
-	--enable-verbose-mode=yes
+	--enable-verbose-mode
 %else
-	--enable-verbose-mode=no
+	--disable-verbose-mode
 %endif
 
 %make
