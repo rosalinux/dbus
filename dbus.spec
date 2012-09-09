@@ -11,14 +11,12 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.6.4
-Release:	1
+Release:	2
 License:	GPLv2+ or AFL
 Group:		System/Servers
 URL:		http://www.freedesktop.org/Software/dbus
 Source0:	http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1:	doxygen_to_devhelp.xsl
-# (fc) 0.20-1mdk fix start/stop order (fd.o bug #11491), starts after network
-Patch0:		dbus-initscript.patch
 # (fc) 1.0.2-5mdv disable fatal warnings on check (fd.o bug #13270)
 Patch3:		dbus-1.0.2-disable_fatal_warning_on_check.patch
 # (bor) synchronize dbus.service with dbus.target so dependencies work
@@ -90,12 +88,12 @@ other supporting documentation such as the introspect dtd file.
 
 %prep
 %setup -q
-%patch0 -p1 -b .initscript
 #only disable in cooker to detect buggy programs
 #patch3 -p1 -b .disable_fatal_warning_on_check
 %patch7 -p1 -b .after_dbus_target
 
 %build
+%serverbuild_hardened
 #needed for correct localstatedir location
 %define _localstatedir %{_var}
 
@@ -186,6 +184,9 @@ cp doc/dbus-faq.html %{buildroot}%{_datadir}/devhelp/books/dbus
 cp doc/dbus-tutorial.html %{buildroot}%{_datadir}/devhelp/books/dbus
 cp doc/api/html/* %{buildroot}%{_datadir}/devhelp/books/dbus/api
 
+# (tpg) remove old initscript
+rm -rf %{_sysconfdir}/rc.d/init.d/*
+
 %pre
 %_pre_useradd messagebus / /sbin/nologin
 %_pre_groupadd daemon messagebus
@@ -195,6 +196,8 @@ if [ "$1" = "1" ]; then
     /usr/bin/dbus-uuidgen --ensure
     /bin/systemctl enable dbus.service >/dev/null 2>&1 || :
 fi
+
+%_post_service %{name} %{name}.service
 
 %postun
 %_postun_groupdel daemon messagebus
@@ -221,7 +224,6 @@ fi
 %doc COPYING NEWS
 %dir %{_sysconfdir}/dbus-%{api}
 %config(noreplace) %{_sysconfdir}/dbus-%{api}/*.conf
-%{_sysconfdir}/rc.d/init.d/*
 %dir %{_sysconfdir}/dbus-%{api}/system.d
 %dir %{_sysconfdir}/dbus-%{api}/session.d
 %dir %{_var}/run/dbus
