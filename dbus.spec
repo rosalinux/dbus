@@ -185,7 +185,7 @@ cp doc/dbus-tutorial.html %{buildroot}%{_datadir}/devhelp/books/dbus
 cp doc/api/html/* %{buildroot}%{_datadir}/devhelp/books/dbus/api
 
 # (tpg) remove old initscript
-rm -rf %{_sysconfdir}/rc.d/init.d/*
+rm -rf %{buildroot}%{_sysconfdir}/rc.d/init.d/*
 
 %pre
 %_pre_useradd messagebus / /sbin/nologin
