@@ -8,10 +8,12 @@
 
 %define git_url git://git.freedesktop.org/git/dbus/dbus
 
+%bcond_without	uclibc
+
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.6.4
-Release:	2
+Release:	3
 License:	GPLv2+ or AFL
 Group:		System/Servers
 URL:		http://www.freedesktop.org/Software/dbus
@@ -33,6 +35,10 @@ BuildRequires:	pkgconfig(x11)
 BuildRequires:	pkgconfig(libsystemd-daemon) >= 32
 BuildRequires:	pkgconfig(libsystemd-login) >= 32
 BuildRequires:	pkgconfig(systemd)
+%if %{with uclibc}
+BuildRequires:	uClibc-devel >= 0.9.33.2-9
+%endif
+
 Requires(post):	systemd-units
 Requires(post):	systemd-sysvinit
 Requires(preun):	systemd-units
@@ -49,6 +55,16 @@ D-Bus is a system for sending messages between applications. It is
 used both for the systemwide message bus service, and as a
 per-user-login-session messaging facility.
 
+%package -n	uclibc-%{name}
+Summary:	D-Bus message bus (uClibc linked)
+Group:		System/Servers
+Requires:	%{name} = %{EVRD}
+
+%description -n	uclibc-%{name}
+D-Bus is a system for sending messages between applications. It is
+used both for the systemwide message bus service, and as a
+per-user-login-session messaging facility.
+
 %package -n %{libname}
 Summary:	Shared library for using D-Bus
 Group:		System/Libraries
@@ -56,10 +72,20 @@ Group:		System/Libraries
 %description -n	%{libname}
 D-Bus shared library.
 
+%package -n	uclibc-%{libname}
+Summary:	Shared library for using D-Bus (uClibc linked)
+Group:		System/Libraries
+
+%description -n	uclibc-%{libname}
+D-Bus shared library.
+
 %package -n %{devname}
 Summary:	Libraries and headers for D-Bus
 Group:		Development/C
 Requires:	%{libname} = %{version}-%{release}
+%if %{with uclibc}
+Requires:	uclibc-%{libname} = %{version}-%{release}
+%endif
 Provides:	%{name}-devel = %{version}-%{release}
 Conflicts:	%{_lib}dbus-1_0-devel < 1.4.14
 Obsoletes:	%{_lib}dbus-1_3-devel < 1.4.14
@@ -93,7 +119,6 @@ other supporting documentation such as the introspect dtd file.
 %patch7 -p1 -b .after_dbus_target
 
 %build
-%serverbuild_hardened
 #needed for correct localstatedir location
 %define _localstatedir %{_var}
 
@@ -102,11 +127,46 @@ COMMON_ARGS="--enable-systemd --with-systemdsystemunitdir=/lib/systemd/system \
     --with-system-socket=%{_var}/run/dbus/system_bus_socket --with-session-socket-dir=/tmp \
     --libexecdir=/%{_lib}/dbus-%{api}"
 
+export CONFIGURE_TOP=$PWD
+%if %{with uclibc}
+mkdir -p uclibc
+pushd uclibc
+%configure2_5x \
+	CC=%{uclibc_cc} \
+	CFLAGS="%{uclibc_cflags}" \
+	$COMMON_ARGS \
+	--with-sysroot=%{uclibc_root} \
+	--bindir=%{uclibc_root}%{_bindir} \
+	--disable-libaudit \
+	--disable-static \
+	--disable-tests \
+	--disable-asserts \
+	--disable-doxygen-docs \
+	--disable-xml-docs \
+	--enable-userdb-cache \
+%if %enable_verbose
+	--enable-verbose-mode
+%else
+	--disable-verbose-mode
+%endif
+# ugly hack to get rid of library search dir passed..
+for i in `find -name Makefile`; do
+	sed -e 's#-L%{_libdir}##g' -i $i
+done
+%make
+popd
+%endif
+
+%serverbuild_hardened
+
 #### Build once with tests to make check
 %if %{enable_test}
 # (tpg) enable verbose mode by default --enable-verbose-mode
+mkdir -p test
+pushd test
 %configure2_5x \
 	$COMMON_ARGS \
+	--enable-libaudit \
 	--disable-static \
 	--enable-verbose-mode \
 	--enable-tests=yes \
@@ -118,13 +178,14 @@ COMMON_ARGS="--enable-systemd --with-systemdsystemunitdir=/lib/systemd/system \
 DBUS_VERBOSE=1 %make
 
 make check
-
-#### Clean up and build again
-make clean
+popd
 %endif
 
+mkdir -p shared
+pushd shared
 %configure2_5x \
 	$COMMON_ARGS \
+	--enable-libaudit \
 	--disable-static \
 	--disable-tests \
 	--disable-asserts \
@@ -138,16 +199,25 @@ make clean
 %endif
 
 %make
-
 doxygen Doxyfile
 
 xsltproc -o dbus.devhelp %{SOURCE1} doc/api/xml/index.xml
+popd
 
 %check
-make check
+make -C shared check
 
 %install
-%makeinstall_std
+%if %{with uclibc}
+%makeinstall_std -C uclibc
+install -d %{buildroot}%{uclibc_root}{/%{_lib},%{_libdir}}
+mv %{buildroot}%{_libdir}/libdbus-%{api}.so.%{major}* %{buildroot}%{uclibc_root}/%{_lib}
+ln -srf %{buildroot}%{uclibc_root}/%{_lib}/libdbus-%{api}.so.%{major}.* %{buildroot}%{uclibc_root}%{_libdir}/libdbus-%{api}.so
+
+rm -f %{buildroot}%{uclibc_root}%{_bindir}/dbus-{launch,monitor}
+%endif
+
+%makeinstall_std -C shared
 
 # move lib to /, because it might be needed by hotplug script, before
 # /usr is mounted
@@ -178,11 +248,11 @@ ln -s dbus.service %{buildroot}/lib/systemd/system/messagebus.service
 mkdir -p %{buildroot}%{_datadir}/devhelp/books/dbus
 mkdir -p %{buildroot}%{_datadir}/devhelp/books/dbus/api
 
-cp dbus.devhelp %{buildroot}%{_datadir}/devhelp/books/dbus
+cp shared/dbus.devhelp %{buildroot}%{_datadir}/devhelp/books/dbus
 cp doc/dbus-specification.html %{buildroot}%{_datadir}/devhelp/books/dbus
 cp doc/dbus-faq.html %{buildroot}%{_datadir}/devhelp/books/dbus
 cp doc/dbus-tutorial.html %{buildroot}%{_datadir}/devhelp/books/dbus
-cp doc/api/html/* %{buildroot}%{_datadir}/devhelp/books/dbus/api
+cp shared/doc/api/html/* %{buildroot}%{_datadir}/devhelp/books/dbus/api
 
 # (tpg) remove old initscript
 rm -rf %{buildroot}%{_sysconfdir}/rc.d/init.d/*
@@ -249,12 +319,28 @@ fi
 /lib/systemd/system/multi-user.target.wants/dbus.service
 /lib/systemd/system/sockets.target.wants/dbus.socket
 
+%if %{with uclibc}
+%files -n uclibc-%{name}
+%{uclibc_root}%{_bindir}/dbus-daemon
+%{uclibc_root}%{_bindir}/dbus-send
+%{uclibc_root}%{_bindir}/dbus-cleanup-sockets
+%{uclibc_root}%{_bindir}/dbus-uuidgen
+%endif
+
 %files -n %{libname}
 /%{_lib}/*dbus-%{api}*.so.%{major}*
+
+%if %{with uclibc}
+%files -n uclibc-%{libname}
+%{uclibc_root}/%{_lib}/libdbus-%{api}.so.%{major}*
+%endif
 
 %files -n %devname
 %doc ChangeLog
 %{_libdir}/libdbus-%{api}.so
+%if %{with uclibc}
+%{uclibc_root}%{_libdir}/libdbus-%{api}.so
+%endif
 %{_libdir}/dbus-1.0/include/
 %{_libdir}/pkgconfig/dbus-%{api}.pc
 %{_includedir}/dbus-1.0/
