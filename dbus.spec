@@ -12,8 +12,8 @@
 
 Summary:	D-Bus message bus
 Name:		dbus
-Version:	1.6.4
-Release:	3
+Version:	1.6.8
+Release:	1
 License:	GPLv2+ or AFL
 Group:		System/Servers
 URL:		http://www.freedesktop.org/Software/dbus
@@ -31,6 +31,7 @@ BuildRequires:	xmlto
 BuildRequires:	expat-devel >= 2.0.1
 BuildRequires:	pkgconfig(glib-2.0)
 BuildRequires:	pkgconfig(libcap-ng)
+BuildRequires:	pkgconfig(sm)
 BuildRequires:	pkgconfig(x11)
 BuildRequires:	pkgconfig(libsystemd-daemon) >= 32
 BuildRequires:	pkgconfig(libsystemd-login) >= 32
