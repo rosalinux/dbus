@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.6.8
-Release:	1
+Release:	2
 License:	GPLv2+ or AFL
 Group:		System/Servers
 URL:		http://www.freedesktop.org/Software/dbus
@@ -263,24 +263,20 @@ rm -rf %{buildroot}%{_sysconfdir}/rc.d/init.d/*
 %_pre_groupadd daemon messagebus
 
 %post
-if [ "$1" = "1" ]; then 
+if [ "$1" = "1" ]; then
     /usr/bin/dbus-uuidgen --ensure
     /bin/systemctl enable dbus.service >/dev/null 2>&1 || :
-fi
 
 %_post_service %{name} %{name}.service
-
-%postun
-%_postun_groupdel daemon messagebus
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-if [ $1 -ge 1 ] ; then
-    /bin/systemctl try-restart dbus.service >/dev/null 2>&1 || :
 fi
 
+%postun
+%_postun_userdel messagebus
+%_postun_groupdel daemon messagebus
+
 %preun
-if [ $1 = 0 ]; then
-    /bin/systemctl --no-reload dbus.service > /dev/null 2>&1 || :
-    /bin/systemctl stop dbus.service > /dev/null 2>&1 || :
+if [ "$1" = "0" ]; then
+%_preun_service %{name}
 fi
 
 %triggerun -- dbus < 1.4.16-1
