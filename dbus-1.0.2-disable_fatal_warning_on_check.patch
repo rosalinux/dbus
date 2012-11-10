@@ -1,0 +1,11 @@
+--- dbus-1.0.2/dbus/dbus-internals.c.fatalwarningoncheck.patch	2007-03-20 16:20:21.000000000 +0100
++++ dbus-1.0.2/dbus/dbus-internals.c	2007-03-20 16:20:39.000000000 +0100
+@@ -193,7 +193,7 @@
+ 
+ static dbus_bool_t warn_initted = FALSE;
+ static dbus_bool_t fatal_warnings = FALSE;
+-static dbus_bool_t fatal_warnings_on_check_failed = TRUE;
++static dbus_bool_t fatal_warnings_on_check_failed = FALSE;
+ 
+ static void
+ init_warnings(void)
