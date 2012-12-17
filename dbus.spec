@@ -8,12 +8,12 @@
 
 %define git_url git://git.freedesktop.org/git/dbus/dbus
 
-%bcond_with	uclibc
+%bcond_without	uclibc
 
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.6.8
-Release:	3
+Release:	4
 License:	GPLv2+ or AFL
 Group:		System/Servers
 URL:		http://www.freedesktop.org/Software/dbus
