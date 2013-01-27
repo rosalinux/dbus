@@ -1,14 +1,14 @@
-%define	major	3
-%define	api	1
-%define	libname %mklibname dbus- %{api} %{major}
-%define	devname %mklibname -d dbus- %{api}
+%define major 3
+%define api 1
+%define libname %mklibname dbus- %{api} %{major}
+%define devname %mklibname -d dbus- %{api}
 
 %define enable_test 0
 %define enable_verbose 0
 
 %define git_url git://git.freedesktop.org/git/dbus/dbus
 
-%bcond_without	uclibc
+%bcond_without uclibc
 
 Summary:	D-Bus message bus
 Name:		dbus
