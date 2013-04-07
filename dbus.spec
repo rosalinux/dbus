@@ -1,7 +1,7 @@
-%define major 3
-%define api 1
-%define libname %mklibname dbus- %{api} %{major}
-%define devname %mklibname -d dbus- %{api}
+%define api	1
+%define major	3
+%define libname	%mklibname dbus- %{api} %{major}
+%define devname	%mklibname -d dbus- %{api}
 
 %define enable_test 0
 %define enable_verbose 0
@@ -16,7 +16,7 @@ Version:	1.6.8
 Release:	5
 License:	GPLv2+ or AFL
 Group:		System/Servers
-URL:		http://www.freedesktop.org/Software/dbus
+Url:		http://www.freedesktop.org/Software/dbus
 Source0:	http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1:	doxygen_to_devhelp.xsl
 # (fc) 1.0.2-5mdv disable fatal warnings on check (fd.o bug #13270)
@@ -28,7 +28,7 @@ BuildRequires:	docbook-dtd412-xml
 BuildRequires:	doxygen
 BuildRequires:	libtool
 BuildRequires:	xmlto
-BuildRequires:	expat-devel >= 2.0.1
+BuildRequires:	pkgconfig(expat)
 BuildRequires:	pkgconfig(glib-2.0)
 BuildRequires:	pkgconfig(libcap-ng)
 BuildRequires:	pkgconfig(sm)
@@ -40,14 +40,9 @@ BuildRequires:	pkgconfig(systemd)
 BuildRequires:	uClibc-devel >= 0.9.33.2-9
 %endif
 
-Requires(post):	systemd-units
+Requires(post,preun,postun):	systemd-units
 Requires(post):	systemd-sysvinit
-Requires(preun):	systemd-units
-Requires(postun):	systemd-units
-Requires(pre):	rpm-helper
-Requires(preun):	rpm-helper
-Requires(post):	rpm-helper
-Requires(postun):	rpm-helper
+Requires(pre,preun,post,postun):	rpm-helper
 Requires(post):	chkconfig >= 1.3.37-3
 Provides:	should-restart = system
 
@@ -88,8 +83,6 @@ Requires:	%{libname} = %{version}-%{release}
 Requires:	uclibc-%{libname} = %{version}-%{release}
 %endif
 Provides:	%{name}-devel = %{version}-%{release}
-Conflicts:	%{_lib}dbus-1_0-devel < 1.4.14
-Obsoletes:	%{_lib}dbus-1_3-devel < 1.4.14
 
 %description -n	%{devname}
 Headers and static libraries for D-Bus.
@@ -354,3 +347,4 @@ fi
 %files doc
 %doc doc/introspect.dtd doc/introspect.xsl doc/system-activation.txt
 %doc %{_datadir}/devhelp/books/dbus
+
