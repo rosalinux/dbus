@@ -1,7 +1,7 @@
-%define api	1
-%define major	3
-%define libname	%mklibname dbus- %{api} %{major}
-%define devname	%mklibname -d dbus- %{api}
+%define api 1
+%define major 3
+%define libname %mklibname dbus- %{api} %{major}
+%define devname %mklibname -d dbus- %{api}
 
 %define enable_test 0
 %define enable_verbose 0
@@ -12,7 +12,7 @@
 
 Summary:	D-Bus message bus
 Name:		dbus
-Version:	1.6.10
+Version:	1.6.12
 Release:	1
 License:	GPLv2+ or AFL
 Group:		System/Servers
@@ -43,7 +43,6 @@ BuildRequires:	uClibc-devel >= 0.9.33.2-9
 Requires(post,preun,postun):	systemd-units
 Requires(post):	systemd-sysvinit
 Requires(pre,preun,post,postun):	rpm-helper
-Requires(post):	chkconfig >= 1.3.37-3
 Provides:	should-restart = system
 
 %description
