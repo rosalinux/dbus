@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.6.12
-Release:	1
+Release:	2
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -284,7 +284,6 @@ fi
 /sbin/chkconfig --level 7 messagebus reset
 
 %files
-%doc COPYING NEWS
 %dir %{_sysconfdir}/dbus-%{api}
 %config(noreplace) %{_sysconfdir}/dbus-%{api}/*.conf
 %dir %{_sysconfdir}/dbus-%{api}/system.d
@@ -344,6 +343,7 @@ fi
 %{_bindir}/dbus-monitor
 
 %files doc
+%doc COPYING NEWS
 %doc doc/introspect.dtd doc/introspect.xsl doc/system-activation.txt
+%{_docdir}/%{name}/*
 %doc %{_datadir}/devhelp/books/dbus
-
