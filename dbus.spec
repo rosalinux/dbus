@@ -12,7 +12,7 @@
 
 Summary:	D-Bus message bus
 Name:		dbus
-Version:	1.6.12
+Version:	1.6.14
 Release:	1
 License:	GPLv2+ or AFL
 Group:		System/Servers
@@ -50,6 +50,7 @@ D-Bus is a system for sending messages between applications. It is
 used both for the systemwide message bus service, and as a
 per-user-login-session messaging facility.
 
+%if %{with uclibc}
 %package -n	uclibc-%{name}
 Summary:	D-Bus message bus (uClibc linked)
 Group:		System/Servers
@@ -59,6 +60,7 @@ Requires:	%{name} = %{EVRD}
 D-Bus is a system for sending messages between applications. It is
 used both for the systemwide message bus service, and as a
 per-user-login-session messaging facility.
+%endif
 
 %package -n %{libname}
 Summary:	Shared library for using D-Bus
@@ -67,12 +69,14 @@ Group:		System/Libraries
 %description -n	%{libname}
 D-Bus shared library.
 
+%if %{with uclibc}
 %package -n	uclibc-%{libname}
 Summary:	Shared library for using D-Bus (uClibc linked)
 Group:		System/Libraries
 
 %description -n	uclibc-%{libname}
 D-Bus shared library.
+%endif
 
 %package -n %{devname}
 Summary:	Libraries and headers for D-Bus
@@ -112,6 +116,7 @@ other supporting documentation such as the introspect dtd file.
 %patch7 -p1 -b .after_dbus_target
 
 %build
+%serverbuild_hardened
 #needed for correct localstatedir location
 %define _localstatedir %{_var}
 
@@ -149,8 +154,6 @@ done
 %make
 popd
 %endif
-
-%serverbuild_hardened
 
 #### Build once with tests to make check
 %if %{enable_test}
@@ -255,7 +258,7 @@ rm -rf %{buildroot}%{_sysconfdir}/rc.d/init.d/*
 %_pre_groupadd daemon messagebus
 
 %post
-if [ "$1" = "1" ]; then 
+if [ "$1" = "1" ]; then
     /usr/bin/dbus-uuidgen --ensure
     /bin/systemctl enable dbus.service >/dev/null 2>&1 || :
 fi
@@ -284,7 +287,6 @@ fi
 /sbin/chkconfig --level 7 messagebus reset
 
 %files
-%doc COPYING NEWS
 %dir %{_sysconfdir}/dbus-%{api}
 %config(noreplace) %{_sysconfdir}/dbus-%{api}/*.conf
 %dir %{_sysconfdir}/dbus-%{api}/system.d
@@ -344,6 +346,7 @@ fi
 %{_bindir}/dbus-monitor
 
 %files doc
+%doc COPYING NEWS
 %doc doc/introspect.dtd doc/introspect.xsl doc/system-activation.txt
+%{_docdir}/%{name}/*
 %doc %{_datadir}/devhelp/books/dbus
-
