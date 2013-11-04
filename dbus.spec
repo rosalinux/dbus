@@ -123,8 +123,7 @@ other supporting documentation such as the introspect dtd file.
 
 COMMON_ARGS="--enable-systemd --with-systemdsystemunitdir=/lib/systemd/system \
     --enable-libaudit --disable-selinux --with-system-pid-file=%{_var}/run/messagebus.pid \
-    --with-system-socket=%{_var}/run/dbus/system_bus_socket --with-session-socket-dir=/tmp \
-    --libexecdir=/%{_lib}/dbus-%{api}"
+    --with-system-socket=/run/dbus/system_bus_socket --libexecdir=/%{_lib}/dbus-%{api}"
 
 export CONFIGURE_TOP=$PWD
 %if %{with uclibc}
@@ -185,7 +184,7 @@ pushd shared
 	--enable-libaudit \
 	--disable-static \
 	--disable-tests \
-	--disable-asserts \
+	--disable-asserts=yes \
 	--enable-doxygen-docs \
 	--enable-xml-docs \
 	--enable-userdb-cache \
