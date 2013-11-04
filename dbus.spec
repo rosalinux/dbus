@@ -184,7 +184,7 @@ pushd shared
 	--enable-libaudit \
 	--disable-static \
 	--disable-tests \
-	--disable-asserts=yes \
+	--disable-asserts \
 	--enable-doxygen-docs \
 	--enable-xml-docs \
 	--enable-userdb-cache \
