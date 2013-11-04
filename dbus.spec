@@ -167,7 +167,7 @@ pushd test
 	--enable-verbose-mode \
 	--enable-tests=yes \
 	--enable-verbose-mode=yes \
-	--enable-asserts=yes \
+	--enable-asserts \
 	--disable-doxygen-docs \
 	--disable-xml-docs
 
