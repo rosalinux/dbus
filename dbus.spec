@@ -12,7 +12,7 @@
 
 Summary:	D-Bus message bus
 Name:		dbus
-Version:	1.6.14
+Version:	1.6.18
 Release:	1
 License:	GPLv2+ or AFL
 Group:		System/Servers
@@ -42,7 +42,8 @@ BuildRequires:	uClibc-devel >= 0.9.33.2-9
 
 Requires(post,preun,postun):	systemd-units
 Requires(post):	systemd-sysvinit
-Requires(pre,preun,post,postun):	rpm-helper
+Requires(pre):	shadow-utils
+Requires(preun,post,postun):	rpm-helper
 Provides:	should-restart = system
 
 %description
@@ -122,8 +123,7 @@ other supporting documentation such as the introspect dtd file.
 
 COMMON_ARGS="--enable-systemd --with-systemdsystemunitdir=/lib/systemd/system \
     --enable-libaudit --disable-selinux --with-system-pid-file=%{_var}/run/messagebus.pid \
-    --with-system-socket=%{_var}/run/dbus/system_bus_socket --with-session-socket-dir=/tmp \
-    --libexecdir=/%{_lib}/dbus-%{api}"
+    --with-system-socket=/run/dbus/system_bus_socket --libexecdir=/%{_lib}/dbus-%{api}"
 
 export CONFIGURE_TOP=$PWD
 %if %{with uclibc}
@@ -167,7 +167,7 @@ pushd test
 	--enable-verbose-mode \
 	--enable-tests=yes \
 	--enable-verbose-mode=yes \
-	--enable-asserts=yes \
+	--enable-asserts \
 	--disable-doxygen-docs \
 	--disable-xml-docs
 
@@ -254,8 +254,10 @@ cp shared/doc/api/html/* %{buildroot}%{_datadir}/devhelp/books/dbus/api
 rm -rf %{buildroot}%{_sysconfdir}/rc.d/init.d/*
 
 %pre
-%_pre_useradd messagebus / /sbin/nologin
-%_pre_groupadd daemon messagebus
+# (cg) Do not require/use rpm-helper helper macros... we must do this manually
+# to avoid dep loops during install
+/usr/sbin/groupadd -r messagebus 2>/dev/null || :
+/usr/sbin/useradd -r -c "system user for %{name}" -g messagebus -s /sbin/nologin -d / messagebus 2>/dev/null ||:
 
 %post
 if [ "$1" = "1" ]; then
@@ -266,7 +268,7 @@ fi
 %_post_service %{name} %{name}.service
 
 %postun
-%_postun_groupdel daemon messagebus
+%_postun_groupdel messagebus
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ $1 -ge 1 ] ; then
     /bin/systemctl try-restart dbus.service >/dev/null 2>&1 || :
