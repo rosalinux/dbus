@@ -7,22 +7,22 @@
 %define enable_verbose 0
 
 %define git_url git://git.freedesktop.org/git/dbus/dbus
+%define	gitdate	20131112
 
 %bcond_without uclibc
 
 Summary:	D-Bus message bus
 Name:		dbus
-Version:	1.6.18
-Release:	2
+Version:	1.6.19~%{gitdate}
+Release:	1
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
-Source0:	http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
+Source0:	http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.xz
 Source1:	doxygen_to_devhelp.xsl
 # (fc) 1.0.2-5mdv disable fatal warnings on check (fd.o bug #13270)
 Patch3:		dbus-1.0.2-disable_fatal_warning_on_check.patch
 Patch4:		dbus-daemon-bindir.patch
-Patch5:		dbus-1.6.18-avoid-undefined-7c00ed22d9b5c33f5b33221e906946b11a9bde3b.patch
 
 BuildRequires:	docbook-dtd412-xml
 BuildRequires:	doxygen
@@ -115,7 +115,6 @@ other supporting documentation such as the introspect dtd file.
 #only disable in cooker to detect buggy programs
 #patch3 -p1 -b .disable_fatal_warning_on_check̃~
 %patch4 -p1 -b .daemon_bindir~
-%patch5 -p1 -b .undefined~
 if test -f autogen.sh; then env NOCONFIGURE=1 ./autogen.sh; else autoreconf -v -f -i; fi
 
 %build
@@ -153,7 +152,9 @@ pushd uclibc
 for i in `find -name Makefile`; do
 	sed -e 's#-L%{_libdir}##g' -i $i
 done
-%make
+for i in bus dbus tools; do
+	%make -C $i
+done
 popd
 %endif
 
@@ -207,7 +208,11 @@ make -C shared check
 
 %install
 %if %{with uclibc}
-%makeinstall_std -C uclibc
+pushd uclibc
+for i in bus dbus tools; do
+	%makeinstall_std -C $i
+done
+popd
 install -d %{buildroot}%{uclibc_root}{/%{_lib},%{_libdir}}
 mv %{buildroot}%{_libdir}/libdbus-%{api}.so.%{major}* %{buildroot}%{uclibc_root}/%{_lib}
 ln -srf %{buildroot}%{uclibc_root}/%{_lib}/libdbus-%{api}.so.%{major}.* %{buildroot}%{uclibc_root}%{_libdir}/libdbus-%{api}.so
@@ -248,9 +253,9 @@ mkdir -p %{buildroot}%{_datadir}/devhelp/books/dbus
 mkdir -p %{buildroot}%{_datadir}/devhelp/books/dbus/api
 
 cp shared/dbus.devhelp %{buildroot}%{_datadir}/devhelp/books/dbus
-cp doc/dbus-specification.html %{buildroot}%{_datadir}/devhelp/books/dbus
-cp doc/dbus-faq.html %{buildroot}%{_datadir}/devhelp/books/dbus
-cp doc/dbus-tutorial.html %{buildroot}%{_datadir}/devhelp/books/dbus
+cp shared/doc/dbus-specification.html %{buildroot}%{_datadir}/devhelp/books/dbus
+cp shared/doc/dbus-faq.html %{buildroot}%{_datadir}/devhelp/books/dbus
+cp shared/doc/dbus-tutorial.html %{buildroot}%{_datadir}/devhelp/books/dbus
 cp shared/doc/api/html/* %{buildroot}%{_datadir}/devhelp/books/dbus/api
 
 # (tpg) remove old initscript
