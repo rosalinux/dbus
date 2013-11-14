@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.6.18
-Release:	1
+Release:	2
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -299,9 +299,10 @@ fi
 %dir %{_localstatedir}/run/dbus
 %dir %{_localstatedir}/lib/dbus
 %dir %{_libdir}/dbus-1.0
-/bin/dbus-daemon
-/bin/dbus-send
 /bin/dbus-cleanup-sockets
+/bin/dbus-daemon
+/bin/dbus-monitor
+/bin/dbus-send
 /bin/dbus-uuidgen
 %{_mandir}/man*/*
 %dir %{_datadir}/dbus-%{api}
@@ -348,7 +349,6 @@ fi
 %files x11
 %{_sysconfdir}/X11/xinit.d/*
 %{_bindir}/dbus-launch
-/bin/dbus-monitor
 
 %files doc
 %doc COPYING NEWS
