@@ -122,7 +122,7 @@ if test -f autogen.sh; then env NOCONFIGURE=1 ./autogen.sh; else autoreconf -v -
 COMMON_ARGS="--enable-systemd --with-systemdsystemunitdir=%{_unitdir} \
 	--bindir=/bin --enable-libaudit --disable-selinux  \
 	--with-system-pid-file=%{_localstatedir}/run/messagebus.pid --exec-prefix=/ \
-	--with-system-socket=/run/dbus/system_bus_socket --libexecdir=/%{_lib}/dbus-%{api}"
+	--libexecdir=/%{_lib}/dbus-%{api}"
 
 export CONFIGURE_TOP=$PWD
 %if %{with uclibc}
