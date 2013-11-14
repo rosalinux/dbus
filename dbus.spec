@@ -21,8 +21,6 @@ Source0:	http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1:	doxygen_to_devhelp.xsl
 # (fc) 1.0.2-5mdv disable fatal warnings on check (fd.o bug #13270)
 Patch3:		dbus-1.0.2-disable_fatal_warning_on_check.patch
-# (bor) synchronize dbus.service with dbus.target so dependencies work
-Patch7:		dbus-1.6.2-dbus.service-before-dbus.target.patch
 
 BuildRequires:	docbook-dtd412-xml
 BuildRequires:	doxygen
@@ -114,7 +112,6 @@ other supporting documentation such as the introspect dtd file.
 %setup -q
 #only disable in cooker to detect buggy programs
 #patch3 -p1 -b .disable_fatal_warning_on_check
-%patch7 -p1 -b .after_dbus_target
 
 %build
 %serverbuild_hardened
