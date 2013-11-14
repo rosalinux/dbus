@@ -217,7 +217,7 @@ install -d %{buildroot}%{uclibc_root}{/%{_lib},%{_libdir}}
 mv %{buildroot}%{_libdir}/libdbus-%{api}.so.%{major}* %{buildroot}%{uclibc_root}/%{_lib}
 ln -srf %{buildroot}%{uclibc_root}/%{_lib}/libdbus-%{api}.so.%{major}.* %{buildroot}%{uclibc_root}%{_libdir}/libdbus-%{api}.so
 
-rm %{buildroot}%{uclibc_root}/bin/dbus-{launch,monitor}
+rm %{buildroot}%{uclibc_root}/bin/dbus-launch
 %endif
 
 %makeinstall_std -C shared
@@ -327,9 +327,10 @@ fi
 
 %if %{with uclibc}
 %files -n uclibc-%{name}
-%{uclibc_root}/bin/dbus-daemon
-%{uclibc_root}/bin/dbus-send
 %{uclibc_root}/bin/dbus-cleanup-sockets
+%{uclibc_root}/bin/dbus-daemon
+%{uclibc_root}/bin/dbus-monitor
+%{uclibc_root}/bin/dbus-send
 %{uclibc_root}/bin/dbus-uuidgen
 %dir %{uclibc_root}/%{_lib}/dbus-%{api}
 %attr(4750,root,messagebus) %{uclibc_root}/%{_lib}/dbus-%{api}/dbus-daemon-launch-helper
