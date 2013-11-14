@@ -22,6 +22,7 @@ Source1:	doxygen_to_devhelp.xsl
 # (fc) 1.0.2-5mdv disable fatal warnings on check (fd.o bug #13270)
 Patch3:		dbus-1.0.2-disable_fatal_warning_on_check.patch
 Patch4:		dbus-daemon-bindir.patch
+Patch5:		dbus-1.6.18-avoid-undefined-7c00ed22d9b5c33f5b33221e906946b11a9bde3b.patch
 
 BuildRequires:	docbook-dtd412-xml
 BuildRequires:	doxygen
@@ -114,8 +115,8 @@ other supporting documentation such as the introspect dtd file.
 #only disable in cooker to detect buggy programs
 #patch3 -p1 -b .disable_fatal_warning_on_check̃~
 %patch4 -p1 -b .daemon_bindir~
+%patch5 -p1 -b .undefined~
 if test -f autogen.sh; then env NOCONFIGURE=1 ./autogen.sh; else autoreconf -v -f -i; fi
-
 
 %build
 %serverbuild_hardened
