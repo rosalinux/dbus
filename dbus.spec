@@ -135,7 +135,7 @@ pushd uclibc
 	--with-sysroot=%{uclibc_root} \
 	--bindir=%{uclibc_root}/bin \
 	--exec-prefix=%{uclibc_root} \
-	--libexecdir=/%{_lib}/dbus-%{api} \
+	--libexecdir=%{uclibc_root}/%{_lib}/dbus-%{api} \
 	--disable-libaudit \
 	--disable-static \
 	--disable-tests \
@@ -331,6 +331,8 @@ fi
 %{uclibc_root}/bin/dbus-send
 %{uclibc_root}/bin/dbus-cleanup-sockets
 %{uclibc_root}/bin/dbus-uuidgen
+%dir %{uclibc_root}/%{_lib}/dbus-%{api}
+%attr(4750,root,messagebus) %{uclibc_root}/%{_lib}/dbus-%{api}/dbus-daemon-launch-helper
 %endif
 
 %files -n %{libname}
