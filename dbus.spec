@@ -21,6 +21,7 @@ Source0:	http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1:	doxygen_to_devhelp.xsl
 # (fc) 1.0.2-5mdv disable fatal warnings on check (fd.o bug #13270)
 Patch3:		dbus-1.0.2-disable_fatal_warning_on_check.patch
+Patch4:		dbus-daemon-bindir.patch
 
 BuildRequires:	docbook-dtd412-xml
 BuildRequires:	doxygen
@@ -111,16 +112,17 @@ other supporting documentation such as the introspect dtd file.
 %prep
 %setup -q
 #only disable in cooker to detect buggy programs
-#patch3 -p1 -b .disable_fatal_warning_on_check
+#patch3 -p1 -b .disable_fatal_warning_on_check̃~
+%patch4 -p1 -b .daemon_bindir~
+if test -f autogen.sh; then env NOCONFIGURE=1 ./autogen.sh; else autoreconf -v -f -i; fi
+
 
 %build
 %serverbuild_hardened
-#needed for correct localstatedir location
-%define _localstatedir %{_var}
-
-COMMON_ARGS="--enable-systemd --with-systemdsystemunitdir=/lib/systemd/system \
-    --enable-libaudit --disable-selinux --with-system-pid-file=%{_var}/run/messagebus.pid \
-    --with-system-socket=/run/dbus/system_bus_socket --libexecdir=/%{_lib}/dbus-%{api}"
+COMMON_ARGS="--enable-systemd --with-systemdsystemunitdir=%{_unitdir} \
+	--bindir=/bin --enable-libaudit --disable-selinux  \
+	--with-system-pid-file=%{_localstatedir}/run/messagebus.pid --exec-prefix=/ \
+	--with-system-socket=/run/dbus/system_bus_socket --libexecdir=/%{_lib}/dbus-%{api}"
 
 export CONFIGURE_TOP=$PWD
 %if %{with uclibc}
@@ -131,7 +133,9 @@ pushd uclibc
 	CFLAGS="%{uclibc_cflags}" \
 	$COMMON_ARGS \
 	--with-sysroot=%{uclibc_root} \
-	--bindir=%{uclibc_root}%{_bindir} \
+	--bindir=%{uclibc_root}/bin \
+	--exec-prefix=%{uclibc_root} \
+	--libexecdir=/%{_lib}/dbus-%{api} \
 	--disable-libaudit \
 	--disable-static \
 	--disable-tests \
@@ -207,23 +211,24 @@ install -d %{buildroot}%{uclibc_root}{/%{_lib},%{_libdir}}
 mv %{buildroot}%{_libdir}/libdbus-%{api}.so.%{major}* %{buildroot}%{uclibc_root}/%{_lib}
 ln -srf %{buildroot}%{uclibc_root}/%{_lib}/libdbus-%{api}.so.%{major}.* %{buildroot}%{uclibc_root}%{_libdir}/libdbus-%{api}.so
 
-rm -f %{buildroot}%{uclibc_root}%{_bindir}/dbus-{launch,monitor}
+rm %{buildroot}%{uclibc_root}/bin/dbus-{launch,monitor}
 %endif
 
 %makeinstall_std -C shared
 
 # move lib to /, because it might be needed by hotplug script, before
 # /usr is mounted
-mkdir -p %{buildroot}/%{_lib} %{buildroot}%{_var}/lib/dbus
+mkdir -p %{buildroot}/%{_lib} %{buildroot}%{_localstatedir}/lib/dbus %{buildroot}%{_bindir}
 
 mv %{buildroot}%{_libdir}/*dbus-1*.so.* %{buildroot}/%{_lib} 
-ln -sf ../../%{_lib}/libdbus-%{api}.so.%{major} %{buildroot}%{_libdir}/libdbus-%{api}.so
+ln -sf /%{_lib}/libdbus-%{api}.so.%{major} %{buildroot}%{_libdir}/libdbus-%{api}.so
 
+mv %{buildroot}/bin/dbus-launch %{buildroot}%{_bindir}/dbus-launch
 mkdir -p %{buildroot}%{_sysconfdir}/X11/xinit.d
 cat << EOF > %{buildroot}%{_sysconfdir}/X11/xinit.d/30dbus
 # to be sourced
 if [ -z "\$DBUS_SESSION_BUS_ADDRESS" ]; then
-  eval \`/usr/bin/dbus-launch --exit-with-session --sh-syntax\`
+  eval \`%{_bindir}/dbus-launch --exit-with-session --sh-syntax\`
 fi
 EOF
 
@@ -235,7 +240,7 @@ mkdir %{buildroot}%{_datadir}/dbus-%{api}/interfaces
 # Make sure that when somebody asks for D-Bus under the name of the
 # old SysV script, that he ends up with the standard dbus.service name
 # now.
-ln -s dbus.service %{buildroot}/lib/systemd/system/messagebus.service
+ln -s dbus.service %{buildroot}%{_unitdir}/messagebus.service
 
 #add devhelp compatible helps
 mkdir -p %{buildroot}%{_datadir}/devhelp/books/dbus
@@ -290,13 +295,13 @@ fi
 %config(noreplace) %{_sysconfdir}/dbus-%{api}/*.conf
 %dir %{_sysconfdir}/dbus-%{api}/system.d
 %dir %{_sysconfdir}/dbus-%{api}/session.d
-%dir %{_var}/run/dbus
-%dir %{_var}/lib/dbus
+%dir %{_localstatedir}/run/dbus
+%dir %{_localstatedir}/lib/dbus
 %dir %{_libdir}/dbus-1.0
-%{_bindir}/dbus-daemon
-%{_bindir}/dbus-send
-%{_bindir}/dbus-cleanup-sockets
-%{_bindir}/dbus-uuidgen
+/bin/dbus-daemon
+/bin/dbus-send
+/bin/dbus-cleanup-sockets
+/bin/dbus-uuidgen
 %{_mandir}/man*/*
 %dir %{_datadir}/dbus-%{api}
 %{_datadir}/dbus-%{api}/system-services
@@ -306,19 +311,19 @@ fi
 # behind these permissions
 %dir /%{_lib}/dbus-%{api}
 %attr(4750,root,messagebus) /%{_lib}/dbus-%{api}/dbus-daemon-launch-helper
-/lib/systemd/system/dbus.service
-/lib/systemd/system/messagebus.service
-/lib/systemd/system/dbus.socket
-/lib/systemd/system/dbus.target.wants/dbus.socket
-/lib/systemd/system/multi-user.target.wants/dbus.service
-/lib/systemd/system/sockets.target.wants/dbus.socket
+%{_unitdir}/dbus.service
+%{_unitdir}/messagebus.service
+%{_unitdir}/dbus.socket
+%{_unitdir}/dbus.target.wants/dbus.socket
+%{_unitdir}/multi-user.target.wants/dbus.service
+%{_unitdir}/sockets.target.wants/dbus.socket
 
 %if %{with uclibc}
 %files -n uclibc-%{name}
-%{uclibc_root}%{_bindir}/dbus-daemon
-%{uclibc_root}%{_bindir}/dbus-send
-%{uclibc_root}%{_bindir}/dbus-cleanup-sockets
-%{uclibc_root}%{_bindir}/dbus-uuidgen
+%{uclibc_root}/bin/dbus-daemon
+%{uclibc_root}/bin/dbus-send
+%{uclibc_root}/bin/dbus-cleanup-sockets
+%{uclibc_root}/bin/dbus-uuidgen
 %endif
 
 %files -n %{libname}
@@ -342,7 +347,7 @@ fi
 %files x11
 %{_sysconfdir}/X11/xinit.d/*
 %{_bindir}/dbus-launch
-%{_bindir}/dbus-monitor
+/bin/dbus-monitor
 
 %files doc
 %doc COPYING NEWS
