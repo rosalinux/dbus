@@ -146,6 +146,8 @@ pushd uclibc
 	--disable-doxygen-docs \
 	--disable-xml-docs \
 	--enable-userdb-cache \
+	--disable-x11-autolaunch \
+	--without-x \
 %if %{enable_verbose}
 	--enable-verbose-mode
 %else
@@ -214,7 +216,6 @@ install -d %{buildroot}%{uclibc_root}{/%{_lib},%{_libdir}}
 mv %{buildroot}%{_libdir}/libdbus-%{api}.so.%{major}* %{buildroot}%{uclibc_root}/%{_lib}
 ln -srf %{buildroot}%{uclibc_root}/%{_lib}/libdbus-%{api}.so.%{major}.* %{buildroot}%{uclibc_root}%{_libdir}/libdbus-%{api}.so
 
-rm %{buildroot}%{uclibc_root}/bin/dbus-launch
 %endif
 
 %makeinstall_std -C shared
@@ -326,6 +327,7 @@ fi
 %files -n uclibc-%{name}
 %{uclibc_root}/bin/dbus-cleanup-sockets
 %{uclibc_root}/bin/dbus-daemon
+%{uclibc_root}/bin/dbus-launch
 %{uclibc_root}/bin/dbus-monitor
 %{uclibc_root}/bin/dbus-send
 %{uclibc_root}/bin/dbus-uuidgen
