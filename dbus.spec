@@ -23,6 +23,7 @@ Source1:	doxygen_to_devhelp.xsl
 # (fc) 1.0.2-5mdv disable fatal warnings on check (fd.o bug #13270)
 Patch3:		dbus-1.0.2-disable_fatal_warning_on_check.patch
 Patch4:		dbus-daemon-bindir.patch
+Patch5:		dbus-1.6.19~20131112-fix-disabling-of-xml-docs.patch
 
 BuildRequires:	docbook-dtd412-xml
 BuildRequires:	doxygen
@@ -115,6 +116,8 @@ other supporting documentation such as the introspect dtd file.
 #only disable in cooker to detect buggy programs
 #patch3 -p1 -b .disable_fatal_warning_on_check̃~
 %patch4 -p1 -b .daemon_bindir~
+%patch5 -p1 -b .nodocs~
+
 if test -f autogen.sh; then env NOCONFIGURE=1 ./autogen.sh; else autoreconf -v -f -i; fi
 
 %build
@@ -152,9 +155,7 @@ pushd uclibc
 for i in `find -name Makefile`; do
 	sed -e 's#-L%{_libdir}##g' -i $i
 done
-for i in bus dbus tools; do
-	%make -C $i
-done
+%make
 popd
 %endif
 
@@ -208,11 +209,7 @@ make -C shared check
 
 %install
 %if %{with uclibc}
-pushd uclibc
-for i in bus dbus tools; do
-	%makeinstall_std -C $i
-done
-popd
+%makeinstall_std -C uclibc
 install -d %{buildroot}%{uclibc_root}{/%{_lib},%{_libdir}}
 mv %{buildroot}%{_libdir}/libdbus-%{api}.so.%{major}* %{buildroot}%{uclibc_root}/%{_lib}
 ln -srf %{buildroot}%{uclibc_root}/%{_lib}/libdbus-%{api}.so.%{major}.* %{buildroot}%{uclibc_root}%{_libdir}/libdbus-%{api}.so
