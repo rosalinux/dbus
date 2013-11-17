@@ -85,11 +85,11 @@ D-Bus shared library.
 %package -n %{devname}
 Summary:	Libraries and headers for D-Bus
 Group:		Development/C
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{EVRD}
 %if %{with uclibc}
-Requires:	uclibc-%{libname} = %{version}-%{release}
+Requires:	uclibc-%{libname} = %{EVRD}
 %endif
-Provides:	%{name}-devel = %{version}-%{release}
+Provides:	%{name}-devel = %{EVRD}
 
 %description -n	%{devname}
 Headers and static libraries for D-Bus.
@@ -97,7 +97,7 @@ Headers and static libraries for D-Bus.
 %package x11
 Summary:	X11-requiring add-ons for D-Bus
 Group:		System/Servers
-Requires:	dbus = %{version}-%{release}
+Requires:	dbus = %{EVRD}
 
 %description x11
 D-Bus contains some tools that require Xlib to be installed, those are
