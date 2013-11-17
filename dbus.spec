@@ -14,7 +14,9 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.6.19
-Release:	0.%{gitdate}.1
+Release:	0.%{gitdate}.2
+# forgive me, need to quickly get around ABF issues.. :|
+Epoch:		1
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
