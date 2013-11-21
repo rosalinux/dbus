@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.6.18
-Release:	1
+Release:	2
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -122,7 +122,7 @@ other supporting documentation such as the introspect dtd file.
 %define _localstatedir %{_var}
 
 COMMON_ARGS="--enable-systemd --with-systemdsystemunitdir=/lib/systemd/system \
-    --enable-libaudit --disable-selinux --with-system-pid-file=%{_var}/run/messagebus.pid \
+    --enable-libaudit --disable-selinux --with-system-pid-file=/run/messagebus.pid \
     --with-system-socket=/run/dbus/system_bus_socket --libexecdir=/%{_lib}/dbus-%{api}"
 
 export CONFIGURE_TOP=$PWD
@@ -260,6 +260,8 @@ rm -rf %{buildroot}%{_sysconfdir}/rc.d/init.d/*
 /usr/sbin/useradd -r -c "system user for %{name}" -g messagebus -s /sbin/nologin -d / messagebus 2>/dev/null ||:
 
 %post
+/bin/rm -rf /var/run/dbus
+/bin/ln -s /run/dbus /var/run/
 if [ "$1" = "1" ]; then
     /usr/bin/dbus-uuidgen --ensure
     /bin/systemctl enable dbus.service >/dev/null 2>&1 || :
@@ -279,6 +281,10 @@ if [ $1 = 0 ]; then
     /bin/systemctl --no-reload dbus.service > /dev/null 2>&1 || :
     /bin/systemctl stop dbus.service > /dev/null 2>&1 || :
 fi
+
+%triggerun -- dbus < 1.6.18-1
+/bin/rm -rf /var/run/dbus
+/bin/ln -s /run/dbus /var/run/
 
 %triggerun -- dbus < 1.4.16-1
 /bin/systemctl enable dbus.service >/dev/null 2>&1
