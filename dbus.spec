@@ -268,6 +268,8 @@ rm -rf %{buildroot}%{_sysconfdir}/rc.d/init.d/*
 /usr/sbin/useradd -r -c "system user for %{name}" -g messagebus -s /sbin/nologin -d / messagebus 2>/dev/null ||:
 
 %post
+/bin/rm -rf /var/run/dbus
+/bin/ln -s /run/dbus /var/run/
 if [ "$1" = "1" ]; then
     /usr/bin/dbus-uuidgen --ensure
     /bin/systemctl enable dbus.service >/dev/null 2>&1 || :
@@ -287,6 +289,10 @@ if [ $1 = 0 ]; then
     /bin/systemctl --no-reload dbus.service > /dev/null 2>&1 || :
     /bin/systemctl stop dbus.service > /dev/null 2>&1 || :
 fi
+
+%triggerun -- dbus < 1.6.18-1
+/bin/rm -rf /var/run/dbus
+/bin/ln -s /run/dbus /var/run/
 
 %triggerun -- dbus < 1.4.16-1
 /bin/systemctl enable dbus.service >/dev/null 2>&1
