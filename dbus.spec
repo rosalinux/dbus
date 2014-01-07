@@ -12,8 +12,8 @@
 
 Summary:	D-Bus message bus
 Name:		dbus
-Version:	1.6.18
-Release:	6
+Version:	1.7.10
+Release:	1
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -21,8 +21,6 @@ Source0:	http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1:	doxygen_to_devhelp.xsl
 # (fc) 1.0.2-5mdv disable fatal warnings on check (fd.o bug #13270)
 Patch3:		dbus-1.0.2-disable_fatal_warning_on_check.patch
-# (bor) synchronize dbus.service with dbus.target so dependencies work
-Patch7:		dbus-1.6.2-dbus.service-before-dbus.target.patch
 
 BuildRequires:	docbook-dtd412-xml
 BuildRequires:	doxygen
@@ -35,6 +33,7 @@ BuildRequires:	pkgconfig(sm)
 BuildRequires:	pkgconfig(x11)
 BuildRequires:	pkgconfig(libsystemd-daemon) >= 32
 BuildRequires:	pkgconfig(libsystemd-login) >= 32
+BuildRequires:	pkgconfig(libsystemd-journal) >= 32
 BuildRequires:	pkgconfig(systemd)
 %if %{with uclibc}
 BuildRequires:	uClibc-devel >= 0.9.33.2-9
@@ -114,7 +113,6 @@ other supporting documentation such as the introspect dtd file.
 %setup -q
 #only disable in cooker to detect buggy programs
 #patch3 -p1 -b .disable_fatal_warning_on_check
-%patch7 -p1 -b .after_dbus_target
 
 %build
 %serverbuild_hardened
@@ -245,9 +243,9 @@ mkdir -p %{buildroot}%{_datadir}/devhelp/books/dbus
 mkdir -p %{buildroot}%{_datadir}/devhelp/books/dbus/api
 
 cp shared/dbus.devhelp %{buildroot}%{_datadir}/devhelp/books/dbus
-cp doc/dbus-specification.html %{buildroot}%{_datadir}/devhelp/books/dbus
-cp doc/dbus-faq.html %{buildroot}%{_datadir}/devhelp/books/dbus
-cp doc/dbus-tutorial.html %{buildroot}%{_datadir}/devhelp/books/dbus
+cp shared/doc/dbus-specification.html %{buildroot}%{_datadir}/devhelp/books/dbus
+cp shared/doc/dbus-faq.html %{buildroot}%{_datadir}/devhelp/books/dbus
+cp shared/doc/dbus-tutorial.html %{buildroot}%{_datadir}/devhelp/books/dbus
 cp shared/doc/api/html/* %{buildroot}%{_datadir}/devhelp/books/dbus/api
 
 # (tpg) remove old initscript
@@ -303,6 +301,7 @@ fi
 %dir %{_var}/lib/dbus
 %dir %{_libdir}/dbus-1.0
 %{_bindir}/dbus-daemon
+%{_bindir}/dbus-run-session
 %{_bindir}/dbus-send
 %{_bindir}/dbus-cleanup-sockets
 %{_bindir}/dbus-uuidgen
@@ -325,6 +324,7 @@ fi
 %if %{with uclibc}
 %files -n uclibc-%{name}
 %{uclibc_root}%{_bindir}/dbus-daemon
+%{uclibc_root}%{_bindir}/dbus-run-session
 %{uclibc_root}%{_bindir}/dbus-send
 %{uclibc_root}%{_bindir}/dbus-cleanup-sockets
 %{uclibc_root}%{_bindir}/dbus-uuidgen
