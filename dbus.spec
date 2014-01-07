@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.7.10
-Release:	1
+Release:	2
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -251,6 +251,32 @@ cp shared/doc/api/html/* %{buildroot}%{_datadir}/devhelp/books/dbus/api
 # (tpg) remove old initscript
 rm -rf %{buildroot}%{_sysconfdir}/rc.d/init.d/*
 
+# systemd user session bits
+mkdir -p %{buildroot}%{_prefix}/lib/systemd/user
+cat >%{buildroot}%{_prefix}/lib/systemd/user/dbus.service <<'EOF'
+[Unit]
+Description=D-Bus User Message Bus
+Requires=dbus.socket
+
+[Service]
+ExecStart=/usr/bin/dbus-daemon --session --address=systemd: --nofork --nopidfile --systemd-activation
+ExecReload=/usr/bin/dbus-send --print-reply --session --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
+
+[Install]
+WantedBy=default.target
+EOF
+cat >%{buildroot}%{_prefix}/lib/systemd/user/dbus.socket <<'EOF'
+[Unit]
+Description=D-Bus User Message Bus Socket
+Before=sockets.target
+
+[Socket]
+ListenStream=/run/user/%U/dbus/user_bus_socket
+
+[Install]
+WantedBy=default.target
+EOF
+
 %pre
 # (cg) Do not require/use rpm-helper helper macros... we must do this manually
 # to avoid dep loops during install
@@ -263,8 +289,9 @@ rm -rf %{buildroot}%{_sysconfdir}/rc.d/init.d/*
 if [ "$1" = "1" ]; then
     /usr/bin/dbus-uuidgen --ensure
     /bin/systemctl enable dbus.service >/dev/null 2>&1 || :
+    /bin/systemctl --user --global enable dbus.socket >/dev/null 2>&1 || :
+    /bin/systemctl --user --global enable dbus.service >/dev/null 2>&1 || :
 fi
-
 %_post_service %{name} %{name}.service
 
 %postun
@@ -279,6 +306,11 @@ if [ $1 = 0 ]; then
     /bin/systemctl --no-reload dbus.service > /dev/null 2>&1 || :
     /bin/systemctl stop dbus.service > /dev/null 2>&1 || :
 fi
+
+%triggerun -- dbus < 1.7.10-2
+# User sessions are new in 1.7.10
+/bin/systemctl --user --global enable dbus.socket >/dev/null 2>&1 || :
+/bin/systemctl --user --global enable dbus.service >/dev/null 2>&1 || :
 
 %triggerun -- dbus < 1.6.18-1
 /bin/rm -rf /var/run/dbus
@@ -320,6 +352,7 @@ fi
 /lib/systemd/system/dbus.target.wants/dbus.socket
 /lib/systemd/system/multi-user.target.wants/dbus.service
 /lib/systemd/system/sockets.target.wants/dbus.socket
+%{_prefix}/lib/systemd/user/dbus.*
 
 %if %{with uclibc}
 %files -n uclibc-%{name}
