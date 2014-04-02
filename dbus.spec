@@ -1,10 +1,10 @@
-%define api 1
-%define major 3
-%define libname %mklibname dbus- %{api} %{major}
-%define devname %mklibname -d dbus- %{api}
+%define	api	1
+%define	major	3
+%define	libname	%mklibname dbus- %{api} %{major}
+%define	devname	%mklibname -d dbus- %{api}
 
-%define enable_test 0
-%define enable_verbose 0
+%bcond_with	test
+%bcond_with	verbose
 
 %define git_url git://git.freedesktop.org/git/dbus/dbus
 
@@ -24,7 +24,8 @@ Source1:	doxygen_to_devhelp.xsl
 # (fc) 1.0.2-5mdv disable fatal warnings on check (fd.o bug #13270)
 Patch3:		dbus-1.0.2-disable_fatal_warning_on_check.patch
 Patch4:		dbus-daemon-bindir.patch
-Patch5:		dbus-1.6.19~20131112-fix-disabling-of-xml-docs.patch
+Patch5:		dbus-1.8.0-fix-disabling-of-xml-docs.patch
+Patch6:	 	dbus/0001-name-test-Don-t-run-test-autolaunch-if-we-don-t-have.patch
 
 BuildRequires:	docbook-dtd412-xml
 BuildRequires:	doxygen
@@ -119,7 +120,7 @@ other supporting documentation such as the introspect dtd file.
 #patch3 -p1 -b .disable_fatal_warning_on_check
 %patch4 -p1 -b .daemon_bindir~
 %patch5 -p1 -b .nodocs~
-
+%patch6 -p1 -b .noautolaunchtest~
 if test -f autogen.sh; then env NOCONFIGURE=1 ./autogen.sh; else autoreconf -v -f -i; fi
 
 %build
@@ -133,7 +134,7 @@ COMMON_ARGS="--enable-systemd --with-systemdsystemunitdir=%{_unitdir} \
 	--with-system-socket=%{_localstatedir}/run/dbus/system_bus_socket \
 	--libexecdir=/%{_lib}/dbus-%{api}"
 
-export CONFIGURE_TOP=$PWD
+export CONFIGURE_TOP="$PWD"
 %if %{with uclibc}
 mkdir -p uclibc
 pushd uclibc
@@ -154,7 +155,7 @@ pushd uclibc
 	--enable-userdb-cache \
 	--disable-x11-autolaunch \
 	--without-x \
-%if %{enable_verbose}
+%if %{with verbose}
 	--enable-verbose-mode
 %else
 	--disable-verbose-mode
@@ -168,7 +169,7 @@ popd
 %endif
 
 #### Build once with tests to make check
-%if %{enable_test}
+%if %{with test}
 # (tpg) enable verbose mode by default --enable-verbose-mode
 mkdir -p test
 pushd test
@@ -184,8 +185,6 @@ pushd test
 	--disable-xml-docs
 
 DBUS_VERBOSE=1 %make
-
-make check
 popd
 %endif
 
@@ -200,7 +199,9 @@ pushd shared
 	--enable-doxygen-docs \
 	--enable-xml-docs \
 	--enable-userdb-cache \
-%if %enable_verbose
+	--enable-x11-autolaunch \
+	--with-x \
+%if %{with verbose}
 	--enable-verbose-mode
 %else
 	--disable-verbose-mode
@@ -213,7 +214,10 @@ xsltproc -o dbus.devhelp %{SOURCE1} doc/api/xml/index.xml
 popd
 
 %check
-make -C shared check
+%make -C shared check
+%if %{with test}
+%make -C test check
+%endif
 
 %install
 %if %{with uclibc}
@@ -263,7 +267,7 @@ cp shared/doc/dbus-tutorial.html %{buildroot}%{_datadir}/devhelp/books/dbus
 cp shared/doc/api/html/* %{buildroot}%{_datadir}/devhelp/books/dbus/api
 
 # (tpg) remove old initscript
-rm -rf %{buildroot}%{_sysconfdir}/rc.d/init.d/*
+rm -r %{buildroot}%{_sysconfdir}/rc.d/init.d/*
 
 # systemd user session bits
 mkdir -p %{buildroot}%{_prefix}/lib/systemd/user
@@ -346,19 +350,12 @@ fi
 %dir %{_localstatedir}/run/dbus
 %dir %{_localstatedir}/lib/dbus
 %dir %{_libdir}/dbus-1.0
-<<<<<<< HEAD
-%{_bindir}/dbus-daemon
-%{_bindir}/dbus-run-session
-%{_bindir}/dbus-send
-%{_bindir}/dbus-cleanup-sockets
-%{_bindir}/dbus-uuidgen
-=======
 /bin/dbus-cleanup-sockets
 /bin/dbus-daemon
 /bin/dbus-monitor
+/bin/dbus-run-session
 /bin/dbus-send
 /bin/dbus-uuidgen
->>>>>>> 4124e7880713bc7c6e8ae74498930b4efba17abd
 %{_mandir}/man*/*
 %dir %{_datadir}/dbus-%{api}
 %{_datadir}/dbus-%{api}/system-services
@@ -383,6 +380,7 @@ fi
 %{uclibc_root}/bin/dbus-daemon
 %{uclibc_root}/bin/dbus-launch
 %{uclibc_root}/bin/dbus-monitor
+%{uclibc_root}/bin/dbus-run-session
 %{uclibc_root}/bin/dbus-send
 %{uclibc_root}/bin/dbus-uuidgen
 %dir %{uclibc_root}/%{_lib}/dbus-%{api}
