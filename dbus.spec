@@ -19,7 +19,7 @@ Epoch:		1
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
-Source0:	http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.xz
+Source0:	http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1:	doxygen_to_devhelp.xsl
 # (fc) 1.0.2-5mdv disable fatal warnings on check (fd.o bug #13270)
 Patch3:		dbus-1.0.2-disable_fatal_warning_on_check.patch
@@ -114,7 +114,7 @@ This package contains developer documentation for D-Bus along with
 other supporting documentation such as the introspect dtd file.
 
 %prep
-%setup -q -n %{name}-%{version}~%{gitdate}
+%setup -q
 #only disable in cooker to detect buggy programs
 #patch3 -p1 -b .disable_fatal_warning_on_check
 %patch4 -p1 -b .daemon_bindir~
