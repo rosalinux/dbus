@@ -44,8 +44,6 @@ BuildRequires:	pkgconfig(systemd)
 BuildRequires:	uClibc-devel >= 0.9.33.2-9
 %endif
 
-Requires(post,preun,postun):	systemd-units
-Requires(post):	systemd-sysvinit
 Requires(pre):	shadow-utils
 Requires(preun,post,postun):	rpm-helper
 Provides:	should-restart = system
