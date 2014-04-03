@@ -25,8 +25,10 @@ Source1:	doxygen_to_devhelp.xsl
 Patch3:		dbus-1.0.2-disable_fatal_warning_on_check.patch
 Patch4:		dbus-daemon-bindir.patch
 Patch5:		dbus-1.8.0-fix-disabling-of-xml-docs.patch
-Patch6:	 	dbus/0001-name-test-Don-t-run-test-autolaunch-if-we-don-t-have.patch
+Patch6:	 	0001-name-test-Don-t-run-test-autolaunch-if-we-don-t-have.patch
 
+BuildREquires:	asciidoc
+BuildRequires:	docbook2x
 BuildRequires:	docbook-dtd412-xml
 BuildRequires:	doxygen
 BuildRequires:	libtool
