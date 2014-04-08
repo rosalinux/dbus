@@ -1,32 +1,34 @@
-%define api 1
-%define major 3
-%define libname %mklibname dbus- %{api} %{major}
-%define devname %mklibname -d dbus- %{api}
+%define	api	1
+%define	major	3
+%define	libname	%mklibname dbus- %{api} %{major}
+%define	devname	%mklibname -d dbus- %{api}
 
-%define enable_test 0
-%define enable_verbose 0
+%bcond_with	test
+%bcond_with	verbose
 
 %define git_url git://git.freedesktop.org/git/dbus/dbus
-%define	gitdate	20131112
 
 %bcond_without uclibc
 
 Summary:	D-Bus message bus
 Name:		dbus
-Version:	1.6.19
-Release:	0.%{gitdate}.2
+Version:	1.8.0
+Release:	1
 # forgive me, need to quickly get around ABF issues.. :|
 Epoch:		1
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
-Source0:	http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}~%{gitdate}.tar.xz
+Source0:	http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1:	doxygen_to_devhelp.xsl
 # (fc) 1.0.2-5mdv disable fatal warnings on check (fd.o bug #13270)
 Patch3:		dbus-1.0.2-disable_fatal_warning_on_check.patch
 Patch4:		dbus-daemon-bindir.patch
-Patch5:		dbus-1.6.19~20131112-fix-disabling-of-xml-docs.patch
+Patch5:		dbus-1.8.0-fix-disabling-of-xml-docs.patch
+Patch6:	 	0001-name-test-Don-t-run-test-autolaunch-if-we-don-t-have.patch
 
+BuildREquires:	asciidoc
+BuildRequires:	docbook2x
 BuildRequires:	docbook-dtd412-xml
 BuildRequires:	doxygen
 BuildRequires:	libtool
@@ -38,13 +40,12 @@ BuildRequires:	pkgconfig(sm)
 BuildRequires:	pkgconfig(x11)
 BuildRequires:	pkgconfig(libsystemd-daemon) >= 32
 BuildRequires:	pkgconfig(libsystemd-login) >= 32
+BuildRequires:	pkgconfig(libsystemd-journal) >= 32
 BuildRequires:	pkgconfig(systemd)
 %if %{with uclibc}
 BuildRequires:	uClibc-devel >= 0.9.33.2-9
 %endif
 
-Requires(post,preun,postun):	systemd-units
-Requires(post):	systemd-sysvinit
 Requires(pre):	shadow-utils
 Requires(preun,post,postun):	rpm-helper
 Provides:	should-restart = system
@@ -114,22 +115,23 @@ This package contains developer documentation for D-Bus along with
 other supporting documentation such as the introspect dtd file.
 
 %prep
-%setup -q -n %{name}-%{version}~%{gitdate}
+%setup -q
 #only disable in cooker to detect buggy programs
-#patch3 -p1 -b .disable_fatal_warning_on_check̃~
+#patch3 -p1 -b .disable_fatal_warning_on_check
 %patch4 -p1 -b .daemon_bindir~
 %patch5 -p1 -b .nodocs~
-
+%patch6 -p1 -b .noautolaunchtest~
 if test -f autogen.sh; then env NOCONFIGURE=1 ./autogen.sh; else autoreconf -v -f -i; fi
 
 %build
 %serverbuild_hardened
 COMMON_ARGS="--enable-systemd --with-systemdsystemunitdir=%{_unitdir} \
-	--bindir=/bin --enable-libaudit --disable-selinux  \
+	--bindir=/bin --enable-libaudit --disable-selinux \
 	--with-system-pid-file=%{_localstatedir}/run/messagebus.pid --exec-prefix=/ \
+	--with-system-socket=%{_localstatedir}/run/dbus/system_bus_socket \
 	--libexecdir=/%{_lib}/dbus-%{api}"
 
-export CONFIGURE_TOP=$PWD
+export CONFIGURE_TOP="$PWD"
 %if %{with uclibc}
 mkdir -p uclibc
 pushd uclibc
@@ -150,7 +152,7 @@ pushd uclibc
 	--enable-userdb-cache \
 	--disable-x11-autolaunch \
 	--without-x \
-%if %{enable_verbose}
+%if %{with verbose}
 	--enable-verbose-mode
 %else
 	--disable-verbose-mode
@@ -164,7 +166,7 @@ popd
 %endif
 
 #### Build once with tests to make check
-%if %{enable_test}
+%if %{with test}
 # (tpg) enable verbose mode by default --enable-verbose-mode
 mkdir -p test
 pushd test
@@ -180,8 +182,6 @@ pushd test
 	--disable-xml-docs
 
 DBUS_VERBOSE=1 %make
-
-make check
 popd
 %endif
 
@@ -196,7 +196,9 @@ pushd shared
 	--enable-doxygen-docs \
 	--enable-xml-docs \
 	--enable-userdb-cache \
-%if %enable_verbose
+	--enable-x11-autolaunch \
+	--with-x \
+%if %{with verbose}
 	--enable-verbose-mode
 %else
 	--disable-verbose-mode
@@ -209,7 +211,10 @@ xsltproc -o dbus.devhelp %{SOURCE1} doc/api/xml/index.xml
 popd
 
 %check
-make -C shared check
+%make -C shared check
+%if %{with test}
+%make -C test check
+%endif
 
 %install
 %if %{with uclibc}
@@ -259,7 +264,33 @@ cp shared/doc/dbus-tutorial.html %{buildroot}%{_datadir}/devhelp/books/dbus
 cp shared/doc/api/html/* %{buildroot}%{_datadir}/devhelp/books/dbus/api
 
 # (tpg) remove old initscript
-rm -rf %{buildroot}%{_sysconfdir}/rc.d/init.d/*
+rm -r %{buildroot}%{_sysconfdir}/rc.d/init.d/*
+
+# systemd user session bits
+mkdir -p %{buildroot}%{_prefix}/lib/systemd/user
+cat >%{buildroot}%{_prefix}/lib/systemd/user/dbus.service <<'EOF'
+[Unit]
+Description=D-Bus User Message Bus
+Requires=dbus.socket
+
+[Service]
+ExecStart=/usr/bin/dbus-daemon --session --address=systemd: --nofork --nopidfile --systemd-activation
+ExecReload=/usr/bin/dbus-send --print-reply --session --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
+
+[Install]
+WantedBy=default.target
+EOF
+cat >%{buildroot}%{_prefix}/lib/systemd/user/dbus.socket <<'EOF'
+[Unit]
+Description=D-Bus User Message Bus Socket
+Before=sockets.target
+
+[Socket]
+ListenStream=/run/user/%U/dbus/user_bus_socket
+
+[Install]
+WantedBy=default.target
+EOF
 
 %pre
 # (cg) Do not require/use rpm-helper helper macros... we must do this manually
@@ -273,8 +304,9 @@ rm -rf %{buildroot}%{_sysconfdir}/rc.d/init.d/*
 if [ "$1" = "1" ]; then
     /usr/bin/dbus-uuidgen --ensure
     /bin/systemctl enable dbus.service >/dev/null 2>&1 || :
+    /bin/systemctl --user --global enable dbus.socket >/dev/null 2>&1 || :
+    /bin/systemctl --user --global enable dbus.service >/dev/null 2>&1 || :
 fi
-
 %_post_service %{name} %{name}.service
 
 %postun
@@ -289,6 +321,11 @@ if [ $1 = 0 ]; then
     /bin/systemctl --no-reload dbus.service > /dev/null 2>&1 || :
     /bin/systemctl stop dbus.service > /dev/null 2>&1 || :
 fi
+
+%triggerun -- dbus < 1.7.10-2
+# User sessions are new in 1.7.10
+/bin/systemctl --user --global enable dbus.socket >/dev/null 2>&1 || :
+/bin/systemctl --user --global enable dbus.service >/dev/null 2>&1 || :
 
 %triggerun -- dbus < 1.6.18-1
 /bin/rm -rf /var/run/dbus
@@ -313,6 +350,7 @@ fi
 /bin/dbus-cleanup-sockets
 /bin/dbus-daemon
 /bin/dbus-monitor
+/bin/dbus-run-session
 /bin/dbus-send
 /bin/dbus-uuidgen
 %{_mandir}/man*/*
@@ -324,12 +362,14 @@ fi
 # behind these permissions
 %dir /%{_lib}/dbus-%{api}
 %attr(4750,root,messagebus) /%{_lib}/dbus-%{api}/dbus-daemon-launch-helper
+
 %{_unitdir}/dbus.service
 %{_unitdir}/messagebus.service
 %{_unitdir}/dbus.socket
 %{_unitdir}/dbus.target.wants/dbus.socket
 %{_unitdir}/multi-user.target.wants/dbus.service
 %{_unitdir}/sockets.target.wants/dbus.socket
+%{_prefix}/lib/systemd/user/dbus.*
 
 %if %{with uclibc}
 %files -n uclibc-%{name}
@@ -337,6 +377,7 @@ fi
 %{uclibc_root}/bin/dbus-daemon
 %{uclibc_root}/bin/dbus-launch
 %{uclibc_root}/bin/dbus-monitor
+%{uclibc_root}/bin/dbus-run-session
 %{uclibc_root}/bin/dbus-send
 %{uclibc_root}/bin/dbus-uuidgen
 %dir %{uclibc_root}/%{_lib}/dbus-%{api}

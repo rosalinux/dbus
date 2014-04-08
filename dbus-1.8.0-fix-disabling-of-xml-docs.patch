@@ -1,0 +1,18 @@
+--- dbus-1.8.0/doc/Makefile.am.nodocs~	2014-04-03 01:12:39.284661359 +0200
++++ dbus-1.8.0/doc/Makefile.am	2014-04-03 01:14:09.678450064 +0200
+@@ -52,6 +52,7 @@ STATIC_HTML = \
+ 
+ dist_html_DATA += $(STATIC_HTML)
+ 
++if DBUS_XML_DOCS_ENABLED
+ XMLTO_HTML =					\
+ 	dbus-faq.html				\
+ 	dbus-specification.html			\
+@@ -60,7 +61,6 @@ XMLTO_HTML =					\
+ 	$(MAN_HTML_FILES)			\
+ 	$(NULL)
+ 
+-if DBUS_XML_DOCS_ENABLED
+ html_DATA += $(XMLTO_HTML)
+ 
+ %.html: %.xml
