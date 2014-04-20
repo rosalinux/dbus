@@ -127,8 +127,8 @@ if test -f autogen.sh; then env NOCONFIGURE=1 ./autogen.sh; else autoreconf -v -
 %serverbuild_hardened
 COMMON_ARGS="--enable-systemd --with-systemdsystemunitdir=%{_unitdir} \
 	--bindir=/bin --enable-libaudit --disable-selinux \
-	--with-system-pid-file=%{_localstatedir}/run/messagebus.pid --exec-prefix=/ \
-	--with-system-socket=%{_localstatedir}/run/dbus/system_bus_socket \
+	--with-system-pid-file=%{_var}/run/messagebus.pid --exec-prefix=/ \
+	--with-system-socket=%{_var}/run/dbus/system_bus_socket \
 	--libexecdir=/%{_lib}/dbus-%{api}"
 
 export CONFIGURE_TOP="$PWD"
@@ -344,7 +344,7 @@ fi
 %config(noreplace) %{_sysconfdir}/dbus-%{api}/*.conf
 %dir %{_sysconfdir}/dbus-%{api}/system.d
 %dir %{_sysconfdir}/dbus-%{api}/session.d
-%dir %{_localstatedir}/run/dbus
+%dir %{_var}/run/dbus
 %dir %{_localstatedir}/lib/dbus
 %dir %{_libdir}/dbus-1.0
 /bin/dbus-cleanup-sockets
