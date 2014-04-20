@@ -174,6 +174,8 @@ pushd tests
 	--enable-verbose-mode \
 	--enable-tests \
 	--enable-asserts \
+	--enable-x11-autolaunch \
+	--with-x \
 	--disable-doxygen-docs \
 	--disable-xml-docs
 
