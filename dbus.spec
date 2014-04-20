@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.8.0
-Release:	1
+Release:	2
 # forgive me, need to quickly get around ABF issues.. :|
 Epoch:		1
 License:	GPLv2+ or AFL
@@ -286,6 +286,15 @@ ListenStream=/run/user/%U/dbus/user_bus_socket
 WantedBy=default.target
 EOF
 
+mkdir -p %{buildroot}%{_tmpfilesdir}
+cat > %{buildroot}%{_tmpfilesdir}/dbus.conf << EOF
+d /run/dbus 755 - - -
+EOF
+
+mkdir -p %{buildroot}/run
+mv %{buildroot}%{_localstatedir}/run/dbus %{buildroot}/run
+ln -s /run/dbus %{buildroot}%{_localstatedir}/run/dbus
+
 %pre
 # (cg) Do not require/use rpm-helper helper macros... we must do this manually
 # to avoid dep loops during install
@@ -293,8 +302,6 @@ EOF
 /usr/sbin/useradd -r -c "system user for %{name}" -g messagebus -s /sbin/nologin -d / messagebus 2>/dev/null ||:
 
 %post
-/bin/rm -rf /var/run/dbus
-/bin/ln -s /run/dbus /var/run/
 if [ "$1" = "1" ]; then
     /usr/bin/dbus-uuidgen --ensure
     /bin/systemctl enable dbus.service >/dev/null 2>&1 || :
@@ -321,9 +328,24 @@ fi
 /bin/systemctl --user --global enable dbus.socket >/dev/null 2>&1 || :
 /bin/systemctl --user --global enable dbus.service >/dev/null 2>&1 || :
 
-%triggerun -- dbus < 1.6.18-1
-/bin/rm -rf /var/run/dbus
-/bin/ln -s /run/dbus /var/run/
+#(proyvind): most likely overkill in complexity, but trying to *really*
+#            make sure not to break (running) dbus this time...
+%triggerprein -- dbus < 1:1.8.0-2
+if [ -L /run/dbus ]; then
+    rm -f /run/dbus
+fi
+if [ -d %{_localstatedir}/run/dbus ]; then
+   if [ -d /run/dbus ]; then
+      if [ -S /run/dbus/system_bus_socket ]; then 
+          rm -rf %{_localstatedir}/run/dbus
+      else
+          rm -rf /run/dbus
+          mv %{_localstatedir}/run/dbus /run/
+      fi
+   else
+      mv %{_localstatedir}/run/dbus /run/
+   fi
+fi
 
 %triggerun -- dbus < 1.4.16-1
 /bin/systemctl enable dbus.service >/dev/null 2>&1
@@ -338,7 +360,9 @@ fi
 %config(noreplace) %{_sysconfdir}/dbus-%{api}/*.conf
 %dir %{_sysconfdir}/dbus-%{api}/system.d
 %dir %{_sysconfdir}/dbus-%{api}/session.d
-%dir %{_var}/run/dbus
+%{_tmpfilesdir}/dbus.conf
+%dir /run/dbus
+%{_var}/run/dbus
 %dir %{_localstatedir}/lib/dbus
 %dir %{_libdir}/dbus-1.0
 /bin/dbus-cleanup-sockets
