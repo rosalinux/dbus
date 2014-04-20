@@ -144,7 +144,6 @@ pushd uclibc
 	--exec-prefix=%{uclibc_root} \
 	--libexecdir=%{uclibc_root}/%{_lib}/dbus-%{api} \
 	--disable-libaudit \
-	--disable-static \
 	--disable-tests \
 	--disable-asserts \
 	--disable-doxygen-docs \
@@ -172,10 +171,8 @@ pushd tests
 %configure2_5x \
 	$COMMON_ARGS \
 	--enable-libaudit \
-	--disable-static \
 	--enable-verbose-mode \
-	--enable-tests=yes \
-	--enable-verbose-mode=yes \
+	--enable-tests \
 	--enable-asserts \
 	--disable-doxygen-docs \
 	--disable-xml-docs
@@ -189,7 +186,6 @@ pushd shared
 %configure2_5x \
 	$COMMON_ARGS \
 	--enable-libaudit \
-	--disable-static \
 	--disable-tests \
 	--disable-asserts \
 	--enable-doxygen-docs \
