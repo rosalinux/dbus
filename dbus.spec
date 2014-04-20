@@ -149,7 +149,6 @@ pushd uclibc
 	--disable-asserts \
 	--disable-doxygen-docs \
 	--disable-xml-docs \
-	--enable-userdb-cache \
 	--disable-x11-autolaunch \
 	--without-x \
 %if %{with verbose}
@@ -195,7 +194,6 @@ pushd shared
 	--disable-asserts \
 	--enable-doxygen-docs \
 	--enable-xml-docs \
-	--enable-userdb-cache \
 	--enable-x11-autolaunch \
 	--with-x \
 %if %{with verbose}
