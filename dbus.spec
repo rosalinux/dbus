@@ -168,8 +168,8 @@ popd
 #### Build once with tests to make check
 %if %{with test}
 # (tpg) enable verbose mode by default --enable-verbose-mode
-mkdir -p test
-pushd test
+mkdir -p tests
+pushd tests
 %configure2_5x \
 	$COMMON_ARGS \
 	--enable-libaudit \
@@ -211,10 +211,10 @@ xsltproc -o dbus.devhelp %{SOURCE1} doc/api/xml/index.xml
 popd
 
 %check
-%make -C shared check
 %if %{with test}
-%make -C test check
+%make -C tests check
 %endif
+%make -C shared check
 
 %install
 %if %{with uclibc}
