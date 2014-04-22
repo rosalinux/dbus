@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.8.0
-Release:	2
+Release:	3
 # forgive me, need to quickly get around ABF issues.. :|
 Epoch:		1
 License:	GPLv2+ or AFL
@@ -305,7 +305,7 @@ ln -s /run/dbus %{buildroot}%{_localstatedir}/run/dbus
 
 %post
 if [ "$1" = "1" ]; then
-    /usr/bin/dbus-uuidgen --ensure
+    /bin/dbus-uuidgen --ensure
     /bin/systemctl enable dbus.service >/dev/null 2>&1 || :
     /bin/systemctl --user --global enable dbus.socket >/dev/null 2>&1 || :
     /bin/systemctl --user --global enable dbus.service >/dev/null 2>&1 || :
