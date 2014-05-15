@@ -129,7 +129,7 @@ COMMON_ARGS="--enable-systemd --with-systemdsystemunitdir=%{_unitdir} \
 	--bindir=/bin --enable-libaudit --disable-selinux \
 	--with-system-pid-file=%{_var}/run/messagebus.pid --exec-prefix=/ \
 	--with-system-socket=%{_var}/run/dbus/system_bus_socket \
-	--libexecdir=/%{_lib}/dbus-%{api} --with-init-scripts=redhat"
+	--libexecdir=/%{_lib}/dbus-%{api} --with-init-scripts=redhat --disable-static"
 
 export CONFIGURE_TOP="$PWD"
 %if %{with uclibc}
