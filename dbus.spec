@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.8.2
-Release:	2
+Release:	3
 # forgive me, need to quickly get around ABF issues.. :|
 Epoch:		1
 License:	GPLv2+ or AFL
@@ -41,6 +41,7 @@ BuildRequires:	pkgconfig(x11)
 BuildRequires:	pkgconfig(libsystemd-daemon) >= 32
 BuildRequires:	pkgconfig(libsystemd-login) >= 32
 BuildRequires:	pkgconfig(libsystemd-journal) >= 32
+BuildRequires:	pkgconfig(libsystemd-id128)
 BuildRequires:	pkgconfig(systemd)
 %if %{with uclibc}
 BuildRequires:	uClibc-devel >= 0.9.33.2-9
