@@ -12,8 +12,8 @@
 
 Summary:	D-Bus message bus
 Name:		dbus
-Version:	1.8.2
-Release:	5
+Version:	1.8.4
+Release:	1
 # forgive me, need to quickly get around ABF issues.. :|
 Epoch:		1
 License:	GPLv2+ or AFL
@@ -128,8 +128,8 @@ if test -f autogen.sh; then env NOCONFIGURE=1 ./autogen.sh; else autoreconf -v -
 %serverbuild_hardened
 COMMON_ARGS="--enable-systemd --with-systemdsystemunitdir=%{_unitdir} \
 	--bindir=/bin --enable-libaudit --disable-selinux \
-	--with-system-pid-file=%{_var}/run/messagebus.pid --exec-prefix=/ \
-    --with-system-socket=%{_rundir}/dbus/system_bus_socket \
+	--with-system-pid-file=%{_rundir}/messagebus.pid --exec-prefix=/ \
+	--with-system-socket=%{_rundir}/dbus/system_bus_socket \
 	--libexecdir=/%{_lib}/dbus-%{api} --with-init-scripts=redhat --disable-static"
 
 export CONFIGURE_TOP="$PWD"
