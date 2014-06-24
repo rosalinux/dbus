@@ -1,7 +1,7 @@
-%define	api	1
-%define	major	3
-%define	libname	%mklibname dbus- %{api} %{major}
-%define	devname	%mklibname -d dbus- %{api}
+%define api 1
+%define major 3
+%define libname %mklibname dbus- %{api} %{major}
+%define devname %mklibname -d dbus- %{api}
 
 %bcond_with	test
 %bcond_with	verbose
@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.8.2
-Release:	4
+Release:	5
 # forgive me, need to quickly get around ABF issues.. :|
 Epoch:		1
 License:	GPLv2+ or AFL
@@ -129,7 +129,7 @@ if test -f autogen.sh; then env NOCONFIGURE=1 ./autogen.sh; else autoreconf -v -
 COMMON_ARGS="--enable-systemd --with-systemdsystemunitdir=%{_unitdir} \
 	--bindir=/bin --enable-libaudit --disable-selinux \
 	--with-system-pid-file=%{_var}/run/messagebus.pid --exec-prefix=/ \
-	--with-system-socket=%{_var}/run/dbus/system_bus_socket \
+    --with-system-socket=%{_rundir}/dbus/system_bus_socket \
 	--libexecdir=/%{_lib}/dbus-%{api} --with-init-scripts=redhat --disable-static"
 
 export CONFIGURE_TOP="$PWD"
