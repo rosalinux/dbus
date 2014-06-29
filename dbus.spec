@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.8.4
-Release:	1
+Release:	2
 # forgive me, need to quickly get around ABF issues.. :|
 Epoch:		1
 License:	GPLv2+ or AFL
@@ -27,7 +27,7 @@ Patch4:		dbus-daemon-bindir.patch
 Patch5:		dbus-1.8.0-fix-disabling-of-xml-docs.patch
 Patch6:	 	0001-name-test-Don-t-run-test-autolaunch-if-we-don-t-have.patch
 
-BuildREquires:	asciidoc
+BuildRequires:	asciidoc
 BuildRequires:	docbook2x
 BuildRequires:	docbook-dtd412-xml
 BuildRequires:	doxygen
@@ -46,6 +46,8 @@ BuildRequires:	pkgconfig(systemd)
 %if %{with uclibc}
 BuildRequires:	uClibc-devel >= 0.9.33.2-9
 %endif
+# To make sure _rundir is defined
+BuildRequires:	rpm-build >= 1:5.4.10-79
 
 Requires(pre):	shadow-utils
 Requires(preun,post,postun):	rpm-helper
