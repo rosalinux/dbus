@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.8.6
-Release:	2
+Release:	3
 # forgive me, need to quickly get around ABF issues.. :|
 Epoch:		1
 License:	GPLv2+ or AFL
@@ -138,7 +138,7 @@ export CONFIGURE_TOP="$PWD"
 %if %{with uclibc}
 mkdir -p uclibc
 pushd uclibc
-%configure2_5x \
+%configure \
 	CC=%{uclibc_cc} \
 	CFLAGS="%{uclibc_cflags}" \
 	$COMMON_ARGS \
@@ -171,7 +171,7 @@ popd
 # (tpg) enable verbose mode by default --enable-verbose-mode
 mkdir -p tests
 pushd tests
-%configure2_5x \
+%configure \
 	$COMMON_ARGS \
 	--enable-libaudit \
 	--enable-verbose-mode \
@@ -188,7 +188,7 @@ popd
 
 mkdir -p shared
 pushd shared
-%configure2_5x \
+%configure \
 	$COMMON_ARGS \
 	--enable-libaudit \
 	--disable-tests \
@@ -309,24 +309,17 @@ ln -s /run/dbus %{buildroot}%{_localstatedir}/run/dbus
 %post
 if [ "$1" = "1" ]; then
     /bin/dbus-uuidgen --ensure
-    /bin/systemctl enable dbus.service >/dev/null 2>&1 || :
     /bin/systemctl --user --global enable dbus.socket >/dev/null 2>&1 || :
     /bin/systemctl --user --global enable dbus.service >/dev/null 2>&1 || :
 fi
-%_post_service %{name} %{name}.service
+%systemd_post %{name}.service
 
 %postun
 %_postun_groupdel messagebus
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-if [ $1 -ge 1 ] ; then
-    /bin/systemctl try-restart dbus.service >/dev/null 2>&1 || :
-fi
+%systemd_postun_with_restart %{name}.service
 
 %preun
-if [ $1 = 0 ]; then
-    /bin/systemctl --no-reload dbus.service > /dev/null 2>&1 || :
-    /bin/systemctl stop dbus.service > /dev/null 2>&1 || :
-fi
+%systemd_preun %{name}.service
 
 %triggerun -- dbus < 1.7.10-2
 # User sessions are new in 1.7.10
