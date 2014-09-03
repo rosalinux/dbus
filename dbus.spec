@@ -12,8 +12,8 @@
 
 Summary:	D-Bus message bus
 Name:		dbus
-Version:	1.6.14
-Release:	7
+Version:	1.6.22
+Release:	1
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -261,25 +261,15 @@ rm -rf %{buildroot}%{_sysconfdir}/rc.d/init.d/*
 /usr/sbin/useradd -r -c "system user for %{name}" -g messagebus -s /sbin/nologin -d / messagebus 2>/dev/null ||:
 
 %post
-if [ "$1" = "1" ]; then
-    /usr/bin/dbus-uuidgen --ensure
-    /bin/systemctl enable dbus.service >/dev/null 2>&1 || :
-fi
-
-%_post_service %{name} %{name}.service
+/usr/bin/dbus-uuidgen --ensure
+%systemd_post %{name}.service
 
 %postun
 %_postun_groupdel messagebus
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-if [ $1 -ge 1 ] ; then
-    /bin/systemctl try-restart dbus.service >/dev/null 2>&1 || :
-fi
+%systemd_postun_with_restart %{name}.service
 
 %preun
-if [ $1 = 0 ]; then
-    /bin/systemctl --no-reload dbus.service > /dev/null 2>&1 || :
-    /bin/systemctl stop dbus.service > /dev/null 2>&1 || :
-fi
+%systemd_preun %{name}.service
 
 %triggerun -- dbus < 1.4.16-1
 /bin/systemctl enable dbus.service >/dev/null 2>&1
