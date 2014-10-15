@@ -1,4 +1,5 @@
 removed_sources:
   dbus-1.8.4.tar.gz: 316f1196312a88cc858ba810d4e5d16f70ab9d58
-sources:
   dbus-1.8.6.tar.gz: ad7cb87cdce66533479a9d7c1c956bdb0243ad87
+sources:
+  dbus-1.8.8.tar.gz: e0d10e8b4494383c7e366ac80a942ba45a705a96

@@ -12,8 +12,8 @@
 
 Summary:	D-Bus message bus
 Name:		dbus
-Version:	1.8.6
-Release:	3
+Version:	1.8.8
+Release:	1
 # forgive me, need to quickly get around ABF issues.. :|
 Epoch:		1
 License:	GPLv2+ or AFL
@@ -228,9 +228,9 @@ ln -srf %{buildroot}%{uclibc_root}/%{_lib}/libdbus-%{api}.so.%{major}.* %{buildr
 
 # move lib to /, because it might be needed by hotplug script, before
 # /usr is mounted
-mkdir -p %{buildroot}/%{_lib} %{buildroot}%{_localstatedir}/lib/dbus %{buildroot}%{_bindir}
+mkdir -p %{buildroot}/%{_lib} %{buildroot}%{_bindir}
 
-mv %{buildroot}%{_libdir}/*dbus-1*.so.* %{buildroot}/%{_lib} 
+mv %{buildroot}%{_libdir}/*dbus-1*.so.* %{buildroot}/%{_lib}
 ln -sf /%{_lib}/libdbus-%{api}.so.%{major} %{buildroot}%{_libdir}/libdbus-%{api}.so
 
 mv %{buildroot}/bin/dbus-launch %{buildroot}%{_bindir}/dbus-launch
@@ -296,10 +296,6 @@ cat > %{buildroot}%{_tmpfilesdir}/dbus.conf << EOF
 d /run/dbus 755 - - -
 EOF
 
-mkdir -p %{buildroot}/run
-mv %{buildroot}%{_localstatedir}/run/dbus %{buildroot}/run
-ln -s /run/dbus %{buildroot}%{_localstatedir}/run/dbus
-
 %pre
 # (cg) Do not require/use rpm-helper helper macros... we must do this manually
 # to avoid dep loops during install
@@ -358,10 +354,8 @@ fi
 %config(noreplace) %{_sysconfdir}/dbus-%{api}/*.conf
 %dir %{_sysconfdir}/dbus-%{api}/system.d
 %dir %{_sysconfdir}/dbus-%{api}/session.d
-%{_tmpfilesdir}/dbus.conf
-%{_var}/run/dbus
-%dir %{_localstatedir}/lib/dbus
 %dir %{_libdir}/dbus-1.0
+%{_tmpfilesdir}/dbus.conf
 /bin/dbus-cleanup-sockets
 /bin/dbus-daemon
 /bin/dbus-monitor
