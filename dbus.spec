@@ -359,7 +359,6 @@ fi
 %dir %{_sysconfdir}/dbus-%{api}/system.d
 %dir %{_sysconfdir}/dbus-%{api}/session.d
 %{_tmpfilesdir}/dbus.conf
-%dir /run/dbus
 %{_var}/run/dbus
 %dir %{_localstatedir}/lib/dbus
 %dir %{_libdir}/dbus-1.0
