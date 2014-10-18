@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.8.8
-Release:	1
+Release:	2
 # forgive me, need to quickly get around ABF issues.. :|
 Epoch:		1
 License:	GPLv2+ or AFL
@@ -233,6 +233,11 @@ mkdir -p %{buildroot}/%{_lib} %{buildroot}%{_bindir}
 mv %{buildroot}%{_libdir}/*dbus-1*.so.* %{buildroot}/%{_lib}
 ln -sf /%{_lib}/libdbus-%{api}.so.%{major} %{buildroot}%{_libdir}/libdbus-%{api}.so
 
+# The /var/run/dbus symlink is still needed -- some applications hardcode
+# that location when opening sockets etc.
+mkdir -p %{buildroot}%{_localstatedir}/run
+ln -s /run/dbus %{buildroot}%{_localstatedir}/run/dbus
+
 mv %{buildroot}/bin/dbus-launch %{buildroot}%{_bindir}/dbus-launch
 mkdir -p %{buildroot}%{_sysconfdir}/X11/xinit.d
 cat << EOF > %{buildroot}%{_sysconfdir}/X11/xinit.d/30dbus
@@ -355,6 +360,7 @@ fi
 %dir %{_sysconfdir}/dbus-%{api}/system.d
 %dir %{_sysconfdir}/dbus-%{api}/session.d
 %dir %{_libdir}/dbus-1.0
+%{_localstatedir}/run/dbus
 %{_tmpfilesdir}/dbus.conf
 /bin/dbus-cleanup-sockets
 /bin/dbus-daemon
