@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.8.8
-Release:	2
+Release:	3
 # forgive me, need to quickly get around ABF issues.. :|
 Epoch:		1
 License:	GPLv2+ or AFL
@@ -235,7 +235,8 @@ ln -sf /%{_lib}/libdbus-%{api}.so.%{major} %{buildroot}%{_libdir}/libdbus-%{api}
 
 # The /var/run/dbus symlink is still needed -- some applications hardcode
 # that location when opening sockets etc.
-mkdir -p %{buildroot}%{_localstatedir}/run
+#mkdir -p %{buildroot}%{_localstatedir}/run
+rmdir %{buildroot}%{_localstatedir}/run/dbus
 ln -s /run/dbus %{buildroot}%{_localstatedir}/run/dbus
 
 mv %{buildroot}/bin/dbus-launch %{buildroot}%{_bindir}/dbus-launch
@@ -344,6 +345,7 @@ if [ -d %{_localstatedir}/run/dbus ]; then
    else
       mv %{_localstatedir}/run/dbus /run/
    fi
+   ln -sf /run/dbus %{_localstatedir}/run/
 fi
 
 %triggerun -- dbus < 1.4.16-1
