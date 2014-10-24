@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.8.8
-Release:	3
+Release:	4
 # forgive me, need to quickly get around ABF issues.. :|
 Epoch:		1
 License:	GPLv2+ or AFL
@@ -345,7 +345,7 @@ if [ -d %{_localstatedir}/run/dbus ]; then
    else
       mv %{_localstatedir}/run/dbus /run/
    fi
-   ln -sf /run/dbus %{_localstatedir}/run/
+   ln -sf /run/dbus %{_localstatedir}/run/dbus
 fi
 
 %triggerun -- dbus < 1.4.16-1
