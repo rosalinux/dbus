@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.8.8
-Release:	4
+Release:	5
 # forgive me, need to quickly get around ABF issues.. :|
 Epoch:		1
 License:	GPLv2+ or AFL
