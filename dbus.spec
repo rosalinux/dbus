@@ -49,7 +49,7 @@ BuildRequires:	uClibc-devel >= 0.9.33.2-9
 # To make sure _rundir is defined
 BuildRequires:	rpm-build >= 1:5.4.10-79
 
-Requires(pre):	shadow-utils
+Requires(pre):	shadow-utils >= 4.2.1-7
 Requires(preun,post,postun):	rpm-helper
 Provides:	should-restart = system
 
