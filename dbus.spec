@@ -50,7 +50,7 @@ BuildRequires:	uClibc-devel >= 0.9.33.2-9
 BuildRequires:	rpm-build >= 1:5.4.10-79
 
 Requires(pre):	shadow-utils >= 4.2.1-7
-Requires(preun,post,postun):	rpm-helper
+Requires(preun,post,postun):	rpm-helper >= 0.24.12-11
 Provides:	should-restart = system
 
 %description
