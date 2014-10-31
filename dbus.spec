@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.8.8
-Release:	6
+Release:	7
 # forgive me, need to quickly get around ABF issues.. :|
 Epoch:		1
 License:	GPLv2+ or AFL
@@ -262,6 +262,9 @@ ln -s dbus.service %{buildroot}%{_unitdir}/messagebus.service
 mkdir -p %{buildroot}%{_datadir}/devhelp/books/dbus
 mkdir -p %{buildroot}%{_datadir}/devhelp/books/dbus/api
 
+# (tpg) needed for dbus-uuidgen
+mkdir -p %{buildroot}%{_var}/lib/dbus
+
 cp shared/dbus.devhelp %{buildroot}%{_datadir}/devhelp/books/dbus
 cp shared/doc/dbus-specification.html %{buildroot}%{_datadir}/devhelp/books/dbus
 cp shared/doc/dbus-faq.html %{buildroot}%{_datadir}/devhelp/books/dbus
@@ -362,6 +365,7 @@ fi
 %dir %{_sysconfdir}/dbus-%{api}/system.d
 %dir %{_sysconfdir}/dbus-%{api}/session.d
 %dir %{_libdir}/dbus-1.0
+%dir %{_var}/lib/dbus
 %{_localstatedir}/run/dbus
 %{_tmpfilesdir}/dbus.conf
 /bin/dbus-cleanup-sockets
