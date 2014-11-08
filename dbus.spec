@@ -3,8 +3,8 @@
 %define libname %mklibname dbus- %{api} %{major}
 %define devname %mklibname -d dbus- %{api}
 
-%bcond_with	test
-%bcond_with	verbose
+%bcond_with test
+%bcond_with verbose
 
 %define git_url git://git.freedesktop.org/git/dbus/dbus
 
@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.8.8
-Release:	8
+Release:	9
 # forgive me, need to quickly get around ABF issues.. :|
 Epoch:		1
 License:	GPLv2+ or AFL
@@ -21,6 +21,10 @@ Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
 Source0:	http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1:	doxygen_to_devhelp.xsl
+# (tpg) systemd userspace service
+Source2:	user-dbus.socket
+Source3:	user-dbus.service
+Source4:	user-dbus.conf
 # (fc) 1.0.2-5mdv disable fatal warnings on check (fd.o bug #13270)
 Patch3:		dbus-1.0.2-disable_fatal_warning_on_check.patch
 Patch4:		dbus-daemon-bindir.patch
@@ -269,30 +273,10 @@ cp shared/doc/api/html/* %{buildroot}%{_datadir}/devhelp/books/dbus/api
 rm -r %{buildroot}%{_sysconfdir}/rc.d/init.d/*
 
 # systemd user session bits
-mkdir -p %{buildroot}%{_prefix}/lib/systemd/user
-cat >%{buildroot}%{_prefix}/lib/systemd/user/dbus.service <<'EOF'
-[Unit]
-Description=D-Bus User Message Bus
-Requires=dbus.socket
-
-[Service]
-ExecStart=/bin/dbus-daemon --session --address=systemd: --nofork --nopidfile --systemd-activation
-ExecReload=/bin/dbus-send --print-reply --session --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
-
-[Install]
-WantedBy=default.target
-EOF
-cat >%{buildroot}%{_prefix}/lib/systemd/user/dbus.socket <<'EOF'
-[Unit]
-Description=D-Bus User Message Bus Socket
-Before=sockets.target
-
-[Socket]
-ListenStream=/run/user/%U/dbus/user_bus_socket
-
-[Install]
-WantedBy=default.target
-EOF
+mkdir -p %{buildroot}%{_sysconfdir}/systemd/user
+install -m644 %{SOURCE2} %{buildroot}%{_sysconfdir}/systemd/user/dbus.socket
+install -m644 %{SOURCE3} %{buildroot}%{_sysconfdir}/systemd/user/dbus.service
+install -m644 %{SOURCE4} %{buildroot}%{_sysconfdir}/systemd/system/user@.service.d/dbus.conf
 
 mkdir -p %{buildroot}%{_tmpfilesdir}
 cat > %{buildroot}%{_tmpfilesdir}/dbus.conf << EOF
@@ -306,16 +290,14 @@ EOF
 /usr/sbin/useradd -r -c "system user for %{name}" -g messagebus -s /sbin/nologin -d / messagebus 2>/dev/null ||:
 
 %post
-if [ "$1" = "1" ]; then
-    /bin/dbus-uuidgen --ensure
-    /bin/systemctl --user --global enable dbus.socket >/dev/null 2>&1 || :
-    /bin/systemctl --user --global enable dbus.service >/dev/null 2>&1 || :
-fi
-%systemd_post %{name}.service
+/bin/dbus-uuidgen --ensure
+/bin/systemctl --user --global enable dbus.socket >/dev/null 2>&1 || :
+/bin/systemctl --user --global enable dbus.service >/dev/null 2>&1 || :
+%systemd_post %{name}.socket %{name}.service
 
 %postun
 %_postun_groupdel messagebus
-%systemd_postun_with_restart %{name}.service
+%systemd_postun_with_restart %{name}.socket %{name}.service
 
 %preun
 %systemd_preun %{name}.service
@@ -356,6 +338,7 @@ fi
 %files
 %dir %{_sysconfdir}/dbus-%{api}
 %config(noreplace) %{_sysconfdir}/dbus-%{api}/*.conf
+%config(noreplace) %{_sysconfdir}/systemd/system/user@.service.d/dbus.conf
 %dir %{_sysconfdir}/dbus-%{api}/system.d
 %dir %{_sysconfdir}/dbus-%{api}/session.d
 %dir %{_libdir}/dbus-1.0
@@ -376,14 +359,13 @@ fi
 # behind these permissions
 %dir /%{_lib}/dbus-%{api}
 %attr(4750,root,messagebus) /%{_lib}/dbus-%{api}/dbus-daemon-launch-helper
-
 %{_unitdir}/dbus.service
 %{_unitdir}/messagebus.service
 %{_unitdir}/dbus.socket
 %{_unitdir}/dbus.target.wants/dbus.socket
 %{_unitdir}/multi-user.target.wants/dbus.service
 %{_unitdir}/sockets.target.wants/dbus.socket
-%{_prefix}/lib/systemd/user/dbus.*
+%{_sysconfdir}/systemd/user/dbus.*
 
 %if %{with uclibc}
 %files -n uclibc-%{name}
