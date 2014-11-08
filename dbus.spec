@@ -388,7 +388,7 @@ fi
 %{_includedir}/dbus-1.0/
 
 %files x11
-%{_bindir}/dbus-launch
+/bin/dbus-launch
 
 %files doc
 %doc COPYING NEWS
