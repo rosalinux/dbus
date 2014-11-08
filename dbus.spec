@@ -237,17 +237,6 @@ mkdir -p %{buildroot}/%{_lib} %{buildroot}%{_bindir}
 mv %{buildroot}%{_libdir}/*dbus-1*.so.* %{buildroot}/%{_lib}
 ln -sf /%{_lib}/libdbus-%{api}.so.%{major} %{buildroot}%{_libdir}/libdbus-%{api}.so
 
-mv %{buildroot}/bin/dbus-launch %{buildroot}%{_bindir}/dbus-launch
-mkdir -p %{buildroot}%{_sysconfdir}/X11/xinit.d
-cat << EOF > %{buildroot}%{_sysconfdir}/X11/xinit.d/30dbus
-# to be sourced
-if [ -z "\$DBUS_SESSION_BUS_ADDRESS" ]; then
-  eval \`%{_bindir}/dbus-launch --exit-with-session --sh-syntax\`
-fi
-EOF
-
-chmod 755 %{buildroot}%{_sysconfdir}/X11/xinit.d/30dbus
-
 # create directory
 mkdir %{buildroot}%{_datadir}/dbus-%{api}/interfaces
 
@@ -399,7 +388,6 @@ fi
 %{_includedir}/dbus-1.0/
 
 %files x11
-%{_sysconfdir}/X11/xinit.d/*
 %{_bindir}/dbus-launch
 
 %files doc
