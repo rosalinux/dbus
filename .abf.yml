@@ -1,4 +1,4 @@
 removed_sources:
   dbus-1.6.14.tar.gz: 020142d32f3c048d5777a91dbdc3c47c3146cc80
 sources:
-  dbus-1.6.22.tar.gz: 863b4bc6ef89e1450b70933161b12796f92b9046
+  dbus-1.6.28.tar.gz: cc8fd21f2123a58ad78c4e50c8f5b330a39cc21f
