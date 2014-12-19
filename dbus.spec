@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.8.12
-Release:	2
+Release:	3
 # forgive me, need to quickly get around ABF issues.. :|
 Epoch:		1
 License:	GPLv2+ or AFL
@@ -275,8 +275,13 @@ EOF
 %pre
 # (cg) Do not require/use rpm-helper helper macros... we must do this manually
 # to avoid dep loops during install
-/usr/sbin/groupadd -r messagebus 2>/dev/null || :
-/usr/sbin/useradd -r -c "system user for %{name}" -g messagebus -s /sbin/nologin -d / messagebus 2>/dev/null ||:
+if ! getent group messagebus >/dev/null 2>&1; then
+	/usr/sbin/groupadd -r messagebus 2>/dev/null || :
+fi
+
+if ! getent passwd messagebus >/dev/null 2>&1; then
+	/usr/sbin/useradd -r -c "system user for %{name}" -g messagebus -s /sbin/nologin -d / messagebus 2>/dev/null ||:
+fi
 
 %post
 /bin/dbus-uuidgen --ensure
