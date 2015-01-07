@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.8.12
-Release:	3
+Release:	4
 # forgive me, need to quickly get around ABF issues.. :|
 Epoch:		1
 License:	GPLv2+ or AFL
@@ -291,10 +291,10 @@ fi
 
 %postun
 %_postun_groupdel messagebus
-%systemd_postun_with_restart %{name}.socket %{name}.service
+%systemd_postun
 
 %preun
-%systemd_preun %{name}.service
+%systemd_preun stop dbus.service dbus.socket
 
 %triggerun -- dbus < 1.7.10-2
 # User sessions are new in 1.7.10
