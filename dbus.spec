@@ -13,9 +13,8 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.8.14
-Release:	1
-# forgive me, need to quickly get around ABF issues.. :|
-Epoch:		1
+Release:	2
+Epoch:		-1
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
