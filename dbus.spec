@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.8.14
-Release:	2
+Release:	3
 Epoch:		-1
 License:	GPLv2+ or AFL
 Group:		System/Servers
@@ -24,6 +24,7 @@ Source1:	doxygen_to_devhelp.xsl
 Source2:	user-dbus.socket
 Source3:	user-dbus.service
 Source4:	user-dbus.conf
+Patch2:		dbus-1.8.14-headers-clang.patch
 # (fc) 1.0.2-5mdv disable fatal warnings on check (fd.o bug #13270)
 Patch3:		dbus-1.0.2-disable_fatal_warning_on_check.patch
 Patch4:		dbus-daemon-bindir.patch
@@ -122,6 +123,7 @@ other supporting documentation such as the introspect dtd file.
 
 %prep
 %setup -q
+%patch2 -p1 -b .clang~
 #only disable in cooker to detect buggy programs
 #patch3 -p1 -b .disable_fatal_warning_on_check
 %patch4 -p1 -b .daemon_bindir~
