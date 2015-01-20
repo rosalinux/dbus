@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.8.14
-Release:	5
+Release:	6
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -52,8 +52,9 @@ BuildRequires:	uClibc-devel >= 0.9.33.2-9
 # To make sure _rundir is defined
 BuildRequires:	rpm-build >= 1:5.4.10-79
 
-Requires(pre):	shadow-utils >= 4.2.1-7
-Requires(preun,post,postun):	rpm-helper >= 0.24.12-11
+Requires(pre):	shadow >= 4.2.1-13
+Requires(pre):	bash
+Requires(post,preun,postun):	rpm-helper >= 0.24.12-11
 Provides:	should-restart = system
 
 %description
