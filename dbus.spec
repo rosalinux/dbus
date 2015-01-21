@@ -51,9 +51,6 @@ BuildRequires:	uClibc-devel >= 0.9.33.2-9
 %endif
 # To make sure _rundir is defined
 BuildRequires:	rpm-build >= 1:5.4.10-79
-
-Requires(pre):	shadow >= 4.2.1-13
-Requires(pre):	bash
 Requires(post,preun,postun):	rpm-helper >= 0.24.12-11
 Provides:	should-restart = system
 
@@ -273,17 +270,6 @@ cat > %{buildroot}%{_tmpfilesdir}/dbus.conf << EOF
 d /run/dbus 755 - - -
 EOF
 
-%pre
-# (cg) Do not require/use rpm-helper helper macros... we must do this manually
-# to avoid dep loops during install
-if ! getent group messagebus >/dev/null 2>&1; then
-	/usr/sbin/groupadd -r messagebus 2>/dev/null || :
-fi
-
-if ! getent passwd messagebus >/dev/null 2>&1; then
-	/usr/sbin/useradd -r -c "system user for %{name}" -g messagebus -s /sbin/nologin -d / messagebus 2>/dev/null ||:
-fi
-
 %post
 /bin/dbus-uuidgen --ensure
 /bin/systemctl --user --global enable dbus.socket >/dev/null 2>&1 || :
@@ -296,6 +282,19 @@ fi
 
 %preun
 %systemd_preun stop dbus.service dbus.socket
+
+%triggerin -- setup 
+if [ $1 -ge 2 -o $2 -ge 2 ]; then
+# (cg) Do not require/use rpm-helper helper macros... we must do this manually
+# to avoid dep loops during install
+if ! getent group messagebus >/dev/null 2>&1; then
+	/usr/sbin/groupadd -r messagebus 2>/dev/null || :
+fi
+
+if ! getent passwd messagebus >/dev/null 2>&1; then
+	/usr/sbin/useradd -r -c "system user for %{name}" -g messagebus -s /sbin/nologin -d / messagebus 2>/dev/null ||:
+fi
+fi
 
 %triggerun -- dbus < 1.7.10-2
 # User sessions are new in 1.7.10
