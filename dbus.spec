@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.8.14
-Release:	7
+Release:	8
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -285,15 +285,14 @@ EOF
 
 %triggerin -- setup 
 if [ $1 -ge 2 -o $2 -ge 2 ]; then
-# (cg) Do not require/use rpm-helper helper macros... we must do this manually
-# to avoid dep loops during install
-if ! getent group messagebus >/dev/null 2>&1; then
-	/usr/sbin/groupadd -r messagebus 2>/dev/null || :
-fi
 
-if ! getent passwd messagebus >/dev/null 2>&1; then
-	/usr/sbin/useradd -r -c "system user for %{name}" -g messagebus -s /sbin/nologin -d / messagebus 2>/dev/null ||:
-fi
+	if ! getent group messagebus >/dev/null 2>&1; then
+		/usr/sbin/groupadd -r messagebus 2>/dev/null || :
+	fi
+
+	if ! getent passwd messagebus >/dev/null 2>&1; then
+		/usr/sbin/useradd -r -c "system user for %{name}" -g messagebus -s /sbin/nologin -d / messagebus 2>/dev/null ||:
+	fi
 fi
 
 %triggerun -- dbus < 1.7.10-2
