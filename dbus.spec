@@ -260,7 +260,8 @@ cp shared/doc/api/html/* %{buildroot}%{_datadir}/devhelp/books/dbus/api
 rm -r %{buildroot}%{_sysconfdir}/rc.d/init.d/*
 
 # systemd user session bits
-mkdir -p %{buildroot}%{_sysconfdir}/systemd/{user,system/user@.service.d,default.target.wants}
+mkdir -p %{buildroot}%{_sysconfdir}/systemd/{user,system/user@.service.d}
+mkdir -p %{buildroot}%{_sysconfdir}/systemd/user/default.target.wants
 install -m644 %{SOURCE2} %{buildroot}%{_sysconfdir}/systemd/user/dbus.socket
 install -m644 %{SOURCE3} %{buildroot}%{_sysconfdir}/systemd/user/dbus.service
 install -m644 %{SOURCE4} %{buildroot}%{_sysconfdir}/systemd/system/user@.service.d/dbus.conf
