@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.8.14
-Release:	8
+Release:	9
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -260,10 +260,13 @@ cp shared/doc/api/html/* %{buildroot}%{_datadir}/devhelp/books/dbus/api
 rm -r %{buildroot}%{_sysconfdir}/rc.d/init.d/*
 
 # systemd user session bits
-mkdir -p %{buildroot}%{_sysconfdir}/systemd/{user,system/user@.service.d}
+mkdir -p %{buildroot}%{_sysconfdir}/systemd/{user,system/user@.service.d,default.target.wants}
 install -m644 %{SOURCE2} %{buildroot}%{_sysconfdir}/systemd/user/dbus.socket
 install -m644 %{SOURCE3} %{buildroot}%{_sysconfdir}/systemd/user/dbus.service
 install -m644 %{SOURCE4} %{buildroot}%{_sysconfdir}/systemd/system/user@.service.d/dbus.conf
+# (tpg) explicitly enable these for userland
+ln -sf %{_sysconfdir}/systemd/user/dbus.service %{_sysconfdir}/systemd/user/default.target.wants/dbus.service
+ln -sf %{_sysconfdir}/systemd/user/dbus.socket %{_sysconfdir}/systemd/user/default.target.wants/dbus.socket
 
 mkdir -p %{buildroot}%{_tmpfilesdir}
 cat > %{buildroot}%{_tmpfilesdir}/dbus.conf << EOF
@@ -283,7 +286,7 @@ EOF
 %preun
 %systemd_preun stop dbus.service dbus.socket
 
-%triggerin -- setup 
+%triggerin -- setup
 if [ $1 -ge 2 -o $2 -ge 2 ]; then
 
 	if ! getent group messagebus >/dev/null 2>&1; then
@@ -359,6 +362,7 @@ fi
 %{_unitdir}/multi-user.target.wants/dbus.service
 %{_unitdir}/sockets.target.wants/dbus.socket
 %{_sysconfdir}/systemd/user/dbus.*
+%{_sysconfdir}/systemd/user/default.target.wants/dbus.s*
 
 %if %{with uclibc}
 %files -n uclibc-%{name}
