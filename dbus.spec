@@ -266,8 +266,8 @@ install -m644 %{SOURCE2} %{buildroot}%{_sysconfdir}/systemd/user/dbus.socket
 install -m644 %{SOURCE3} %{buildroot}%{_sysconfdir}/systemd/user/dbus.service
 install -m644 %{SOURCE4} %{buildroot}%{_sysconfdir}/systemd/system/user@.service.d/dbus.conf
 # (tpg) explicitly enable these for userland
-ln -sf %{_sysconfdir}/systemd/user/dbus.service %{_sysconfdir}/systemd/user/default.target.wants/dbus.service
-ln -sf %{_sysconfdir}/systemd/user/dbus.socket %{_sysconfdir}/systemd/user/default.target.wants/dbus.socket
+ln -sf %{_sysconfdir}/systemd/user/dbus.service %{buildroot}%{_sysconfdir}/systemd/user/default.target.wants/dbus.service
+ln -sf %{_sysconfdir}/systemd/user/dbus.socket %{buildroot}%{_sysconfdir}/systemd/user/default.target.wants/dbus.socket
 
 mkdir -p %{buildroot}%{_tmpfilesdir}
 cat > %{buildroot}%{_tmpfilesdir}/dbus.conf << EOF
