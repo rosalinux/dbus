@@ -12,7 +12,7 @@
 
 Summary:	D-Bus message bus
 Name:		dbus
-Version:	1.6.28
+Version:	1.6.30
 Release:	1
 License:	GPLv2+ or AFL
 Group:		System/Servers
@@ -125,7 +125,7 @@ COMMON_ARGS="--enable-systemd --with-systemdsystemunitdir=/lib/systemd/system \
     --enable-libaudit --disable-selinux --with-system-pid-file=%{_var}/run/messagebus.pid \
     --with-system-socket=%{_var}/run/dbus/system_bus_socket --with-session-socket-dir=/tmp \
     --libexecdir=/%{_lib}/dbus-%{api}"
-    
+
 export CONFIGURE_TOP=$PWD
 %if %{with uclibc}
 mkdir -p uclibc
