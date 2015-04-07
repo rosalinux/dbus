@@ -277,10 +277,17 @@ EOF
 %post
 /bin/dbus-uuidgen --ensure
 /bin/systemctl --global enable dbus.socket >/dev/null 2>&1 || :
-/bin/systemctl --user --global enable dbus.service >/dev/null 2>&1 || :
+/bin/systemctl --user enable dbus.socket >/dev/null 2>&1 || :
+/bin/systemctl --user start dbus.socket >/dev/null 2>&1 || :
+/bin/systemctl --global enable dbus.service >/dev/null 2>&1 || :
+/bin/systemctl --user enable dbus.service >/dev/null 2>&1 || :
+/bin/systemctl --user start dbus.service >/dev/null 2>&1 || :
 
 %postun
 %_postun_groupdel messagebus
+
+%preun
+/bin/systemctl --user disable dbus.socket dbus.service >/dev/null 2>&1 || :
 
 %triggerin -- setup
 if [ $1 -ge 2 -o $2 -ge 2 ]; then
