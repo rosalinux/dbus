@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.8.16
-Release:	1
+Release:	2
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -276,16 +276,11 @@ EOF
 
 %post
 /bin/dbus-uuidgen --ensure
-/bin/systemctl --user --global enable dbus.socket >/dev/null 2>&1 || :
+/bin/systemctl --global enable dbus.socket >/dev/null 2>&1 || :
 /bin/systemctl --user --global enable dbus.service >/dev/null 2>&1 || :
-%systemd_post %{name}.socket %{name}.service
 
 %postun
 %_postun_groupdel messagebus
-%systemd_postun
-
-%preun
-%systemd_preun stop dbus.service dbus.socket
 
 %triggerin -- setup
 if [ $1 -ge 2 -o $2 -ge 2 ]; then
