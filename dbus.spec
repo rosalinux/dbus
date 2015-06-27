@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.8.18
-Release:	2
+Release:	3
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -48,6 +48,12 @@ BuildRequires:	pkgconfig(libsystemd-id128)
 BuildRequires:	pkgconfig(systemd)
 %if %{with uclibc}
 BuildRequires:	uClibc-devel >= 0.9.33.2-9
+BuildRequires:	uclibc-libcap-devel
+BuildRequires:	uclibc-expat-devel
+BuildRequires:	uclibc-libsystemd-devel
+BuildRequires:	uclibc-libsystemd-login-devel
+BuildRequires:	uclibc-libsystemd-journal-devel
+BuildRequires:	uclibc-libsystemd-id128-devel
 %endif
 # To make sure _rundir is defined
 BuildRequires:	rpm-build >= 1:5.4.10-79
@@ -85,15 +91,23 @@ Group:		System/Libraries
 
 %description -n	uclibc-%{libname}
 D-Bus shared library.
+
+%package -n uclibc-%{devname}
+Summary:	Libraries and headers for D-Bus
+Group:		Development/C
+Requires:	%{devname} = %{EVRD}
+Requires:	uclibc-%{libname} = %{EVRD}
+Provides:	uclibc-%{name}-devel = %{EVRD}
+Conflicts:	%{devname} <1.8.18-3
+
+%description -n	uclibc-%{devname}
+Headers and static libraries for D-Bus.
 %endif
 
 %package -n %{devname}
 Summary:	Libraries and headers for D-Bus
 Group:		Development/C
 Requires:	%{libname} = %{EVRD}
-%if %{with uclibc}
-Requires:	uclibc-%{libname} = %{EVRD}
-%endif
 Provides:	%{name}-devel = %{EVRD}
 
 %description -n	%{devname}
@@ -383,14 +397,14 @@ fi
 %if %{with uclibc}
 %files -n uclibc-%{libname}
 %{uclibc_root}/%{_lib}/libdbus-%{api}.so.%{major}*
+
+%files -n uclibc-%{devname}
+%{uclibc_root}%{_libdir}/libdbus-%{api}.so
 %endif
 
 %files -n %{devname}
 %doc ChangeLog
 %{_libdir}/libdbus-%{api}.so
-%if %{with uclibc}
-%{uclibc_root}%{_libdir}/libdbus-%{api}.so
-%endif
 %{_libdir}/dbus-1.0/include/
 %{_libdir}/pkgconfig/dbus-%{api}.pc
 %{_includedir}/dbus-1.0/
