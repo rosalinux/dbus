@@ -8,7 +8,7 @@
 
 %define git_url git://git.freedesktop.org/git/dbus/dbus
 
-%bcond_without uclibc
+%bcond_with uclibc
 
 Summary:	D-Bus message bus
 Name:		dbus
