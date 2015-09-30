@@ -28,7 +28,6 @@ Patch2:		dbus-1.8.14-headers-clang.patch
 Patch3:		dbus-1.0.2-disable_fatal_warning_on_check.patch
 Patch4:		dbus-daemon-bindir.patch
 Patch5:		dbus-1.8.0-fix-disabling-of-xml-docs.patch
-Patch6:	 	0001-name-test-Don-t-run-test-autolaunch-if-we-don-t-have.patch
 
 BuildRequires:	asciidoc
 BuildRequires:	docbook2x
@@ -139,7 +138,6 @@ other supporting documentation such as the introspect dtd file.
 #patch3 -p1 -b .disable_fatal_warning_on_check
 %patch4 -p1 -b .daemon_bindir~
 %patch5 -p1 -b .nodocs~
-#patch6 -p1 -b .noautolaunchtest~
 if test -f autogen.sh; then env NOCONFIGURE=1 ./autogen.sh; else autoreconf -v -f -i; fi
 
 %build
