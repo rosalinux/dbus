@@ -332,7 +332,6 @@ fi
 %files
 %dir %{_sysconfdir}/dbus-%{api}
 %config(noreplace) %{_sysconfdir}/dbus-%{api}/*.conf
-%config(noreplace) %{_sysconfdir}/systemd/system/user@.service.d/dbus.conf
 %dir %{_libdir}/dbus-1.0
 %dir %{_var}/lib/dbus
 %{_tmpfilesdir}/dbus.conf
@@ -361,8 +360,6 @@ fi
 %{_unitdir}/dbus.target.wants/dbus.socket
 %{_unitdir}/multi-user.target.wants/dbus.service
 %{_unitdir}/sockets.target.wants/dbus.socket
-%{_sysconfdir}/systemd/user/dbus.*
-%{_sysconfdir}/systemd/user/default.target.wants/dbus.s*
 %{_userunitdir}/dbus.service
 %{_userunitdir}/dbus.socket
 %{_userunitdir}/sockets.target.wants/dbus.socket
