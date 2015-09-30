@@ -349,8 +349,6 @@ fi
 %dir %{_sysconfdir}/dbus-%{api}
 %config(noreplace) %{_sysconfdir}/dbus-%{api}/*.conf
 %config(noreplace) %{_sysconfdir}/systemd/system/user@.service.d/dbus.conf
-%dir %{_sysconfdir}/dbus-%{api}/system.d
-%dir %{_sysconfdir}/dbus-%{api}/session.d
 %dir %{_libdir}/dbus-1.0
 %dir %{_var}/lib/dbus
 %{_tmpfilesdir}/dbus.conf
@@ -360,11 +358,15 @@ fi
 /bin/dbus-run-session
 /bin/dbus-send
 /bin/dbus-uuidgen
+/bin/dbus-test-tool
+/bin/dbus-update-activation-environment
 %{_mandir}/man*/*
 %dir %{_datadir}/dbus-%{api}
 %{_datadir}/dbus-%{api}/system-services
 %{_datadir}/dbus-%{api}/services
 %{_datadir}/dbus-%{api}/interfaces
+%{_datadir}/dbus-%{api}/session.conf
+%{_datadir}/dbus-%{api}/system.conf
 # See doc/system-activation.txt in source tarball for the rationale
 # behind these permissions
 %dir /%{_lib}/dbus-%{api}
