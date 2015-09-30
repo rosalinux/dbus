@@ -13,7 +13,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.10.0
-Release:	1
+Release:	2
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -142,8 +142,8 @@ if test -f autogen.sh; then env NOCONFIGURE=1 ./autogen.sh; else autoreconf -v -
 
 %build
 %serverbuild_hardened
-COMMON_ARGS="--enable-systemd --with-systemdsystemunitdir=%{_unitdir} \
-	--bindir=/bin --enable-libaudit --disable-selinux \
+COMMON_ARGS=" --enable-user-session --enable-systemd --with-systemdsystemunitdir=%{_unitdir} \
+	--with-systemduserunitdir=%{_userunitdir} --bindir=/bin --enable-libaudit --disable-selinux \
 	--with-system-pid-file=%{_rundir}/messagebus.pid --exec-prefix=/ \
 	--with-system-socket=%{_rundir}/dbus/system_bus_socket \
 	--libexecdir=/%{_lib}/dbus-%{api} --with-init-scripts=redhat --disable-static"
