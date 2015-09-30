@@ -138,8 +138,8 @@ other supporting documentation such as the introspect dtd file.
 #only disable in cooker to detect buggy programs
 #patch3 -p1 -b .disable_fatal_warning_on_check
 %patch4 -p1 -b .daemon_bindir~
-#patch5 -p1 -b .nodocs~
-%patch6 -p1 -b .noautolaunchtest~
+%patch5 -p1 -b .nodocs~
+#patch6 -p1 -b .noautolaunchtest~
 if test -f autogen.sh; then env NOCONFIGURE=1 ./autogen.sh; else autoreconf -v -f -i; fi
 
 %build

@@ -1,14 +1,15 @@
---- dbus-1.8.0/doc/Makefile.am.nodocs~	2014-04-03 01:12:39.284661359 +0200
-+++ dbus-1.8.0/doc/Makefile.am	2014-04-03 01:14:09.678450064 +0200
-@@ -52,6 +52,7 @@ STATIC_HTML = \
- 
- dist_html_DATA += $(STATIC_HTML)
+diff -Naur dbus-1.10.0/doc/Makefile.am dbus-1.10.0.tpg/doc/Makefile.am
+--- dbus-1.10.0/doc/Makefile.am	2015-03-02 14:41:01.000000000 +0000
++++ dbus-1.10.0.tpg/doc/Makefile.am	2015-09-30 17:21:22.272146973 +0000
+@@ -71,6 +71,7 @@
+ 	dbus-api-design.html \
+ 	$(NULL)
  
 +if DBUS_XML_DOCS_ENABLED
  XMLTO_HTML =					\
  	dbus-faq.html				\
  	dbus-specification.html			\
-@@ -60,7 +61,6 @@ XMLTO_HTML =					\
+@@ -79,7 +80,6 @@
  	$(MAN_HTML_FILES)			\
  	$(NULL)
  
