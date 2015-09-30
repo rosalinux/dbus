@@ -19,10 +19,6 @@ Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
 Source0:	http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1:	doxygen_to_devhelp.xsl
-# (tpg) systemd userspace service
-Source2:	user-dbus.socket
-Source3:	user-dbus.service
-Source4:	user-dbus.conf
 Patch2:		dbus-1.8.14-headers-clang.patch
 # (fc) 1.0.2-5mdv disable fatal warnings on check (fd.o bug #13270)
 Patch3:		dbus-1.0.2-disable_fatal_warning_on_check.patch
@@ -271,16 +267,6 @@ cp shared/doc/api/html/* %{buildroot}%{_datadir}/devhelp/books/dbus/api
 # (tpg) remove old initscript
 rm -r %{buildroot}%{_sysconfdir}/rc.d/init.d/*
 
-# systemd user session bits
-mkdir -p %{buildroot}%{_sysconfdir}/systemd/{user,system/user@.service.d}
-mkdir -p %{buildroot}%{_sysconfdir}/systemd/user/default.target.wants
-install -m644 %{SOURCE2} %{buildroot}%{_sysconfdir}/systemd/user/dbus.socket
-install -m644 %{SOURCE3} %{buildroot}%{_sysconfdir}/systemd/user/dbus.service
-install -m644 %{SOURCE4} %{buildroot}%{_sysconfdir}/systemd/system/user@.service.d/dbus.conf
-# (tpg) explicitly enable these for userland
-ln -sf %{_sysconfdir}/systemd/user/dbus.service %{buildroot}%{_sysconfdir}/systemd/user/default.target.wants/dbus.service
-ln -sf %{_sysconfdir}/systemd/user/dbus.socket %{buildroot}%{_sysconfdir}/systemd/user/default.target.wants/dbus.socket
-
 mkdir -p %{buildroot}%{_tmpfilesdir}
 cat > %{buildroot}%{_tmpfilesdir}/dbus.conf << EOF
 d /run/dbus 755 - - -
@@ -377,6 +363,9 @@ fi
 %{_unitdir}/sockets.target.wants/dbus.socket
 %{_sysconfdir}/systemd/user/dbus.*
 %{_sysconfdir}/systemd/user/default.target.wants/dbus.s*
+%{_userunitdir}/dbus.service
+%{_userunitdir}/dbus.socket
+%{_userunitdir}/sockets.target.wants/dbus.socket
 
 %if %{with uclibc}
 %files -n uclibc-%{name}
