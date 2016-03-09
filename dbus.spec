@@ -8,11 +8,9 @@
 
 %define git_url git://git.freedesktop.org/git/dbus/dbus
 
-%bcond_with uclibc
-
 Summary:	D-Bus message bus
 Name:		dbus
-Version:	1.10.6
+Version:	1.10.8
 Release:	1
 License:	GPLv2+ or AFL
 Group:		System/Servers
@@ -41,15 +39,6 @@ BuildRequires:	pkgconfig(libsystemd-login) >= 32
 BuildRequires:	pkgconfig(libsystemd-journal) >= 32
 BuildRequires:	pkgconfig(libsystemd-id128)
 BuildRequires:	pkgconfig(systemd)
-%if %{with uclibc}
-BuildRequires:	uClibc-devel >= 0.9.33.2-9
-BuildRequires:	uclibc-libcap-devel
-BuildRequires:	uclibc-expat-devel
-BuildRequires:	uclibc-libsystemd-devel
-BuildRequires:	uclibc-libsystemd-login-devel
-BuildRequires:	uclibc-libsystemd-journal-devel
-BuildRequires:	uclibc-libsystemd-id128-devel
-%endif
 # To make sure _rundir is defined
 BuildRequires:	rpm-build >= 1:5.4.10-79
 Requires(post,preun,postun):	rpm-helper >= 0.24.12-11
@@ -60,44 +49,12 @@ D-Bus is a system for sending messages between applications. It is
 used both for the systemwide message bus service, and as a
 per-user-login-session messaging facility.
 
-%if %{with uclibc}
-%package -n	uclibc-%{name}
-Summary:	D-Bus message bus (uClibc linked)
-Group:		System/Servers
-Requires:	%{name} = %{EVRD}
-
-%description -n	uclibc-%{name}
-D-Bus is a system for sending messages between applications. It is
-used both for the systemwide message bus service, and as a
-per-user-login-session messaging facility.
-%endif
-
 %package -n %{libname}
 Summary:	Shared library for using D-Bus
 Group:		System/Libraries
 
 %description -n	%{libname}
 D-Bus shared library.
-
-%if %{with uclibc}
-%package -n	uclibc-%{libname}
-Summary:	Shared library for using D-Bus (uClibc linked)
-Group:		System/Libraries
-
-%description -n	uclibc-%{libname}
-D-Bus shared library.
-
-%package -n uclibc-%{devname}
-Summary:	Libraries and headers for D-Bus
-Group:		Development/C
-Requires:	%{devname} = %{EVRD}
-Requires:	uclibc-%{libname} = %{EVRD}
-Provides:	uclibc-%{name}-devel = %{EVRD}
-Conflicts:	%{devname} <1.8.18-3
-
-%description -n	uclibc-%{devname}
-Headers and static libraries for D-Bus.
-%endif
 
 %package -n %{devname}
 Summary:	Libraries and headers for D-Bus
@@ -145,36 +102,6 @@ COMMON_ARGS=" --enable-user-session --enable-systemd --with-systemdsystemunitdir
 	--libexecdir=/%{_lib}/dbus-%{api} --with-init-scripts=redhat --disable-static"
 
 export CONFIGURE_TOP="$PWD"
-%if %{with uclibc}
-mkdir -p uclibc
-pushd uclibc
-%configure \
-	CC=%{uclibc_cc} \
-	CFLAGS="%{uclibc_cflags}" \
-	$COMMON_ARGS \
-	--with-sysroot=%{uclibc_root} \
-	--bindir=%{uclibc_root}/bin \
-	--exec-prefix=%{uclibc_root} \
-	--libexecdir=%{uclibc_root}/%{_lib}/dbus-%{api} \
-	--disable-libaudit \
-	--disable-tests \
-	--disable-asserts \
-	--disable-doxygen-docs \
-	--disable-xml-docs \
-	--disable-x11-autolaunch \
-	--without-x \
-%if %{with verbose}
-	--enable-verbose-mode
-%else
-	--disable-verbose-mode
-%endif
-# ugly hack to get rid of library search dir passed..
-for i in `find -name Makefile`; do
-	sed -e 's#-L%{_libdir}##g' -i $i
-done
-%make
-popd
-%endif
 
 #### Build once with tests to make check
 %if %{with test}
@@ -226,14 +153,6 @@ popd
 %make -C shared check
 
 %install
-%if %{with uclibc}
-%makeinstall_std -C uclibc
-install -d %{buildroot}%{uclibc_root}{/%{_lib},%{_libdir}}
-mv %{buildroot}%{_libdir}/libdbus-%{api}.so.%{major}* %{buildroot}%{uclibc_root}/%{_lib}
-ln -srf %{buildroot}%{uclibc_root}/%{_lib}/libdbus-%{api}.so.%{major}.* %{buildroot}%{uclibc_root}%{_libdir}/libdbus-%{api}.so
-
-%endif
-
 %makeinstall_std -C shared
 
 # move lib to /, because it might be needed by hotplug script, before
@@ -287,13 +206,13 @@ EOF
 %triggerin -- setup
 if [ $1 -ge 2 -o $2 -ge 2 ]; then
 
-	if ! getent group messagebus >/dev/null 2>&1; then
-		/usr/sbin/groupadd -r messagebus 2>/dev/null || :
-	fi
+    if ! getent group messagebus >/dev/null 2>&1; then
+	/usr/sbin/groupadd -r messagebus 2>/dev/null || :
+    fi
 
-	if ! getent passwd messagebus >/dev/null 2>&1; then
-		/usr/sbin/useradd -r -c "system user for %{name}" -g messagebus -s /sbin/nologin -d / messagebus 2>/dev/null ||:
-	fi
+    if ! getent passwd messagebus >/dev/null 2>&1; then
+	/usr/sbin/useradd -r -c "system user for %{name}" -g messagebus -s /sbin/nologin -d / messagebus 2>/dev/null ||:
+    fi
 fi
 
 %triggerun -- dbus < 1.7.10-2
@@ -364,29 +283,8 @@ fi
 %{_userunitdir}/dbus.socket
 %{_userunitdir}/sockets.target.wants/dbus.socket
 
-%if %{with uclibc}
-%files -n uclibc-%{name}
-%{uclibc_root}/bin/dbus-cleanup-sockets
-%{uclibc_root}/bin/dbus-daemon
-%{uclibc_root}/bin/dbus-launch
-%{uclibc_root}/bin/dbus-monitor
-%{uclibc_root}/bin/dbus-run-session
-%{uclibc_root}/bin/dbus-send
-%{uclibc_root}/bin/dbus-uuidgen
-%dir %{uclibc_root}/%{_lib}/dbus-%{api}
-%attr(4750,root,messagebus) %{uclibc_root}/%{_lib}/dbus-%{api}/dbus-daemon-launch-helper
-%endif
-
 %files -n %{libname}
 /%{_lib}/*dbus-%{api}*.so.%{major}*
-
-%if %{with uclibc}
-%files -n uclibc-%{libname}
-%{uclibc_root}/%{_lib}/libdbus-%{api}.so.%{major}*
-
-%files -n uclibc-%{devname}
-%{uclibc_root}%{_libdir}/libdbus-%{api}.so
-%endif
 
 %files -n %{devname}
 %doc ChangeLog
