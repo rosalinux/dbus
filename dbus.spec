@@ -34,11 +34,7 @@ BuildRequires:	pkgconfig(glib-2.0)
 BuildRequires:	pkgconfig(libcap-ng)
 BuildRequires:	pkgconfig(sm)
 BuildRequires:	pkgconfig(x11)
-BuildRequires:	pkgconfig(libsystemd-daemon) >= 32
-BuildRequires:	pkgconfig(libsystemd-login) >= 32
-BuildRequires:	pkgconfig(libsystemd-journal) >= 32
-BuildRequires:	pkgconfig(libsystemd-id128)
-BuildRequires:	pkgconfig(systemd)
+BuildRequires:	pkgconfig(libsystemd)
 # To make sure _rundir is defined
 BuildRequires:	rpm-build >= 1:5.4.10-79
 Requires(post,preun,postun):	rpm-helper >= 0.24.12-11
