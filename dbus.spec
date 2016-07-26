@@ -11,7 +11,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.10.8
-Release:	1
+Release:	2
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -244,9 +244,6 @@ fi
 /bin/systemctl enable dbus.service >/dev/null 2>&1
 /sbin/chkconfig --del messagebus >/dev/null 2>&1 || :
 /bin/systemctl try-restart dbus.service >/dev/null 2>&1 || :
-
-%triggerpostun -- dbus < 1.2.4.4permissive-2mdv
-/sbin/chkconfig --level 7 messagebus reset
 
 %files
 %dir %{_sysconfdir}/dbus-%{api}
