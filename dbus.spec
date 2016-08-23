@@ -10,8 +10,8 @@
 
 Summary:	D-Bus message bus
 Name:		dbus
-Version:	1.10.8
-Release:	2
+Version:	1.10.10
+Release:	1
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -90,13 +90,13 @@ other supporting documentation such as the introspect dtd file.
 if test -f autogen.sh; then env NOCONFIGURE=1 ./autogen.sh; else autoreconf -v -f -i; fi
 
 %build
-%ifarch %{i586}
+%ifarch %{ix86}
 export CC=gcc
 export CXX=g++
 %endif
 
 %serverbuild_hardened
-COMMON_ARGS=" --enable-user-session --enable-systemd --with-systemdsystemunitdir=%{_unitdir} \
+COMMON_ARGS=" --enable-user-session --enable-systemd --with-systemdsystemunitdir=%{_systemunitdir} \
 	--with-systemduserunitdir=%{_userunitdir} --bindir=/bin --enable-libaudit --disable-selinux \
 	--with-system-pid-file=%{_rundir}/messagebus.pid --exec-prefix=/ \
 	--with-system-socket=%{_rundir}/dbus/system_bus_socket \
@@ -271,12 +271,12 @@ fi
 # behind these permissions
 %dir /%{_lib}/dbus-%{api}
 %attr(4750,root,messagebus) /%{_lib}/dbus-%{api}/dbus-daemon-launch-helper
-%{_unitdir}/dbus.service
-%{_unitdir}/messagebus.service
-%{_unitdir}/dbus.socket
-%{_unitdir}/dbus.target.wants/dbus.socket
-%{_unitdir}/multi-user.target.wants/dbus.service
-%{_unitdir}/sockets.target.wants/dbus.socket
+%{_systemunitdir}/dbus.service
+%{_systemunitdir}/messagebus.service
+%{_systemunitdir}/dbus.socket
+%{_systemunitdir}/dbus.target.wants/dbus.socket
+%{_systemunitdir}/multi-user.target.wants/dbus.service
+%{_systemunitdir}/sockets.target.wants/dbus.socket
 %{_userunitdir}/dbus.service
 %{_userunitdir}/dbus.socket
 %{_userunitdir}/sockets.target.wants/dbus.socket
