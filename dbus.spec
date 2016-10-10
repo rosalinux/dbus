@@ -10,7 +10,7 @@
 
 Summary:	D-Bus message bus
 Name:		dbus
-Version:	1.10.10
+Version:	1.10.12
 Release:	1
 License:	GPLv2+ or AFL
 Group:		System/Servers
@@ -285,7 +285,6 @@ fi
 /%{_lib}/*dbus-%{api}*.so.%{major}*
 
 %files -n %{devname}
-%doc ChangeLog
 %{_libdir}/libdbus-%{api}.so
 %{_libdir}/dbus-1.0/include/
 %{_libdir}/pkgconfig/dbus-%{api}.pc
@@ -295,7 +294,7 @@ fi
 /bin/dbus-launch
 
 %files doc
-%doc COPYING NEWS
+%doc COPYING NEWS ChangeLog
 %doc doc/introspect.dtd doc/introspect.xsl doc/system-activation.txt
 %{_docdir}/%{name}/*
 %doc %{_datadir}/devhelp/books/dbus
