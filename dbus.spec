@@ -10,7 +10,7 @@
 
 Summary:	D-Bus message bus
 Name:		dbus
-Version:	1.10.22
+Version:	1.10.24
 Release:	1
 License:	GPLv2+ or AFL
 Group:		System/Servers
