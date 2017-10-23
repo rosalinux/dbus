@@ -11,7 +11,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.10.24
-Release:	1
+Release:	2
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -22,7 +22,9 @@ Patch2:		dbus-1.8.14-headers-clang.patch
 Patch3:		dbus-1.0.2-disable_fatal_warning_on_check.patch
 Patch4:		dbus-daemon-bindir.patch
 Patch5:		dbus-1.8.0-fix-disabling-of-xml-docs.patch
-
+# (tpg) ClearLinux patches
+Patch6:		malloc_trim.patch
+Patch7:		memory.patch
 BuildRequires:	asciidoc
 BuildRequires:	docbook2x
 BuildRequires:	docbook-dtd412-xml
@@ -87,6 +89,9 @@ other supporting documentation such as the introspect dtd file.
 #patch3 -p1 -b .disable_fatal_warning_on_check
 %patch4 -p1 -b .daemon_bindir~
 %patch5 -p1 -b .nodocs~
+%patch6 -p1
+%patch7 -p1
+
 if test -f autogen.sh; then env NOCONFIGURE=1 ./autogen.sh; else autoreconf -v -f -i; fi
 
 %build
