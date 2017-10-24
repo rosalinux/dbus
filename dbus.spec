@@ -11,7 +11,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.10.24
-Release:	3
+Release:	4
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -205,9 +205,6 @@ EOF
 /bin/systemctl --global enable dbus.service >/dev/null 2>&1 || :
 /bin/systemctl --user enable dbus.service >/dev/null 2>&1 || :
 /bin/systemctl --user start dbus.service >/dev/null 2>&1 || :
-if [ $1 -ge 2 ]; then
-/bin/systemctl --global restart dbus.socket >/dev/null 2>&1 || :
-fi
 
 %postun
 %_postun_groupdel messagebus
