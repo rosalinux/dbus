@@ -279,7 +279,7 @@ fi
 %{_systemunitdir}/sockets.target.wants/dbus.socket
 %{_userunitdir}/dbus.service
 %{_userunitdir}/dbus.socket
-%{_userunitdir}/sockets.target.wants/dbus.socket
+%{_prefix}/lib/sysusers.d/dbus.conf
 
 %files -n %{libname}
 /%{_lib}/*dbus-%{api}*.so.%{major}*
@@ -289,6 +289,7 @@ fi
 %{_libdir}/dbus-1.0/include/
 %{_libdir}/pkgconfig/dbus-%{api}.pc
 %{_includedir}/dbus-1.0/
+%{_libdir}/cmake/DBus1/*.cmake
 
 %files x11
 /bin/dbus-launch
@@ -298,3 +299,4 @@ fi
 %doc doc/introspect.dtd doc/introspect.xsl doc/system-activation.txt
 %{_docdir}/%{name}/*
 %doc %{_datadir}/devhelp/books/dbus
+%{_datadir}/xml/dbus-%{api}/*.dtd
