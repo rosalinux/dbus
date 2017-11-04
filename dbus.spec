@@ -30,6 +30,7 @@ BuildRequires:	docbook-dtd412-xml
 BuildRequires:	doxygen
 BuildRequires:	libtool
 BuildRequires:	xmlto
+BuildRequires:	autoconf-archive
 BuildRequires:	pkgconfig(expat)
 BuildRequires:	pkgconfig(glib-2.0)
 BuildRequires:	pkgconfig(libcap-ng)
@@ -50,7 +51,7 @@ per-user-login-session messaging facility.
 Summary:	Shared library for using D-Bus
 Group:		System/Libraries
 
-%description -n	%{libname}
+%description -n %{libname}
 D-Bus shared library.
 
 %package -n %{devname}
@@ -100,7 +101,7 @@ export CXX=g++
 
 %serverbuild_hardened
 COMMON_ARGS=" --enable-user-session --enable-systemd --with-systemdsystemunitdir=%{_systemunitdir} \
-	--with-systemduserunitdir=%{_userunitdir} --bindir=/bin --enable-libaudit --disable-selinux \
+	--with-systemduserunitdir=%{_userunitdir} --bindir=/bin --enable-inotify --enable-libaudit --disable-selinux \
 	--with-system-pid-file=%{_rundir}/messagebus.pid --exec-prefix=/ \
 	--with-system-socket=%{_rundir}/dbus/system_bus_socket \
 	--libexecdir=/%{_lib}/dbus-%{api} --with-init-scripts=redhat --disable-static"
