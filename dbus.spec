@@ -167,8 +167,10 @@ mkdir -p %{buildroot}/%{_lib} %{buildroot}%{_bindir}
 mv %{buildroot}%{_libdir}/*dbus-1*.so.* %{buildroot}/%{_lib}
 ln -sf /%{_lib}/libdbus-%{api}.so.%{major} %{buildroot}%{_libdir}/libdbus-%{api}.so
 
-# create directory
-mkdir %{buildroot}%{_datadir}/dbus-%{api}/interfaces
+# Obsolete, but still widely used, for drop-in configuration snippets.
+mkdir -p %{buildroot}%{_sysconfdir}/dbus-%{api}/session.d
+mkdir -p %{buildroot}%{_sysconfdir}/dbus-%{api}/system.d
+mkdir -p %{buildroot}%{_datadir}/dbus-%{api}/interfaces
 
 # Make sure that when somebody asks for D-Bus under the name of the
 # old SysV script, that he ends up with the standard dbus.service name
@@ -187,14 +189,6 @@ cp shared/doc/dbus-specification.html %{buildroot}%{_datadir}/devhelp/books/dbus
 cp shared/doc/dbus-faq.html %{buildroot}%{_datadir}/devhelp/books/dbus
 cp shared/doc/dbus-tutorial.html %{buildroot}%{_datadir}/devhelp/books/dbus
 cp shared/doc/api/html/* %{buildroot}%{_datadir}/devhelp/books/dbus/api
-
-# (tpg) remove old initscript
-rm -r %{buildroot}%{_sysconfdir}/rc.d/init.d/*
-
-mkdir -p %{buildroot}%{_tmpfilesdir}
-cat > %{buildroot}%{_tmpfilesdir}/dbus.conf << EOF
-d /run/dbus 755 - - -
-EOF
 
 %post
 /bin/dbus-uuidgen --ensure
@@ -252,6 +246,8 @@ fi
 
 %files
 %dir %{_sysconfdir}/dbus-%{api}
+%dir %{_sysconfdir}/dbus-%{api}/session.d
+%dir %{_sysconfdir}/dbus-%{api}/system.d
 %config(noreplace) %{_sysconfdir}/dbus-%{api}/*.conf
 %dir %{_libdir}/dbus-1.0
 %dir %{_var}/lib/dbus
