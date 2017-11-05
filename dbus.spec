@@ -274,7 +274,7 @@ fi
 %{_systemunitdir}/dbus.service
 %{_systemunitdir}/messagebus.service
 %{_systemunitdir}/dbus.socket
-%{_systemunitdir}/dbus.target.wants/dbus.socket
+%{_systemunitdir}/sockets.target.wants/dbus.socket
 %{_systemunitdir}/multi-user.target.wants/dbus.service
 %{_userunitdir}/dbus.service
 %{_userunitdir}/dbus.socket
