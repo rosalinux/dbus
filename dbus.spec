@@ -10,8 +10,8 @@
 
 Summary:	D-Bus message bus
 Name:		dbus
-Version:	1.10.24
-Release:	4
+Version:	1.12.0
+Release:	1
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -20,7 +20,6 @@ Source1:	doxygen_to_devhelp.xsl
 Patch2:		dbus-1.8.14-headers-clang.patch
 # (fc) 1.0.2-5mdv disable fatal warnings on check (fd.o bug #13270)
 Patch3:		dbus-1.0.2-disable_fatal_warning_on_check.patch
-Patch4:		dbus-daemon-bindir.patch
 Patch5:		dbus-1.8.0-fix-disabling-of-xml-docs.patch
 # (tpg) ClearLinux patches
 Patch6:		malloc_trim.patch
@@ -31,6 +30,7 @@ BuildRequires:	docbook-dtd412-xml
 BuildRequires:	doxygen
 BuildRequires:	libtool
 BuildRequires:	xmlto
+BuildRequires:	autoconf-archive
 BuildRequires:	pkgconfig(expat)
 BuildRequires:	pkgconfig(glib-2.0)
 BuildRequires:	pkgconfig(libcap-ng)
@@ -51,7 +51,7 @@ per-user-login-session messaging facility.
 Summary:	Shared library for using D-Bus
 Group:		System/Libraries
 
-%description -n	%{libname}
+%description -n %{libname}
 D-Bus shared library.
 
 %package -n %{devname}
@@ -87,7 +87,6 @@ other supporting documentation such as the introspect dtd file.
 %patch2 -p1 -b .clang~
 #only disable in cooker to detect buggy programs
 #patch3 -p1 -b .disable_fatal_warning_on_check
-%patch4 -p1 -b .daemon_bindir~
 %patch5 -p1 -b .nodocs~
 %patch6 -p1
 %patch7 -p1
@@ -102,7 +101,7 @@ export CXX=g++
 
 %serverbuild_hardened
 COMMON_ARGS=" --enable-user-session --enable-systemd --with-systemdsystemunitdir=%{_systemunitdir} \
-	--with-systemduserunitdir=%{_userunitdir} --bindir=/bin --enable-libaudit --disable-selinux \
+	--with-systemduserunitdir=%{_userunitdir} --bindir=/bin --enable-inotify --enable-libaudit --disable-selinux \
 	--with-system-pid-file=%{_rundir}/messagebus.pid --exec-prefix=/ \
 	--with-system-socket=%{_rundir}/dbus/system_bus_socket \
 	--libexecdir=/%{_lib}/dbus-%{api} --with-init-scripts=redhat --disable-static"
@@ -168,8 +167,10 @@ mkdir -p %{buildroot}/%{_lib} %{buildroot}%{_bindir}
 mv %{buildroot}%{_libdir}/*dbus-1*.so.* %{buildroot}/%{_lib}
 ln -sf /%{_lib}/libdbus-%{api}.so.%{major} %{buildroot}%{_libdir}/libdbus-%{api}.so
 
-# create directory
-mkdir %{buildroot}%{_datadir}/dbus-%{api}/interfaces
+# Obsolete, but still widely used, for drop-in configuration snippets.
+mkdir -p %{buildroot}%{_sysconfdir}/dbus-%{api}/session.d
+mkdir -p %{buildroot}%{_sysconfdir}/dbus-%{api}/system.d
+mkdir -p %{buildroot}%{_datadir}/dbus-%{api}/interfaces
 
 # Make sure that when somebody asks for D-Bus under the name of the
 # old SysV script, that he ends up with the standard dbus.service name
@@ -188,14 +189,6 @@ cp shared/doc/dbus-specification.html %{buildroot}%{_datadir}/devhelp/books/dbus
 cp shared/doc/dbus-faq.html %{buildroot}%{_datadir}/devhelp/books/dbus
 cp shared/doc/dbus-tutorial.html %{buildroot}%{_datadir}/devhelp/books/dbus
 cp shared/doc/api/html/* %{buildroot}%{_datadir}/devhelp/books/dbus/api
-
-# (tpg) remove old initscript
-rm -r %{buildroot}%{_sysconfdir}/rc.d/init.d/*
-
-mkdir -p %{buildroot}%{_tmpfilesdir}
-cat > %{buildroot}%{_tmpfilesdir}/dbus.conf << EOF
-d /run/dbus 755 - - -
-EOF
 
 %post
 /bin/dbus-uuidgen --ensure
@@ -253,6 +246,8 @@ fi
 
 %files
 %dir %{_sysconfdir}/dbus-%{api}
+%dir %{_sysconfdir}/dbus-%{api}/session.d
+%dir %{_sysconfdir}/dbus-%{api}/system.d
 %config(noreplace) %{_sysconfdir}/dbus-%{api}/*.conf
 %dir %{_libdir}/dbus-1.0
 %dir %{_var}/lib/dbus
@@ -279,12 +274,12 @@ fi
 %{_systemunitdir}/dbus.service
 %{_systemunitdir}/messagebus.service
 %{_systemunitdir}/dbus.socket
-%{_systemunitdir}/dbus.target.wants/dbus.socket
-%{_systemunitdir}/multi-user.target.wants/dbus.service
 %{_systemunitdir}/sockets.target.wants/dbus.socket
+%{_systemunitdir}/multi-user.target.wants/dbus.service
 %{_userunitdir}/dbus.service
 %{_userunitdir}/dbus.socket
 %{_userunitdir}/sockets.target.wants/dbus.socket
+%{_prefix}/lib/sysusers.d/dbus.conf
 
 %files -n %{libname}
 /%{_lib}/*dbus-%{api}*.so.%{major}*
@@ -294,6 +289,7 @@ fi
 %{_libdir}/dbus-1.0/include/
 %{_libdir}/pkgconfig/dbus-%{api}.pc
 %{_includedir}/dbus-1.0/
+%{_libdir}/cmake/DBus1/*.cmake
 
 %files x11
 /bin/dbus-launch
@@ -303,3 +299,4 @@ fi
 %doc doc/introspect.dtd doc/introspect.xsl doc/system-activation.txt
 %{_docdir}/%{name}/*
 %doc %{_datadir}/devhelp/books/dbus
+%{_datadir}/xml/dbus-%{api}/*.dtd
