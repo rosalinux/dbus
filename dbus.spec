@@ -276,9 +276,9 @@ fi
 %{_systemunitdir}/dbus.socket
 %{_systemunitdir}/dbus.target.wants/dbus.socket
 %{_systemunitdir}/multi-user.target.wants/dbus.service
-%{_systemunitdir}/sockets.target.wants/dbus.socket
 %{_userunitdir}/dbus.service
 %{_userunitdir}/dbus.socket
+%{_userunitdir}/sockets.target.wants/dbus.socket
 %{_prefix}/lib/sysusers.d/dbus.conf
 
 %files -n %{libname}
