@@ -11,7 +11,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.12.2
-Release:	1
+Release:	2
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -39,7 +39,9 @@ BuildRequires:	pkgconfig(x11)
 BuildRequires:	pkgconfig(libsystemd)
 # To make sure _rundir is defined
 BuildRequires:	rpm-build >= 1:5.4.10-79
-Requires(post,preun,postun):	rpm-helper >= 0.24.12-11
+Requires(post):	systemd
+Requires(post):	/bin/sh
+Requires(preun,postun):	rpm-helper >= 0.24.12-11
 Provides:	should-restart = system
 
 %description
