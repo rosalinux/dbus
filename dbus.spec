@@ -10,7 +10,7 @@
 
 Summary:	D-Bus message bus
 Name:		dbus
-Version:	1.12.2
+Version:	1.12.4
 Release:	1
 License:	GPLv2+ or AFL
 Group:		System/Servers
@@ -39,7 +39,9 @@ BuildRequires:	pkgconfig(x11)
 BuildRequires:	pkgconfig(libsystemd)
 # To make sure _rundir is defined
 BuildRequires:	rpm-build >= 1:5.4.10-79
-Requires(post,preun,postun):	rpm-helper >= 0.24.12-11
+Requires(post):	systemd
+Requires(post):	/bin/sh
+Requires(preun,postun):	rpm-helper >= 0.24.12-11
 Provides:	should-restart = system
 
 %description
