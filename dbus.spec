@@ -11,7 +11,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.12.6
-Release:	1
+Release:	2
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -114,7 +114,7 @@ export CONFIGURE_TOP="$PWD"
 %if %{with test}
 # (tpg) enable verbose mode by default --enable-verbose-mode
 mkdir -p tests
-pushd tests
+cd tests
 %configure \
 	$COMMON_ARGS \
 	--enable-libaudit \
@@ -126,12 +126,12 @@ pushd tests
 	--disable-doxygen-docs \
 	--disable-xml-docs
 
-DBUS_VERBOSE=1 %make
-popd
+DBUS_VERBOSE=1 %make_build
+cd -
 %endif
 
 mkdir -p shared
-pushd shared
+cd shared
 %configure \
 	$COMMON_ARGS \
 	--enable-libaudit \
@@ -151,7 +151,7 @@ pushd shared
 doxygen Doxyfile
 
 xsltproc -o dbus.devhelp %{SOURCE1} doc/api/xml/index.xml
-popd
+cd -
 
 %check
 %if %{with test}
@@ -160,7 +160,7 @@ popd
 %make -C shared check
 
 %install
-%makeinstall_std -C shared
+%make_install -C shared
 
 # move lib to /, because it might be needed by hotplug script, before
 # /usr is mounted
@@ -221,9 +221,7 @@ fi
 /bin/systemctl --user --global enable dbus.socket >/dev/null 2>&1 || :
 /bin/systemctl --user --global enable dbus.service >/dev/null 2>&1 || :
 
-#(proyvind): most likely overkill in complexity, but trying to *really*
-#            make sure not to break (running) dbus this time...
-%triggerprein -- dbus < 1:1.8.0-2
+%triggerin -- dbus < 1:1.8.0-2
 if [ -L /run/dbus ]; then
     rm -f /run/dbus
 fi
