@@ -239,11 +239,6 @@ if [ -d %{_localstatedir}/run/dbus ]; then
    ln -sf /run/dbus %{_localstatedir}/run/dbus
 fi
 
-%triggerun -- dbus < 1.4.16-1
-/bin/systemctl enable dbus.service >/dev/null 2>&1
-/sbin/chkconfig --del messagebus >/dev/null 2>&1 || :
-/bin/systemctl try-restart dbus.service >/dev/null 2>&1 || :
-
 %files
 %dir %{_sysconfdir}/dbus-%{api}
 %dir %{_sysconfdir}/dbus-%{api}/session.d
