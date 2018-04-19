@@ -11,7 +11,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.12.6
-Release:	2
+Release:	3
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -41,7 +41,6 @@ BuildRequires:	pkgconfig(libsystemd)
 BuildRequires:	rpm-build >= 1:5.4.10-79
 Requires(post):	systemd
 Requires(post):	/bin/sh
-Requires(preun,postun):	rpm-helper >= 0.24.12-11
 Provides:	should-restart = system
 
 %description
@@ -200,9 +199,6 @@ cp shared/doc/api/html/* %{buildroot}%{_datadir}/devhelp/books/dbus/api
 /bin/systemctl --global enable dbus.service >/dev/null 2>&1 || :
 /bin/systemctl --user enable dbus.service >/dev/null 2>&1 || :
 /bin/systemctl --user start dbus.service >/dev/null 2>&1 || :
-
-%postun
-%_postun_groupdel messagebus
 
 %triggerin -- setup
 if [ $1 -ge 2 -o $2 -ge 2 ]; then
