@@ -37,6 +37,7 @@ BuildRequires:	pkgconfig(libcap-ng)
 BuildRequires:	pkgconfig(sm)
 BuildRequires:	pkgconfig(x11)
 BuildRequires:	pkgconfig(libsystemd)
+BuildRequires:	systemd
 # To make sure _rundir is defined
 BuildRequires:	rpm-build >= 1:5.4.10-79
 Requires(post):	systemd
