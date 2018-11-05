@@ -1,5 +1,4 @@
 %define api 1
-%define major 3
 %define libname %mklibname dbus- %{api} %{major}
 %define devname %mklibname -d dbus- %{api}
 
@@ -102,7 +101,7 @@ export CXX=g++
 %endif
 
 %serverbuild_hardened
-COMMON_ARGS=" --enable-user-session --enable-systemd --with-systemdsystemunitdir=%{_systemunitdir} \
+COMMON_ARGS=" --enable-user-session --enable-systemd --with-systemdsystemunitdir=%{_unitdir} \
 	--with-systemduserunitdir=%{_userunitdir} --bindir=/bin --enable-inotify --enable-libaudit --disable-selinux \
 	--with-system-pid-file=%{_rundir}/messagebus.pid --exec-prefix=/ \
 	--with-system-socket=%{_rundir}/dbus/system_bus_socket \
@@ -263,11 +262,11 @@ fi
 # behind these permissions
 %dir /%{_lib}/dbus-%{api}
 %attr(4750,root,messagebus) /%{_lib}/dbus-%{api}/dbus-daemon-launch-helper
-%{_systemunitdir}/dbus.service
-%{_systemunitdir}/messagebus.service
-%{_systemunitdir}/dbus.socket
-%{_systemunitdir}/sockets.target.wants/dbus.socket
-%{_systemunitdir}/multi-user.target.wants/dbus.service
+%{_unitdir}/dbus.service
+%{_unitdir}/messagebus.service
+%{_unitdir}/dbus.socket
+%{_unitdir}/sockets.target.wants/dbus.socket
+%{_unitdir}/multi-user.target.wants/dbus.service
 %{_userunitdir}/dbus.service
 %{_userunitdir}/dbus.socket
 %{_userunitdir}/sockets.target.wants/dbus.socket
