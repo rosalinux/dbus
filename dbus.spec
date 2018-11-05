@@ -1,4 +1,5 @@
 %define api 1
+%define major 3
 %define libname %mklibname dbus- %{api} %{major}
 %define devname %mklibname -d dbus- %{api}
 
