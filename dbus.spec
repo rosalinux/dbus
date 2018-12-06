@@ -99,6 +99,7 @@ if test -f autogen.sh; then env NOCONFIGURE=1 ./autogen.sh; else autoreconf -v -
 %ifarch %{ix86}
 export CC=gcc
 export CXX=g++
+%global optflags %{optflags} -fPIC
 %endif
 
 %serverbuild_hardened
