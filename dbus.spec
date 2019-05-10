@@ -150,7 +150,7 @@ cd shared
 	--disable-verbose-mode
 %endif
 
-%make
+%make_build
 doxygen Doxyfile
 
 xsltproc -o dbus.devhelp %{SOURCE1} doc/api/xml/index.xml
@@ -158,9 +158,9 @@ cd -
 
 %check
 %if %{with test}
-%make -C tests check
+make -C tests check
 %endif
-%make -C shared check
+make -C shared check
 
 %install
 %make_install -C shared
