@@ -24,7 +24,6 @@ Patch5:		dbus-1.8.0-fix-disabling-of-xml-docs.patch
 # (tpg) ClearLinux patches
 Patch6:		malloc_trim.patch
 Patch7:		memory.patch
-Patch101:	code_coverage_fix.patch
 BuildRequires:	asciidoc
 BuildRequires:	docbook2x
 BuildRequires:	docbook-dtd412-xml
@@ -93,7 +92,6 @@ other supporting documentation such as the introspect dtd file.
 %patch5 -p1 -b .nodocs~
 %patch6 -p1
 %patch7 -p1
-%patch101 -p1
 
 if test -f autogen.sh; then env NOCONFIGURE=1 ./autogen.sh; else autoreconf -v -f -i; fi
 
