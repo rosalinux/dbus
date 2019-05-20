@@ -93,7 +93,6 @@ other supporting documentation such as the introspect dtd file.
 %patch5 -p1 -b .nodocs~
 %patch6 -p1
 %patch7 -p1
-%patch100 -p1
 %patch101 -p1
 
 if test -f autogen.sh; then env NOCONFIGURE=1 ./autogen.sh; else autoreconf -v -f -i; fi
