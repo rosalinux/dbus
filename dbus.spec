@@ -3,9 +3,6 @@
 %define libname %mklibname dbus- %{api} %{major}
 %define devname %mklibname -d dbus- %{api}
 
-%bcond_with test
-%bcond_with verbose
-
 %define git_url git://git.freedesktop.org/git/dbus/dbus
 
 Summary:	D-Bus message bus
@@ -130,8 +127,6 @@ other supporting documentation such as the introspect dtd file.
 %patch6 -p1
 %patch7 -p1
 
-if test -f autogen.sh; then env NOCONFIGURE=1 ./autogen.sh; else autoreconf -v -f -i; fi
-
 %build
 %ifarch %{ix86}
 export CC=gcc
@@ -141,35 +136,11 @@ export CXX=g++
 
 %serverbuild_hardened
 COMMON_ARGS=" --enable-user-session --enable-systemd --with-systemdsystemunitdir=%{_unitdir} \
-	--with-systemduserunitdir=%{_userunitdir} --bindir=/bin --enable-inotify --enable-libaudit --disable-selinux \
-	--with-system-pid-file=%{_rundir}/messagebus.pid --exec-prefix=/ \
+	--with-systemduserunitdir=%{_userunitdir} --enable-inotify --enable-libaudit --disable-selinux \
+	--with-system-pid-file=%{_rundir}/messagebus.pid  \
 	--with-system-socket=%{_rundir}/dbus/system_bus_socket \
-	--libexecdir=/%{_lib}/dbus-%{api} --with-init-scripts=redhat --disable-static"
+	--libexecdir=%{_libexecdir}/dbus-%{api} --disable-static"
 
-export CONFIGURE_TOP="$PWD"
-
-#### Build once with tests to make check
-%if %{with test}
-# (tpg) enable verbose mode by default --enable-verbose-mode
-mkdir -p tests
-cd tests
-%configure \
-	$COMMON_ARGS \
-	--enable-libaudit \
-	--enable-verbose-mode \
-	--enable-tests \
-	--enable-asserts \
-	--enable-x11-autolaunch \
-	--with-x \
-	--disable-doxygen-docs \
-	--disable-xml-docs
-
-DBUS_VERBOSE=1 %make_build
-cd -
-%endif
-
-mkdir -p shared
-cd shared
 %configure \
 	$COMMON_ARGS \
 	--enable-libaudit \
@@ -179,23 +150,12 @@ cd shared
 	--enable-xml-docs \
 	--enable-x11-autolaunch \
 	--with-x \
-%if %{with verbose}
-	--enable-verbose-mode
-%else
 	--disable-verbose-mode
-%endif
 
 %make_build
 doxygen Doxyfile
 
 xsltproc -o dbus.devhelp %{SOURCE1} doc/api/xml/index.xml
-cd -
-
-%check
-%if %{with test}
-make -C tests check
-%endif
-make -C shared check
 
 %install
 %make_install -C shared
@@ -317,10 +277,10 @@ fi
 %{_mandir}/man1/dbus-daemon.1*
 %{_mandir}/man1/dbus-run-session.1*
 %{_mandir}/man1/dbus-test-tool.1*
-%dir %{_libexecdir}/dbus-1
+%dir %{_libexecdir}/dbus-%{api}
 # See doc/system-activation.txt in source tarball for the rationale
 # behind these permissions
-%attr(4750,root,dbus) %{_libexecdir}/dbus-1/dbus-daemon-launch-helper
+%attr(4750,root,messagebus) %{_libexecdir}/dbus-1/dbus-daemon-launch-helper
 %{_tmpfilesdir}/dbus.conf
 %{_unitdir}/dbus-daemon.service
 %{_userunitdir}/dbus-daemon.service
