@@ -183,9 +183,6 @@ cat > %{buildroot}%{_presetdir}/86-%{name}-common.preset << EOF
 enable dbus.socket
 EOF
 
-cat > %{buildroot}%{_presetdir}/86-%{name}-daemon.preset << EOF
-enable dbus-daemon.service
-EOF
 
 %pre daemon
 # create dbus user and group
