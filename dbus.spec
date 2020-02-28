@@ -158,7 +158,7 @@ doxygen Doxyfile
 xsltproc -o dbus.devhelp %{SOURCE1} doc/api/xml/index.xml
 
 %install
-%make_install -C shared
+%make_install
 
 # Obsolete, but still widely used, for drop-in configuration snippets.
 install --directory %{buildroot}%{_sysconfdir}/dbus-%{api}/session.d
