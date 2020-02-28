@@ -11,12 +11,18 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.12.16
-Release:	2
+Release:	3
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
 Source0:	http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1:	doxygen_to_devhelp.xsl
+Source2:	https://src.fedoraproject.org/rpms/dbus/raw/master/f/00-start-message-bus.sh
+Source3:	https://src.fedoraproject.org/rpms/dbus/raw/master/f/dbus.socket
+Source5:	https://src.fedoraproject.org/rpms/dbus/raw/master/f/dbus-daemon.service
+Source6:	https://src.fedoraproject.org/rpms/dbus/raw/master/f/dbus.user.socket
+Source7:	https://src.fedoraproject.org/rpms/dbus/raw/master/f/dbus-daemon.user.service
+Patch1:		0001-tools-Use-Python3-for-GetAllMatchRules.patch
 Patch2:		dbus-1.8.14-headers-clang.patch
 # (fc) 1.0.2-5mdv disable fatal warnings on check (fd.o bug #13270)
 Patch3:		dbus-1.0.2-disable_fatal_warning_on_check.patch
@@ -40,14 +46,45 @@ BuildRequires:	pkgconfig(libsystemd)
 BuildRequires:	systemd-macros
 # To make sure _rundir is defined
 BuildRequires:	rpm-build >= 1:5.4.10-79
-Requires(post):	systemd
-Requires(post):	/bin/sh
-Provides:	should-restart = system
+Requires:	dbus-broker >= 16
 
 %description
 D-Bus is a system for sending messages between applications. It is
 used both for the systemwide message bus service, and as a
 per-user-login-session messaging facility.
+
+%package common
+Summary:	D-BUS message bus configuration
+Group:		System/Configuration
+BuildArch:	noarch
+%{?systemd_requires}
+
+%description common
+The %{name}-common package provides the configuration and setup files for D-Bus
+implementations to provide a System and User Message Bus.
+
+%package daemon
+Summary:	D-BUS message bus
+Group:		System/Servers
+%{?systemd_requires}
+Requires:	dbus-common = %{EVRD}
+Requires:	%{libname} = %{EVRD}
+Requires:	dbus-tools = %{EVRD}
+Requires(pre):	shadow
+
+%description daemon
+D-BUS is a system for sending messages between applications. It is
+used both for the system-wide message bus service, and as a
+per-user-login-session messaging facility.
+
+%package tools
+Summary:	D-BUS Tools and Utilities
+Group:		System/Configuration
+Requires:	%{libname} = %{EVRD}
+
+%description tools
+Tools and utilities to interact with a running D-Bus Message Bus, provided by
+the reference implementation.
 
 %package -n %{libname}
 Summary:	Shared library for using D-Bus
@@ -68,7 +105,7 @@ Headers and static libraries for D-Bus.
 %package x11
 Summary:	X11-requiring add-ons for D-Bus
 Group:		System/Servers
-Requires:	dbus = %{EVRD}
+Requires:	%{name}-daemon = %{EVRD}
 
 %description x11
 D-Bus contains some tools that require Xlib to be installed, those are
@@ -163,22 +200,10 @@ make -C shared check
 %install
 %make_install -C shared
 
-# move lib to /, because it might be needed by hotplug script, before
-# /usr is mounted
-mkdir -p %{buildroot}/%{_lib} %{buildroot}%{_bindir}
-
-mv %{buildroot}%{_libdir}/*dbus-1*.so.* %{buildroot}/%{_lib}
-ln -sf /%{_lib}/libdbus-%{api}.so.%{major} %{buildroot}%{_libdir}/libdbus-%{api}.so
-
 # Obsolete, but still widely used, for drop-in configuration snippets.
-mkdir -p %{buildroot}%{_sysconfdir}/dbus-%{api}/session.d
-mkdir -p %{buildroot}%{_sysconfdir}/dbus-%{api}/system.d
-mkdir -p %{buildroot}%{_datadir}/dbus-%{api}/interfaces
-
-# Make sure that when somebody asks for D-Bus under the name of the
-# old SysV script, that he ends up with the standard dbus.service name
-# now.
-ln -s dbus.service %{buildroot}%{_unitdir}/messagebus.service
+install --directory %{buildroot}%{_sysconfdir}/dbus-%{api}/session.d
+install --directory %{buildroot}%{_sysconfdir}/dbus-%{api}/system.d
+install --directory %{buildroot}%{_datadir}/dbus-1/interfaces
 
 #add devhelp compatible helps
 mkdir -p %{buildroot}%{_datadir}/devhelp/books/dbus
@@ -186,6 +211,7 @@ mkdir -p %{buildroot}%{_datadir}/devhelp/books/dbus/api
 
 # (tpg) needed for dbus-uuidgen
 mkdir -p %{buildroot}%{_var}/lib/dbus
+mkdir -p %{buildroot}/run/dbus
 
 cp shared/dbus.devhelp %{buildroot}%{_datadir}/devhelp/books/dbus
 cp shared/doc/dbus-specification.html %{buildroot}%{_datadir}/devhelp/books/dbus
@@ -193,14 +219,64 @@ cp shared/doc/dbus-faq.html %{buildroot}%{_datadir}/devhelp/books/dbus
 cp shared/doc/dbus-tutorial.html %{buildroot}%{_datadir}/devhelp/books/dbus
 cp shared/doc/api/html/* %{buildroot}%{_datadir}/devhelp/books/dbus/api
 
-%post
-/bin/dbus-uuidgen --ensure
-/bin/systemctl --global enable dbus.socket >/dev/null 2>&1 || :
-/bin/systemctl --user enable dbus.socket >/dev/null 2>&1 || :
-/bin/systemctl --user start dbus.socket >/dev/null 2>&1 || :
-/bin/systemctl --global enable dbus.service >/dev/null 2>&1 || :
-/bin/systemctl --user enable dbus.service >/dev/null 2>&1 || :
-/bin/systemctl --user start dbus.service >/dev/null 2>&1 || :
+# Delete upstream units
+rm -f %{buildroot}%{_unitdir}/dbus.{socket,service}
+rm -f %{buildroot}%{_unitdir}/sockets.target.wants/dbus.socket
+rm -f %{buildroot}%{_unitdir}/multi-user.target.wants/dbus.service
+rm -f %{buildroot}%{_userunitdir}/dbus.{socket,service}
+rm -f %{buildroot}%{_userunitdir}/sockets.target.wants/dbus.socket
+
+# Install downstream units
+install -Dp -m755 %{SOURCE3} %{buildroot}%{_sysconfdir}/X11/xinit/xinitrc.d/00-start-message-bus.sh
+install -Dp -m644 %{SOURCE4} %{buildroot}%{_unitdir}/dbus.socket
+install -Dp -m644 %{SOURCE5} %{buildroot}%{_unitdir}/dbus-daemon.service
+install -Dp -m644 %{SOURCE6} %{buildroot}%{_userunitdir}/dbus.socket
+install -Dp -m644 %{SOURCE7} %{buildroot}%{_userunitdir}/dbus-daemon.service
+
+install -d %{buildroot}%{_presetdir}
+cat > %{buildroot}%{_presetdir}/86-%{name}-common.preset << EOF
+enable dbus.socket
+EOF
+
+cat > %{buildroot}%{_presetdir}/86-%{name}-daemon.preset << EOF
+enable dbus-daemon.service
+EOF
+
+%pre daemon
+# create dbus user and group
+getent group messagebus >/dev/null || groupadd -f -g messagebus -r messagebus
+if ! getent passwd messagebus >/dev/null ; then
+    if ! getent passwd messagebus >/dev/null ; then
+    useradd -r -u messagebus -g messagebus -d '/' -s /sbin/nologin -c "System message bus" messagebus
+    else
+    useradd -r -g messagebus -d '/' -s /sbin/nologin -c "System message bus" messagebus
+    fi
+fi
+exit 0
+
+%post common
+%systemd_post dbus.socket
+%systemd_user_post dbus.socket
+
+%post daemon
+%systemd_post dbus-daemon.service
+%systemd_user_post dbus-daemon.service
+
+%preun common
+%systemd_preun dbus.socket
+%systemd_user_preun dbus.socket
+
+%preun daemon
+%systemd_preun dbus-daemon.service
+%systemd_user_preun dbus-daemon.service
+
+%postun common
+%systemd_postun dbus.socket
+%systemd_user_postun dbus.socket
+
+%postun daemon
+%systemd_postun dbus-daemon.service
+%systemd_user_postun dbus-daemon.service
 
 %triggerin -- setup
 if [ $1 -ge 2 -o $2 -ge 2 ]; then
@@ -214,68 +290,43 @@ if [ $1 -ge 2 -o $2 -ge 2 ]; then
     fi
 fi
 
-%triggerun -- dbus < 1.7.10-2
-# User sessions are new in 1.7.10
-/bin/systemctl --user --global enable dbus.socket >/dev/null 2>&1 || :
-/bin/systemctl --user --global enable dbus.service >/dev/null 2>&1 || :
-
-%triggerin -- dbus < 1:1.8.0-2
-if [ -L /run/dbus ]; then
-    rm -f /run/dbus
-fi
-if [ -d %{_localstatedir}/run/dbus ]; then
-   if [ -d /run/dbus ]; then
-      if [ -S /run/dbus/system_bus_socket ]; then 
-          rm -rf %{_localstatedir}/run/dbus
-      else
-          rm -rf /run/dbus
-          mv %{_localstatedir}/run/dbus /run/
-      fi
-   else
-      mv %{_localstatedir}/run/dbus /run/
-   fi
-   ln -sf /run/dbus %{_localstatedir}/run/dbus
-fi
-
-%files
+%files common
 %dir %{_sysconfdir}/dbus-%{api}
 %dir %{_sysconfdir}/dbus-%{api}/session.d
 %dir %{_sysconfdir}/dbus-%{api}/system.d
-%config(noreplace) %{_sysconfdir}/dbus-%{api}/*.conf
-%dir %{_libdir}/dbus-1.0
-%dir %{_var}/lib/dbus
-%{_tmpfilesdir}/dbus.conf
-/bin/dbus-cleanup-sockets
-/bin/dbus-daemon
-/bin/dbus-monitor
-/bin/dbus-run-session
-/bin/dbus-send
-/bin/dbus-uuidgen
-/bin/dbus-test-tool
-/bin/dbus-update-activation-environment
-%{_mandir}/man*/*
 %dir %{_datadir}/dbus-%{api}
+%config(noreplace) %{_sysconfdir}/dbus-%{api}/*.conf
+%{_presetdir}/86-%{name}-common.preset
 %{_datadir}/dbus-%{api}/system-services
 %{_datadir}/dbus-%{api}/services
 %{_datadir}/dbus-%{api}/interfaces
 %{_datadir}/dbus-%{api}/session.conf
 %{_datadir}/dbus-%{api}/system.conf
+%{_sysusersdir}/dbus.conf
+%{_unitdir}/dbus.socket
+%{_userunitdir}/dbus.socket
+
+%files daemon
+%ghost %dir %{_rundir}/%{name}
+%dir %{_localstatedir}/lib/dbus/
+%{_bindir}/dbus-daemon
+%{_bindir}/dbus-cleanup-sockets
+%{_bindir}/dbus-run-session
+%{_bindir}/dbus-test-tool
+%{_mandir}/man1/dbus-cleanup-sockets.1*
+%{_mandir}/man1/dbus-daemon.1*
+%{_mandir}/man1/dbus-run-session.1*
+%{_mandir}/man1/dbus-test-tool.1*
+%dir %{_libexecdir}/dbus-1
 # See doc/system-activation.txt in source tarball for the rationale
 # behind these permissions
-%dir /%{_lib}/dbus-%{api}
-%attr(4750,root,messagebus) /%{_lib}/dbus-%{api}/dbus-daemon-launch-helper
-%{_unitdir}/dbus.service
-%{_unitdir}/messagebus.service
-%{_unitdir}/dbus.socket
-%{_unitdir}/sockets.target.wants/dbus.socket
-%{_unitdir}/multi-user.target.wants/dbus.service
-%{_userunitdir}/dbus.service
-%{_userunitdir}/dbus.socket
-%{_userunitdir}/sockets.target.wants/dbus.socket
-%{_prefix}/lib/sysusers.d/dbus.conf
+%attr(4750,root,dbus) %{_libexecdir}/dbus-1/dbus-daemon-launch-helper
+%{_tmpfilesdir}/dbus.conf
+%{_unitdir}/dbus-daemon.service
+%{_userunitdir}/dbus-daemon.service
 
 %files -n %{libname}
-/%{_lib}/*dbus-%{api}*.so.%{major}*
+%{_libdir}/*dbus-%{api}*.so.%{major}*
 
 %files -n %{devname}
 %{_libdir}/libdbus-%{api}.so
@@ -286,6 +337,18 @@ fi
 
 %files x11
 /bin/dbus-launch
+%{_mandir}/man1/dbus-launch.1*
+%{_sysconfdir}/X11/xinit/xinitrc.d/00-start-message-bus.sh
+
+%files tools
+%{_bindir}/dbus-send
+%{_bindir}/dbus-monitor
+%{_bindir}/dbus-update-activation-environment
+%{_bindir}/dbus-uuidgen
+%{_mandir}/man1/dbus-monitor.1*
+%{_mandir}/man1/dbus-send.1*
+%{_mandir}/man1/dbus-update-activation-environment.1*
+%{_mandir}/man1/dbus-uuidgen.1*
 
 %files doc
 %doc COPYING NEWS ChangeLog
