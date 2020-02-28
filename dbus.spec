@@ -281,7 +281,7 @@ fi
 %{_libdir}/cmake/DBus1/*.cmake
 
 %files x11
-/bin/dbus-launch
+%{_bindir}/dbus-launch
 %{_mandir}/man1/dbus-launch.1*
 %{_sysconfdir}/X11/xinit/xinitrc.d/00-start-message-bus.sh
 
