@@ -13,7 +13,6 @@ License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
 Source0:	http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
-Source1:	doxygen_to_devhelp.xsl
 Source2:	https://src.fedoraproject.org/rpms/dbus/raw/master/f/00-start-message-bus.sh
 Source3:	https://src.fedoraproject.org/rpms/dbus/raw/master/f/dbus.socket
 Source4:	https://src.fedoraproject.org/rpms/dbus/raw/master/f/dbus-daemon.service
@@ -111,7 +110,6 @@ in this separate package so server systems need not install X.
 %package doc
 Summary:	Developer documentation for D-BUS
 Group:		Books/Computer books
-Suggests:	devhelp
 Conflicts:	%{devname} < 1.2.20
 
 %description doc
@@ -153,9 +151,6 @@ COMMON_ARGS=" --enable-user-session --enable-systemd --with-systemdsystemunitdir
 	--disable-verbose-mode
 
 %make_build
-doxygen Doxyfile
-
-xsltproc -o dbus.devhelp %{SOURCE1} doc/api/xml/index.xml
 
 %install
 %make_install
@@ -165,19 +160,9 @@ install --directory %{buildroot}%{_sysconfdir}/dbus-%{api}/session.d
 install --directory %{buildroot}%{_sysconfdir}/dbus-%{api}/system.d
 install --directory %{buildroot}%{_datadir}/dbus-1/interfaces
 
-#add devhelp compatible helps
-mkdir -p %{buildroot}%{_datadir}/devhelp/books/dbus
-mkdir -p %{buildroot}%{_datadir}/devhelp/books/dbus/api
-
 # (tpg) needed for dbus-uuidgen
 mkdir -p %{buildroot}%{_var}/lib/dbus
 mkdir -p %{buildroot}/run/dbus
-
-cp shared/dbus.devhelp %{buildroot}%{_datadir}/devhelp/books/dbus
-cp shared/doc/dbus-specification.html %{buildroot}%{_datadir}/devhelp/books/dbus
-cp shared/doc/dbus-faq.html %{buildroot}%{_datadir}/devhelp/books/dbus
-cp shared/doc/dbus-tutorial.html %{buildroot}%{_datadir}/devhelp/books/dbus
-cp shared/doc/api/html/* %{buildroot}%{_datadir}/devhelp/books/dbus/api
 
 # Delete upstream units
 rm -f %{buildroot}%{_unitdir}/dbus.{socket,service}
@@ -314,5 +299,4 @@ fi
 %doc COPYING NEWS ChangeLog
 %doc doc/introspect.dtd doc/introspect.xsl doc/system-activation.txt
 %{_docdir}/%{name}/*
-%doc %{_datadir}/devhelp/books/dbus
 %{_datadir}/xml/dbus-%{api}/*.dtd
