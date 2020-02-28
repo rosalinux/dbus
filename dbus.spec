@@ -19,9 +19,9 @@ Source0:	http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1:	doxygen_to_devhelp.xsl
 Source2:	https://src.fedoraproject.org/rpms/dbus/raw/master/f/00-start-message-bus.sh
 Source3:	https://src.fedoraproject.org/rpms/dbus/raw/master/f/dbus.socket
-Source5:	https://src.fedoraproject.org/rpms/dbus/raw/master/f/dbus-daemon.service
-Source6:	https://src.fedoraproject.org/rpms/dbus/raw/master/f/dbus.user.socket
-Source7:	https://src.fedoraproject.org/rpms/dbus/raw/master/f/dbus-daemon.user.service
+Source4:	https://src.fedoraproject.org/rpms/dbus/raw/master/f/dbus-daemon.service
+Source5:	https://src.fedoraproject.org/rpms/dbus/raw/master/f/dbus.user.socket
+Source6:	https://src.fedoraproject.org/rpms/dbus/raw/master/f/dbus-daemon.user.service
 Patch1:		0001-tools-Use-Python3-for-GetAllMatchRules.patch
 Patch2:		dbus-1.8.14-headers-clang.patch
 # (fc) 1.0.2-5mdv disable fatal warnings on check (fd.o bug #13270)
@@ -227,11 +227,11 @@ rm -f %{buildroot}%{_userunitdir}/dbus.{socket,service}
 rm -f %{buildroot}%{_userunitdir}/sockets.target.wants/dbus.socket
 
 # Install downstream units
-install -Dp -m755 %{SOURCE3} %{buildroot}%{_sysconfdir}/X11/xinit/xinitrc.d/00-start-message-bus.sh
-install -Dp -m644 %{SOURCE4} %{buildroot}%{_unitdir}/dbus.socket
-install -Dp -m644 %{SOURCE5} %{buildroot}%{_unitdir}/dbus-daemon.service
-install -Dp -m644 %{SOURCE6} %{buildroot}%{_userunitdir}/dbus.socket
-install -Dp -m644 %{SOURCE7} %{buildroot}%{_userunitdir}/dbus-daemon.service
+install -Dp -m755 %{SOURCE2} %{buildroot}%{_sysconfdir}/X11/xinit/xinitrc.d/00-start-message-bus.sh
+install -Dp -m644 %{SOURCE3} %{buildroot}%{_unitdir}/dbus.socket
+install -Dp -m644 %{SOURCE4} %{buildroot}%{_unitdir}/dbus-daemon.service
+install -Dp -m644 %{SOURCE5} %{buildroot}%{_userunitdir}/dbus.socket
+install -Dp -m644 %{SOURCE6} %{buildroot}%{_userunitdir}/dbus-daemon.service
 
 install -d %{buildroot}%{_presetdir}
 cat > %{buildroot}%{_presetdir}/86-%{name}-common.preset << EOF
