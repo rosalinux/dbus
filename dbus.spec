@@ -126,12 +126,6 @@ other supporting documentation such as the introspect dtd file.
 %patch7 -p1
 
 %build
-%ifarch %{ix86}
-export CC=gcc
-export CXX=g++
-%global optflags %{optflags} -fPIC
-%endif
-
 %serverbuild_hardened
 COMMON_ARGS=" --enable-user-session --enable-systemd --with-systemdsystemunitdir=%{_unitdir} \
 	--with-systemduserunitdir=%{_userunitdir} --enable-inotify --enable-libaudit --disable-selinux \
@@ -182,7 +176,6 @@ install -d %{buildroot}%{_presetdir}
 cat > %{buildroot}%{_presetdir}/86-%{name}-common.preset << EOF
 enable dbus.socket
 EOF
-
 
 %pre daemon
 # create dbus user and group
