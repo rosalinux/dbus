@@ -254,10 +254,12 @@ fi
 %{_bindir}/dbus-cleanup-sockets
 %{_bindir}/dbus-run-session
 %{_bindir}/dbus-test-tool
+%ifnarch riscv64
 %{_mandir}/man1/dbus-cleanup-sockets.1*
 %{_mandir}/man1/dbus-daemon.1*
 %{_mandir}/man1/dbus-run-session.1*
 %{_mandir}/man1/dbus-test-tool.1*
+%endif
 %dir %{_libexecdir}/dbus-%{api}
 # See doc/system-activation.txt in source tarball for the rationale
 # behind these permissions
@@ -286,10 +288,12 @@ fi
 %{_bindir}/dbus-monitor
 %{_bindir}/dbus-update-activation-environment
 %{_bindir}/dbus-uuidgen
+%ifnarch riscv64
 %{_mandir}/man1/dbus-monitor.1*
 %{_mandir}/man1/dbus-send.1*
 %{_mandir}/man1/dbus-update-activation-environment.1*
 %{_mandir}/man1/dbus-uuidgen.1*
+%endif
 
 %ifnarch riscv64
 %files doc
