@@ -26,12 +26,14 @@ Patch5:		dbus-1.8.0-fix-disabling-of-xml-docs.patch
 # (tpg) ClearLinux patches
 Patch6:		malloc_trim.patch
 Patch7:		memory.patch
+%ifnarch riscv64
 BuildRequires:	asciidoc
 BuildRequires:	docbook2x
 BuildRequires:	docbook-dtd412-xml
 BuildRequires:	doxygen
-BuildRequires:	libtool
 BuildRequires:	xmlto
+%endif
+BuildRequires:	libtool
 BuildRequires:	autoconf-archive
 BuildRequires:	pkgconfig(expat)
 BuildRequires:	pkgconfig(glib-2.0)
@@ -107,6 +109,7 @@ Requires:	%{name}-daemon = %{EVRD}
 D-Bus contains some tools that require Xlib to be installed, those are
 in this separate package so server systems need not install X.
 
+%ifnarch riscv64
 %package doc
 Summary:	Developer documentation for D-BUS
 Group:		Books/Computer books
@@ -115,6 +118,7 @@ Conflicts:	%{devname} < 1.2.20
 %description doc
 This package contains developer documentation for D-Bus along with
 other supporting documentation such as the introspect dtd file.
+%endif
 
 %prep
 %setup -q
@@ -138,8 +142,10 @@ COMMON_ARGS=" --enable-user-session --enable-systemd --with-systemdsystemunitdir
 	--enable-libaudit \
 	--disable-tests \
 	--disable-asserts \
+%ifnarch riscv64
 	--enable-doxygen-docs \
 	--enable-xml-docs \
+%endif
 	--enable-x11-autolaunch \
 	--with-x \
 	--disable-verbose-mode
@@ -285,8 +291,10 @@ fi
 %{_mandir}/man1/dbus-update-activation-environment.1*
 %{_mandir}/man1/dbus-uuidgen.1*
 
+%ifnarch riscv64
 %files doc
 %doc COPYING NEWS ChangeLog
 %doc doc/introspect.dtd doc/introspect.xsl doc/system-activation.txt
 %{_docdir}/%{name}/*
 %{_datadir}/xml/dbus-%{api}/*.dtd
+%endif
