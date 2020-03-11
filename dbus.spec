@@ -109,7 +109,6 @@ Requires:	%{name}-daemon = %{EVRD}
 D-Bus contains some tools that require Xlib to be installed, those are
 in this separate package so server systems need not install X.
 
-%ifnarch riscv64
 %package doc
 Summary:	Developer documentation for D-BUS
 Group:		Books/Computer books
@@ -118,7 +117,6 @@ Conflicts:	%{devname} < 1.2.20
 %description doc
 This package contains developer documentation for D-Bus along with
 other supporting documentation such as the introspect dtd file.
-%endif
 
 %prep
 %setup -q
@@ -297,10 +295,8 @@ fi
 %{_mandir}/man1/dbus-uuidgen.1*
 %endif
 
-%ifnarch riscv64
 %files doc
 %doc COPYING NEWS ChangeLog
 %doc doc/introspect.dtd doc/introspect.xsl doc/system-activation.txt
 %{_docdir}/%{name}/*
 %{_datadir}/xml/dbus-%{api}/*.dtd
-%endif
