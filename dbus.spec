@@ -8,7 +8,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.12.16
-Release:	3
+Release:	4
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
