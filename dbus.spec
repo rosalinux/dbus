@@ -1,14 +1,23 @@
+# dbus is used by wine and steam
+%ifarch %{x86_64}
+%bcond_without compat32
+%else
+%bcond_with compat32
+%endif
+
 %define api 1
 %define major 3
 %define libname %mklibname dbus- %{api} %{major}
 %define devname %mklibname -d dbus- %{api}
+%define lib32name libdbus-%{api}_%{major}
+%define dev32name libdbus-%{api}-devel
 
 %define git_url git://git.freedesktop.org/git/dbus/dbus
 
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.12.16
-Release:	4
+Release:	5
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -41,10 +50,18 @@ BuildRequires:	pkgconfig(libcap-ng)
 BuildRequires:	pkgconfig(sm)
 BuildRequires:	pkgconfig(x11)
 BuildRequires:	pkgconfig(libsystemd)
+%ifarch %{x86_64}
+BuildRequires:	lib64unwind1.0
+%endif
 BuildRequires:	systemd-macros
 # To make sure _rundir is defined
 BuildRequires:	rpm-build >= 1:5.4.10-79
 Requires:	dbus-broker >= 16
+%if %{with compat32}
+BuildRequires:	devel(libSM)
+BuildRequires:	devel(libX11)
+BuildRequires:	devel(libexpat)
+%endif
 
 %description
 D-Bus is a system for sending messages between applications. It is
@@ -118,6 +135,24 @@ Conflicts:	%{devname} < 1.2.20
 This package contains developer documentation for D-Bus along with
 other supporting documentation such as the introspect dtd file.
 
+%if %{with compat32}
+%package -n %{lib32name}
+Summary:	Shared library for using D-Bus (32-bit)
+Group:		System/Libraries
+
+%description -n %{lib32name}
+D-Bus shared library.
+
+%package -n %{dev32name}
+Summary:	Libraries and headers for D-Bus (32-bit)
+Group:		Development/C
+Requires:	%{lib32name} = %{EVRD}
+Requires:	%{devname} = %{EVRD}
+
+%description -n %{dev32name}
+Headers and static libraries for D-Bus.
+%endif
+
 %prep
 %setup -q
 %patch2 -p1 -b .clang~
@@ -127,7 +162,25 @@ other supporting documentation such as the introspect dtd file.
 %patch6 -p1
 %patch7 -p1
 
-%build
+autoreconf -fi
+
+export CONFIGURE_TOP="$(pwd)"
+%if %{with compat32}
+mkdir build32
+cd build32
+# We use --disable-modular-tests to avoid dragging in
+# a glib2.0 dependency -- glib2.0 depends on dbus, and
+# circular dependencies are ugly
+%configure32 \
+	--disable-selinux \
+	--disable-systemd \
+	--disable-modular-tests \
+	--enable-x11-autolaunch
+cd ..
+%endif
+
+mkdir build
+cd build
 %serverbuild_hardened
 COMMON_ARGS=" --enable-user-session --enable-systemd --with-systemdsystemunitdir=%{_unitdir} \
 	--with-systemduserunitdir=%{_userunitdir} --enable-inotify --enable-libaudit --disable-selinux \
@@ -135,7 +188,7 @@ COMMON_ARGS=" --enable-user-session --enable-systemd --with-systemdsystemunitdir
 	--with-system-socket=%{_rundir}/dbus/system_bus_socket \
 	--libexecdir=%{_libexecdir}/dbus-%{api} --disable-static"
 
-%configure \
+LDFLAGS="%{ldflags} %{_libdir}/libunwind.a" %configure \
 	$COMMON_ARGS \
 	--enable-libaudit \
 	--disable-tests \
@@ -148,10 +201,19 @@ COMMON_ARGS=" --enable-user-session --enable-systemd --with-systemdsystemunitdir
 	--with-x \
 	--disable-verbose-mode
 
-%make_build
+%build
+%if %{with compat32}
+%make_build -C build32
+%endif
+%make_build -C build
 
 %install
-%make_install
+%if %{with compat32}
+%make_install -C build32
+# We don't need the 32-bit version
+rm -rf %{buildroot}%{_libexecdir}
+%endif
+%make_install -C build
 
 # Obsolete, but still widely used, for drop-in configuration snippets.
 install --directory %{buildroot}%{_sysconfdir}/dbus-%{api}/session.d
@@ -300,3 +362,14 @@ fi
 %doc doc/introspect.dtd doc/introspect.xsl doc/system-activation.txt
 %{_docdir}/%{name}/*
 %{_datadir}/xml/dbus-%{api}/*.dtd
+
+%if %{with compat32}
+%files -n %{lib32name}
+%{_prefix}/lib/libdbus-1.so.*
+
+%files -n %{dev32name}
+%{_prefix}/lib/cmake/DBus1
+%{_prefix}/lib/dbus-1.0/include/dbus/dbus-arch-deps.h
+%{_prefix}/lib/libdbus-1.so
+%{_prefix}/lib/pkgconfig/dbus-1.pc
+%endif
