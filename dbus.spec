@@ -155,6 +155,7 @@ Headers and static libraries for D-Bus.
 
 %prep
 %setup -q
+%patch1 -p1 -b .py3
 %patch2 -p1 -b .clang~
 #only disable in cooker to detect buggy programs
 #patch3 -p1 -b .disable_fatal_warning_on_check
