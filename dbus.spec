@@ -16,12 +16,12 @@
 
 Summary:	D-Bus message bus
 Name:		dbus
-Version:	1.12.20
+Version:	1.13.18
 Release:	1
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
-Source0:	http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
+Source0:	http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.xz
 Source2:	https://src.fedoraproject.org/rpms/dbus/raw/master/f/00-start-message-bus.sh
 Source3:	https://src.fedoraproject.org/rpms/dbus/raw/master/f/dbus.socket
 Source4:	https://src.fedoraproject.org/rpms/dbus/raw/master/f/dbus-daemon.service
@@ -30,7 +30,7 @@ Source6:	https://src.fedoraproject.org/rpms/dbus/raw/master/f/dbus-daemon.user.s
 Patch1:		0001-tools-Use-Python3-for-GetAllMatchRules.patch
 Patch2:		dbus-1.8.14-headers-clang.patch
 # (fc) 1.0.2-5mdv disable fatal warnings on check (fd.o bug #13270)
-Patch3:		dbus-1.0.2-disable_fatal_warning_on_check.patch
+#Patch3:		dbus-1.0.2-disable_fatal_warning_on_check.patch
 Patch5:		dbus-1.8.0-fix-disabling-of-xml-docs.patch
 # (tpg) ClearLinux patches
 Patch6:		malloc_trim.patch
@@ -154,15 +154,7 @@ Headers and static libraries for D-Bus.
 %endif
 
 %prep
-%setup -q
-%patch1 -p1 -b .py3
-%patch2 -p1 -b .clang~
-#only disable in cooker to detect buggy programs
-#patch3 -p1 -b .disable_fatal_warning_on_check
-%patch5 -p1 -b .nodocs~
-%patch6 -p1
-%patch7 -p1
-
+%autosetup -p1
 autoreconf -fi
 
 export CONFIGURE_TOP="$(pwd)"
@@ -359,7 +351,7 @@ fi
 %endif
 
 %files doc
-%doc COPYING NEWS ChangeLog
+%doc COPYING NEWS
 %doc doc/introspect.dtd doc/introspect.xsl doc/system-activation.txt
 %{_docdir}/%{name}/*
 %{_datadir}/xml/dbus-%{api}/*.dtd
