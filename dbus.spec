@@ -17,7 +17,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.13.18
-Release:	1
+Release:	2
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -193,12 +193,33 @@ LDFLAGS="%{ldflags} %{_libdir}/libunwind.a" %configure \
 	--enable-x11-autolaunch \
 	--with-x \
 	--disable-verbose-mode
+cd ..
+
+# Build an X11-less version of dbus-launch (e.g. for Wayland sessions)
+mkdir build-nox
+cd build-nox
+%serverbuild_hardened
+COMMON_ARGS=" --enable-user-session --enable-systemd --with-systemdsystemunitdir=%{_unitdir} \
+	--with-systemduserunitdir=%{_userunitdir} --enable-inotify --enable-libaudit --disable-selinux \
+	--with-system-pid-file=%{_rundir}/messagebus.pid  \
+	--with-system-socket=%{_rundir}/dbus/system_bus_socket \
+	--libexecdir=%{_libexecdir}/dbus-%{api} --disable-static"
+LDFLAGS="%{ldflags} %{_libdir}/libunwind.a" %configure \
+	$COMMON_ARGS \
+	--disable-verbose-mode \
+	--disable-tests \
+	--disable-asserts \
+	--disable-doxygen-docs \
+	--disable-xml-docs \
+	--disable-x11-autolaunch \
+	--without-x
 
 %build
 %if %{with compat32}
 %make_build -C build32
 %endif
 %make_build -C build
+%make_build -C build-nox
 
 %install
 %if %{with compat32}
@@ -207,6 +228,7 @@ LDFLAGS="%{ldflags} %{_libdir}/libunwind.a" %configure \
 rm -rf %{buildroot}%{_libexecdir}
 %endif
 %make_install -C build
+cp build-nox/tools/.libs/dbus-launch %{buildroot}%{_bindir}/dbus-launch-nox
 
 # Obsolete, but still widely used, for drop-in configuration snippets.
 install --directory %{buildroot}%{_sysconfdir}/dbus-%{api}/session.d
@@ -339,6 +361,7 @@ fi
 %endif
 
 %files tools
+%{_bindir}/dbus-launch-nox
 %{_bindir}/dbus-send
 %{_bindir}/dbus-monitor
 %{_bindir}/dbus-update-activation-environment
