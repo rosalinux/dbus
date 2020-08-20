@@ -17,7 +17,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.13.18
-Release:	2
+Release:	3
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -175,11 +175,11 @@ cd ..
 mkdir build
 cd build
 %serverbuild_hardened
-COMMON_ARGS=" --enable-user-session --enable-systemd --with-systemdsystemunitdir=%{_unitdir} \
+COMMON_ARGS="--disable-static --enable-user-session --enable-systemd --with-systemdsystemunitdir=%{_unitdir} \
 	--with-systemduserunitdir=%{_userunitdir} --enable-inotify --enable-libaudit --disable-selinux \
 	--with-system-pid-file=%{_rundir}/messagebus.pid  \
 	--with-system-socket=%{_rundir}/dbus/system_bus_socket \
-	--libexecdir=%{_libexecdir}/dbus-%{api} --disable-static"
+	--libexecdir=%{_libexecdir}/dbus-%{api} --runstatedir=%{_rundir}"
 
 LDFLAGS="%{ldflags} %{_libdir}/libunwind.a" %configure \
 	$COMMON_ARGS \
@@ -199,11 +199,12 @@ cd ..
 mkdir build-nox
 cd build-nox
 %serverbuild_hardened
-COMMON_ARGS=" --enable-user-session --enable-systemd --with-systemdsystemunitdir=%{_unitdir} \
+COMMON_ARGS="--disable-static --enable-user-session --enable-systemd --with-systemdsystemunitdir=%{_unitdir} \
 	--with-systemduserunitdir=%{_userunitdir} --enable-inotify --enable-libaudit --disable-selinux \
 	--with-system-pid-file=%{_rundir}/messagebus.pid  \
 	--with-system-socket=%{_rundir}/dbus/system_bus_socket \
-	--libexecdir=%{_libexecdir}/dbus-%{api} --disable-static"
+	--libexecdir=%{_libexecdir}/dbus-%{api} --runstatedir=%{_rundir}"
+
 LDFLAGS="%{ldflags} %{_libdir}/libunwind.a" %configure \
 	$COMMON_ARGS \
 	--disable-verbose-mode \
