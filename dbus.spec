@@ -179,7 +179,7 @@ COMMON_ARGS="--disable-static --enable-user-session --enable-systemd --with-syst
 	--with-systemduserunitdir=%{_userunitdir} --enable-inotify --enable-libaudit --disable-selinux \
 	--with-system-pid-file=%{_rundir}/messagebus.pid  \
 	--with-system-socket=%{_rundir}/dbus/system_bus_socket \
-	--libexecdir=%{_libexecdir}/dbus-%{api} --runstatedir=%{_rundir}"
+	--libexecdir=%{_libexecdir}/dbus-%{api}"
 
 LDFLAGS="%{ldflags} %{_libdir}/libunwind.a" %configure \
 	$COMMON_ARGS \
@@ -203,7 +203,7 @@ COMMON_ARGS="--disable-static --enable-user-session --enable-systemd --with-syst
 	--with-systemduserunitdir=%{_userunitdir} --enable-inotify --enable-libaudit --disable-selinux \
 	--with-system-pid-file=%{_rundir}/messagebus.pid  \
 	--with-system-socket=%{_rundir}/dbus/system_bus_socket \
-	--libexecdir=%{_libexecdir}/dbus-%{api} --runstatedir=%{_rundir}"
+	--libexecdir=%{_libexecdir}/dbus-%{api}"
 
 LDFLAGS="%{ldflags} %{_libdir}/libunwind.a" %configure \
 	$COMMON_ARGS \
