@@ -181,7 +181,7 @@ COMMON_ARGS="--disable-static --enable-user-session --enable-systemd --with-syst
 	--with-system-socket=%{_rundir}/dbus/system_bus_socket \
 	--libexecdir=%{_libexecdir}/dbus-%{api}"
 
-LDFLAGS="%{ldflags} %{_libdir}/libunwind.a" %configure \
+%configure \
 	$COMMON_ARGS \
 	--enable-libaudit \
 	--disable-tests \
@@ -205,7 +205,7 @@ COMMON_ARGS="--disable-static --enable-user-session --enable-systemd --with-syst
 	--with-system-socket=%{_rundir}/dbus/system_bus_socket \
 	--libexecdir=%{_libexecdir}/dbus-%{api}"
 
-LDFLAGS="%{ldflags} %{_libdir}/libunwind.a" %configure \
+%configure \
 	$COMMON_ARGS \
 	--disable-verbose-mode \
 	--disable-tests \
