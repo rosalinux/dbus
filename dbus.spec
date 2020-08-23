@@ -17,7 +17,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.13.18
-Release:	3
+Release:	4
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -120,7 +120,7 @@ Headers and static libraries for D-Bus.
 %package x11
 Summary:	X11-requiring add-ons for D-Bus
 Group:		System/Servers
-Requires:	%{name}-daemon = %{EVRD}
+Requires:	(%{name}-daemon = %{EVRD} or dbus-broker)
 
 %description x11
 D-Bus contains some tools that require Xlib to be installed, those are
