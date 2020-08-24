@@ -17,7 +17,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.13.18
-Release:	4
+Release:	5
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -81,6 +81,9 @@ implementations to provide a System and User Message Bus.
 %package daemon
 Summary:	D-BUS message bus
 Group:		System/Servers
+# So services can use Requires: dbus to work with either
+# dbus-daemon or dbus-broker
+Provides:	dbus = %{EVRD}
 %{?systemd_requires}
 Requires:	dbus-common = %{EVRD}
 Requires:	%{libname} = %{EVRD}
