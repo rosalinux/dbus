@@ -22,6 +22,7 @@ License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
 Source0:	http://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.xz
+Source1:	dbus.sysusers
 Source2:	https://src.fedoraproject.org/rpms/dbus/raw/master/f/00-start-message-bus.sh
 Source3:	https://src.fedoraproject.org/rpms/dbus/raw/master/f/dbus.socket
 Source4:	https://src.fedoraproject.org/rpms/dbus/raw/master/f/dbus-daemon.service
@@ -53,7 +54,7 @@ BuildRequires:	pkgconfig(libsystemd)
 %ifarch %{x86_64}
 BuildRequires:	lib64unwind1.0
 %endif
-BuildRequires:	systemd-macros
+BuildRequires:	systemd-rpm-macros
 # To make sure _rundir is defined
 BuildRequires:	rpm-build >= 1:5.4.10-79
 Requires:	dbus-broker >= 16
@@ -88,7 +89,8 @@ Provides:	dbus = %{EVRD}
 Requires:	dbus-common = %{EVRD}
 Requires:	%{libname} = %{EVRD}
 Requires:	dbus-tools = %{EVRD}
-Requires(pre):	shadow
+%systemd_requires
+Requires(pre):	systemd
 
 %description daemon
 D-BUS is a system for sending messages between applications. It is
@@ -256,6 +258,7 @@ install -Dp -m644 %{SOURCE3} %{buildroot}%{_unitdir}/dbus.socket
 install -Dp -m644 %{SOURCE4} %{buildroot}%{_unitdir}/dbus-daemon.service
 install -Dp -m644 %{SOURCE5} %{buildroot}%{_userunitdir}/dbus.socket
 install -Dp -m644 %{SOURCE6} %{buildroot}%{_userunitdir}/dbus-daemon.service
+install -Dp -m644 %{SOURCE6} %{buildroot}%{_sysusersdir}/dbus.conf
 
 install -d %{buildroot}%{_presetdir}
 cat > %{buildroot}%{_presetdir}/86-%{name}-common.preset << EOF
@@ -263,16 +266,7 @@ enable dbus.socket
 EOF
 
 %pre daemon
-# create dbus user and group
-getent group messagebus >/dev/null || groupadd -f -g messagebus -r messagebus
-if ! getent passwd messagebus >/dev/null ; then
-    if ! getent passwd messagebus >/dev/null ; then
-    useradd -r -u messagebus -g messagebus -d '/' -s /sbin/nologin -c "System message bus" messagebus
-    else
-    useradd -r -g messagebus -d '/' -s /sbin/nologin -c "System message bus" messagebus
-    fi
-fi
-exit 0
+%sysusers_create_package %{name} %{SOURCE1}
 
 %post common
 %systemd_post dbus.socket
@@ -298,18 +292,6 @@ exit 0
 %systemd_postun dbus-daemon.service
 %systemd_user_postun dbus-daemon.service
 
-%triggerin -- setup
-if [ $1 -ge 2 -o $2 -ge 2 ]; then
-
-    if ! getent group messagebus >/dev/null 2>&1; then
-	/usr/sbin/groupadd -r messagebus 2>/dev/null || :
-    fi
-
-    if ! getent passwd messagebus >/dev/null 2>&1; then
-	/usr/sbin/useradd -r -c "system user for %{name}" -g messagebus -s /sbin/nologin -d / messagebus 2>/dev/null ||:
-    fi
-fi
-
 %files common
 %dir %{_sysconfdir}/dbus-%{api}
 %dir %{_sysconfdir}/dbus-%{api}/session.d
@@ -329,6 +311,7 @@ fi
 %files daemon
 %ghost %dir %{_rundir}/%{name}
 %dir %{_localstatedir}/lib/dbus/
+%{_sysusersdir}/dbus.conf
 %{_bindir}/dbus-daemon
 %{_bindir}/dbus-cleanup-sockets
 %{_bindir}/dbus-run-session
