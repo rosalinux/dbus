@@ -17,7 +17,7 @@
 Summary:	D-Bus message bus
 Name:		dbus
 Version:	1.13.18
-Release:	6
+Release:	7
 License:	GPLv2+ or AFL
 Group:		System/Servers
 Url:		http://www.freedesktop.org/Software/dbus
@@ -258,7 +258,7 @@ install -Dp -m644 %{SOURCE3} %{buildroot}%{_unitdir}/dbus.socket
 install -Dp -m644 %{SOURCE4} %{buildroot}%{_unitdir}/dbus-daemon.service
 install -Dp -m644 %{SOURCE5} %{buildroot}%{_userunitdir}/dbus.socket
 install -Dp -m644 %{SOURCE6} %{buildroot}%{_userunitdir}/dbus-daemon.service
-install -Dp -m644 %{SOURCE6} %{buildroot}%{_sysusersdir}/dbus.conf
+install -Dp -m644 %{SOURCE1} %{buildroot}%{_sysusersdir}/dbus.conf
 
 install -d %{buildroot}%{_presetdir}
 cat > %{buildroot}%{_presetdir}/86-%{name}-common.preset << EOF
@@ -304,7 +304,6 @@ EOF
 %{_datadir}/dbus-%{api}/interfaces
 %{_datadir}/dbus-%{api}/session.conf
 %{_datadir}/dbus-%{api}/system.conf
-%{_sysusersdir}/dbus.conf
 %{_unitdir}/dbus.socket
 %{_userunitdir}/dbus.socket
 
