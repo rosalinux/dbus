@@ -262,6 +262,7 @@ install -Dp -m644 %{SOURCE1} %{buildroot}%{_sysusersdir}/dbus.conf
 
 install -d %{buildroot}%{_presetdir}
 cat > %{buildroot}%{_presetdir}/86-%{name}-common.preset << EOF
+enable dbus-daemon.service
 enable dbus.socket
 EOF
 
