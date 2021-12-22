@@ -215,8 +215,8 @@ COMMON_ARGS="--disable-static --enable-user-session --enable-systemd --with-syst
 	--disable-verbose-mode \
 	--disable-tests \
 	--disable-asserts \
-	--disable-doxygen-docs \
-	--disable-xml-docs \
+	--enable-doxygen-docs \
+	--enable-xml-docs \
 	--disable-x11-autolaunch \
 	--without-x
 
@@ -224,7 +224,6 @@ COMMON_ARGS="--disable-static --enable-user-session --enable-systemd --with-syst
 %if %{with compat32}
 %make_build -C build32
 %endif
-%make_build -C build
 %make_build -C build-nox
 
 %install
@@ -233,7 +232,7 @@ COMMON_ARGS="--disable-static --enable-user-session --enable-systemd --with-syst
 # We don't need the 32-bit version
 rm -rf %{buildroot}%{_libexecdir}
 %endif
-%make_install -C build
+%make_install -C build-nox
 cp build-nox/tools/.libs/dbus-launch %{buildroot}%{_bindir}/dbus-launch-nox
 
 # Obsolete, but still widely used, for drop-in configuration snippets.
